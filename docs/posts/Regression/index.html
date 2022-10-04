@@ -220,70 +220,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="load-the-data">Load the Data</h2>
 <p>This data set came from Kaggle</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>employee.att <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"C:/Users/karol/Desktop/Portfolio/DATASET/IBM-HR-Employee-Attrition.csv"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(employee.att)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  Age Attrition    BusinessTravel DailyRate             Department
-1  41       Yes     Travel_Rarely      1102                  Sales
-2  49        No Travel_Frequently       279 Research &amp; Development
-3  37       Yes     Travel_Rarely      1373 Research &amp; Development
-4  33        No Travel_Frequently      1392 Research &amp; Development
-5  27        No     Travel_Rarely       591 Research &amp; Development
-6  32        No Travel_Frequently      1005 Research &amp; Development
-  DistanceFromHome Education EducationField EmployeeCount EmployeeNumber
-1                1         2  Life Sciences             1              1
-2                8         1  Life Sciences             1              2
-3                2         2          Other             1              4
-4                3         4  Life Sciences             1              5
-5                2         1        Medical             1              7
-6                2         2  Life Sciences             1              8
-  EnvironmentSatisfaction Gender HourlyRate JobInvolvement JobLevel
-1                       2 Female         94              3        2
-2                       3   Male         61              2        2
-3                       4   Male         92              2        1
-4                       4 Female         56              3        1
-5                       1   Male         40              3        1
-6                       4   Male         79              3        1
-                JobRole JobSatisfaction MaritalStatus MonthlyIncome MonthlyRate
-1       Sales Executive               4        Single          5993       19479
-2    Research Scientist               2       Married          5130       24907
-3 Laboratory Technician               3        Single          2090        2396
-4    Research Scientist               3       Married          2909       23159
-5 Laboratory Technician               2       Married          3468       16632
-6 Laboratory Technician               4        Single          3068       11864
-  NumCompaniesWorked Over18 OverTime PercentSalaryHike PerformanceRating
-1                  8      Y      Yes                11                 3
-2                  1      Y       No                23                 4
-3                  6      Y      Yes                15                 3
-4                  1      Y      Yes                11                 3
-5                  9      Y       No                12                 3
-6                  0      Y       No                13                 3
-  RelationshipSatisfaction StandardHours StockOptionLevel TotalWorkingYears
-1                        1            80                0                 8
-2                        4            80                1                10
-3                        2            80                0                 7
-4                        3            80                0                 8
-5                        4            80                1                 6
-6                        3            80                0                 8
-  TrainingTimesLastYear WorkLifeBalance YearsAtCompany YearsInCurrentRole
-1                     0               1              6                  4
-2                     3               3             10                  7
-3                     3               3              0                  0
-4                     3               3              8                  7
-5                     3               3              2                  2
-6                     2               2              7                  7
-  YearsSinceLastPromotion YearsWithCurrManager
-1                       0                    5
-2                       1                    7
-3                       0                    0
-4                       3                    0
-5                       2                    2
-6                       3                    6</code></pre>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>employee.att <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"C:/Users/karol/Desktop/Portfolio/DATASET/IBM-HR-Employee-Attrition.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
-<p>Another look at the data:</p>
+<p>Let’s take a look at the data:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(employee.att)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(employee.att)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <caption>Data summary</caption>
@@ -817,24 +758,34 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>This data set contains 1470 observations and 35 variables. However, for this analysis, I am interested in the following fields:</p>
-<p>Attrition: Department: Age: Gender: EnvironmentSatisfaction: JobLevel: JobSatisfaction: YearsAtCompany: YearsSinceLastPromotion: OverTime:</p>
+<ul>
+<li><p>Attrition:</p></li>
+<li><p>Department:</p></li>
+<li><p>Age:</p></li>
+<li><p>Gender:</p></li>
+<li><p>EnvironmentSatisfaction:</p></li>
+<li><p>JobLevel: JobSatisfaction:</p></li>
+<li><p>YearsAtCompany:</p></li>
+<li><p>YearsSinceLastPromotion:</p></li>
+<li><p>OverTime:</p></li>
+</ul>
 </section>
 <section id="survival-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="survival-analysis">Survival Analysis</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#as 'Attrition' is a categorical variable, the following command changes it to a binary 1/0</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>employee.att<span class="sc">$</span>event <span class="ot">&lt;-</span> <span class="fu">with</span>(employee.att,<span class="fu">ifelse</span>(Attrition<span class="sc">==</span><span class="st">"Yes"</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>time<span class="ot">&lt;-</span>employee.att<span class="sc">$</span>YearsAtCompany <span class="co">#define time</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>event<span class="ot">&lt;-</span>employee.att<span class="sc">$</span>event <span class="co">#define event</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>group<span class="ot">&lt;-</span>employee.att<span class="sc">$</span>OverTime <span class="co">#define groups to compare multiple survival curves</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>survival<span class="ot">&lt;-</span><span class="fu">Surv</span>(time,event) <span class="co">#creates the survival object</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(survival, <span class="at">n =</span> <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#as 'Attrition' is a categorical variable, the following command changes it to a binary 1/0</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>employee.att<span class="sc">$</span>event <span class="ot">&lt;-</span> <span class="fu">with</span>(employee.att,<span class="fu">ifelse</span>(Attrition<span class="sc">==</span><span class="st">"Yes"</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>time<span class="ot">&lt;-</span>employee.att<span class="sc">$</span>YearsAtCompany <span class="co">#define time</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>event<span class="ot">&lt;-</span>employee.att<span class="sc">$</span>event <span class="co">#define event</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>group<span class="ot">&lt;-</span>employee.att<span class="sc">$</span>OverTime <span class="co">#define groups to compare multiple survival curves</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>survival<span class="ot">&lt;-</span><span class="fu">Surv</span>(time,event) <span class="co">#creates the survival object</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(survival, <span class="at">n =</span> <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1]  6  10+  0   8+  2+  7+  1+  1+  9+  7+  5+  9+  5+  2+  4 </code></pre>
 </div>
