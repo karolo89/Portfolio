@@ -6,7 +6,7 @@ date: "2022-10-04"
 
 ## Import Libraries
 
-```{r, echo=FALSE} 
+```{r, echo=FALSE}
 library(tidyverse)
 library(ggplot2)
 library(survival)
@@ -22,6 +22,7 @@ This data set came from Kaggle
 employee.att <- read.csv("C:/Users/karol/Desktop/Portfolio/DATASET/IBM-HR-Employee-Attrition.csv")
 head(employee.att)
 ```
+
 Another look at the data:
 
 ```{r}
@@ -31,21 +32,10 @@ skim(employee.att)
 
 This data set contains 1470 observations and 35 variables. However, for this analysis, I am interested in the following fields:
 
-Attrition:
-Department:
-Age:
-Gender:
-EnvironmentSatisfaction:
-JobLevel:
-JobSatisfaction:
-YearsAtCompany:
-YearsSinceLastPromotion:
-OverTime:
-
-
-
+Attrition: Department: Age: Gender: EnvironmentSatisfaction: JobLevel: JobSatisfaction: YearsAtCompany: YearsSinceLastPromotion: OverTime:
 
 ## Survival Analysis
+
 ```{r}
 
 #as 'Attrition' is a categorical variable, the following command changes it to a binary 1/0
@@ -62,4 +52,3 @@ survival<-Surv(time,event) #creates the survival object
 
 head(survival, n = 15)
 ```
-
