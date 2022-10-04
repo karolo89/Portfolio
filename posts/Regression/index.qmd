@@ -1,11 +1,65 @@
 ---
-title: "Employee Churn Prediction Model"
+title: "Employee Churn- Survival Analysis"
 author: "Karol Orozco"
 date: "2022-10-04"
 ---
 
-This is a post with executable code.
+## Import Libraries
+
+```{r, echo=FALSE} 
+library(tidyverse)
+library(ggplot2)
+library(survival)
+library(skimr)
+
+```
+
+## Load the Data
+
+This data set came from Kaggle
 
 ```{r}
-1 + 1
+employee.att <- read.csv("C:/Users/karol/Desktop/Portfolio/DATASET/IBM-HR-Employee-Attrition.csv")
+head(employee.att)
 ```
+Another look at the data:
+
+```{r}
+
+skim(employee.att)
+```
+
+This data set contains 1470 observations and 35 variables. However, for this analysis, I am interested in the following fields:
+
+Attrition:
+Department:
+Age:
+Gender:
+EnvironmentSatisfaction:
+JobLevel:
+JobSatisfaction:
+YearsAtCompany:
+YearsSinceLastPromotion:
+OverTime:
+
+
+
+
+## Survival Analysis
+```{r}
+
+#as 'Attrition' is a categorical variable, the following command changes it to a binary 1/0
+
+employee.att$event <- with(employee.att,ifelse(Attrition=="Yes", 1, 0))
+
+time<-employee.att$YearsAtCompany #define time
+
+event<-employee.att$event #define event
+
+group<-employee.att$OverTime #define groups to compare multiple survival curves
+
+survival<-Surv(time,event) #creates the survival object
+
+head(survival, n = 15)
+```
+
