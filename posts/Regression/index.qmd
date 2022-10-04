@@ -1,8 +1,7 @@
 ---
-title: "Regression Project"
+title: "Employee Churn Prediction Model"
 author: "Karol Orozco"
 date: "2022-10-04"
-categories: [news, code, analysis]
 ---
 
 This is a post with executable code.
