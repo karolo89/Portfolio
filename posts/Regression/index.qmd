@@ -20,19 +20,33 @@ This data set came from Kaggle
 
 ```{r}
 employee.att <- read.csv("C:/Users/karol/Desktop/Portfolio/DATASET/IBM-HR-Employee-Attrition.csv")
-head(employee.att)
 ```
 
-Another look at the data:
+Let's take a look at the data:
 
 ```{r}
-
 skim(employee.att)
 ```
 
 This data set contains 1470 observations and 35 variables. However, for this analysis, I am interested in the following fields:
 
-Attrition: Department: Age: Gender: EnvironmentSatisfaction: JobLevel: JobSatisfaction: YearsAtCompany: YearsSinceLastPromotion: OverTime:
+-   Attrition:
+
+-   Department:
+
+-   Age:
+
+-   Gender:
+
+-   EnvironmentSatisfaction:
+
+-   JobLevel: JobSatisfaction:
+
+-   YearsAtCompany:
+
+-   YearsSinceLastPromotion:
+
+-   OverTime:
 
 ## Survival Analysis
 
