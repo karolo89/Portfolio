@@ -6,6 +6,8 @@ date: "2022-10-04"
 
 ## 1. Introduction
 
+
+
 ## 2. Import Libraries
 
 ```{r, echo=FALSE}
@@ -13,6 +15,7 @@ library(tidyverse)
 library(ggplot2)
 library(survival)
 library(skimr)
+library(GGally)
 
 ```
 
@@ -43,6 +46,12 @@ names(empl.att)
 skim(empl.att)
 ```
 
+There are not missing values and most of the variables are positively skewed.
+The age range varies from 18 to 60 years old.
+Total Working Years ranging from 0 to 40 years.
+Monthly Income ranging from 1009 to 19999.
+
+
 #### Convert Variables
 
  [1] "Attrition"               "Department"              "Age"                     "Gender"                 
@@ -68,10 +77,15 @@ mutate(Attrition = factor(Attrition, levels = c("Yes", "No")))
 str(empl.att)
 ```
 
-### Fixed the proportion
+Let's see the number of deserters
+
+```{r}
+table(empl.att$Attrition)
+```
 
 ```{r}
 
+### Fix the proportion
 proportions <- function(feature, target){
   varCat <- as_label(enquo(feature))
 
@@ -93,16 +107,54 @@ proportions <- function(feature, target){
 }   
 ```
 
-
 ```{r}
 prop_gender <- proportions(Gender)
 prop_gender_att <- proportions(Gender, Attrition)
 prop_marital_status <- proportions(MaritalStatus)
 prop_marital_status_att <- proportions(MaritalStatus, Attrition) 
+prop_department <- proportions(Department)
+prop_department_att <- proportions(Department, Attrition)
 ```
 
 
 ## 4. Exploratory Data Analysis
+
+```{r}
+
+
+empl.att %>% select(starts_with("years"), Attrition) %>% 
+ggpairs(
+  aes(color = Attrition),
+  lower = list(continuous = wrap(
+    "smooth",
+    alpha = 0.2,
+    size = 0.5,
+    color = "#DE942E"
+  )),
+  diag = list(continuous = "barDiag"),
+  upper = list(continuous = wrap("cor", size = 4))
+) +
+  scale_color_manual(values = c("#818625", "#C8512B")) +
+  scale_fill_manual(values = c("#818625", "#C8512B")) +
+  theme(
+    axis.text = element_text(size = 8),
+    panel.background = element_rect(fill = "white"),
+    strip.background = element_rect(fill = "white"),
+    strip.background.x = element_rect(colour = "black"),
+    strip.background.y = element_rect(colour = "black"),
+    strip.text = element_text(color = "black", face = "bold", size = 8)
+  ) +
+  labs(
+    title = "Pair plot by attrition Var",
+    subtitle = "Pair Plot, scatter plot, Histogram and Correlation coefficient",
+    caption = "Data Source: Kaggle IBM HR Employee Attrition",
+    x = NULL,
+    y = NULL
+  )
+```
+
+
+
 
 
 ## 5. Survival Model
