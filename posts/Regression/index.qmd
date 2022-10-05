@@ -4,7 +4,9 @@ author: "Karol Orozco"
 date: "2022-10-04"
 ---
 
-## Import Libraries
+## 1. Introduction
+
+## 2. Import Libraries
 
 ```{r, echo=FALSE}
 library(tidyverse)
@@ -14,7 +16,7 @@ library(skimr)
 
 ```
 
-## Load the Data
+## 3. Load and Prepare the Data
 
 This data set came from Kaggle
 
@@ -25,44 +27,31 @@ employee.att <- read.csv("C:/Users/karol/Desktop/Portfolio/DATASET/IBM-HR-Employ
 Let's take a look at the data:
 
 ```{r}
-skim(employee.att)
+head(employee.att)
+names(employee.att)
 ```
 
 This data set contains 1470 observations and 35 variables. However, for this analysis, I am interested in the following fields:
 
--   Attrition:
+```{r}
+empl.att <- employee.att %>%
+  dplyr:::select.data.frame("Attrition", "Department", "Age", "Gender", "MaritalStatus", "DistanceFromHome", "JobSatisfaction", "JobLevel", "YearsAtCompany", "YearsSinceLastPromotion", "OverTime", "MonthlyIncome")
 
--   Department:
-
--   Age:
-
--   Gender:
-
--   EnvironmentSatisfaction:
-
--   JobLevel: JobSatisfaction:
-
--   YearsAtCompany:
-
--   YearsSinceLastPromotion:
-
--   OverTime:
-
-## Survival Analysis
+names(empl.att)
+```
 
 ```{r}
-
-#as 'Attrition' is a categorical variable, the following command changes it to a binary 1/0
-
-employee.att$event <- with(employee.att,ifelse(Attrition=="Yes", 1, 0))
-
-time<-employee.att$YearsAtCompany #define time
-
-event<-employee.att$event #define event
-
-group<-employee.att$OverTime #define groups to compare multiple survival curves
-
-survival<-Surv(time,event) #creates the survival object
-
-head(survival, n = 15)
+skim(empl.att)
 ```
+
+#### Convert Variables
+
+## 4. Exploratory Data Analysis
+
+
+## 5. Survival Model
+
+
+## 6. Conclusion and Recomendations
+
+
