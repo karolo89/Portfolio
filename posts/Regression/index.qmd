@@ -27,8 +27,7 @@ employee.att <- read.csv("C:/Users/karol/Desktop/Portfolio/DATASET/IBM-HR-Employ
 Let's take a look at the data:
 
 ```{r}
-head(employee.att)
-names(employee.att)
+str(employee.att)
 ```
 
 This data set contains 1470 observations and 35 variables. However, for this analysis, I am interested in the following fields:
@@ -45,6 +44,63 @@ skim(empl.att)
 ```
 
 #### Convert Variables
+
+ [1] "Attrition"               "Department"              "Age"                     "Gender"                 
+ [5] "MaritalStatus"           "DistanceFromHome"        "JobSatisfaction"         "JobLevel"               
+ [9] "YearsAtCompany"          "YearsSinceLastPromotion" "OverTime"                "MonthlyIncome"  
+ 
+ 
+```{r}
+
+empl.att <- empl.att %>%
+mutate_if(is.character, factor) %>% 
+mutate(JobLevel = factor(JobLevel),
+       JobSatisfaction = factor(JobSatisfaction),
+       AgeGroup = case_when(Age > 17 & Age <= 19 ~ "17-19",
+                            Age > 19 & Age <= 30 ~ "20-30",
+                            Age > 30 & Age <= 40 ~ "30-40",
+                            Age > 40 & Age <= 50 ~ "40-50",
+                            Age > 50 & Age <= 60 ~ "50-60", 
+                            Age > 60             ~ "> 60")) %>% 
+mutate(AgeGroup = factor(AgeGroup, level = c("17-19","20-30", "30-40","40-50","50-60","> 60")))%>% 
+mutate(Attrition = factor(Attrition, levels = c("Yes", "No")))
+
+str(empl.att)
+```
+
+### Fixed the proportion
+
+```{r}
+
+proportions <- function(feature, target){
+  varCat <- as_label(enquo(feature))
+
+  if(missing(target)) {
+      prop_data <- empl.att %>%  
+      group_by({{feature}}) %>% 
+      summarise(n = n(), .groups = "drop") %>% 
+      ungroup() %>% 
+      mutate(percent = str_c(round(n/sum(n)*100,0),"%"))
+    }
+  
+    else {
+      prop_data <- empl.att %>%  
+      group_by({{feature}},{{target}}) %>% 
+      summarise(n = n(), .groups = "drop") %>% 
+      ungroup() %>% 
+      mutate(percent = str_c(round(n/sum(n)*100,0),"%"))
+  }
+}   
+```
+
+
+```{r}
+prop_gender <- proportions(Gender)
+prop_gender_att <- proportions(Gender, Attrition)
+prop_marital_status <- proportions(MaritalStatus)
+prop_marital_status_att <- proportions(MaritalStatus, Attrition) 
+```
+
 
 ## 4. Exploratory Data Analysis
 
