@@ -15,7 +15,8 @@ library(tidyverse)
 library(ggplot2)
 library(survival)
 library(skimr)
-library(GGally)
+library(gridExtra)
+library(colorspace) 
 
 ```
 
@@ -54,11 +55,7 @@ Monthly Income ranging from 1009 to 19999.
 
 #### Convert Variables
 
- [1] "Attrition"               "Department"              "Age"                     "Gender"                 
- [5] "MaritalStatus"           "DistanceFromHome"        "JobSatisfaction"         "JobLevel"               
- [9] "YearsAtCompany"          "YearsSinceLastPromotion" "OverTime"                "MonthlyIncome"  
- 
- 
+
 ```{r}
 
 empl.att <- empl.att %>%
@@ -77,84 +74,208 @@ mutate(Attrition = factor(Attrition, levels = c("Yes", "No")))
 str(empl.att)
 ```
 
+
+## 4. Exploratory Data Analysis
+
 Let's see the number of deserters
 
 ```{r}
 table(empl.att$Attrition)
 ```
 
-```{r}
 
-### Fix the proportion
-proportions <- function(feature, target){
-  varCat <- as_label(enquo(feature))
 
-  if(missing(target)) {
-      prop_data <- empl.att %>%  
-      group_by({{feature}}) %>% 
-      summarise(n = n(), .groups = "drop") %>% 
-      ungroup() %>% 
-      mutate(percent = str_c(round(n/sum(n)*100,0),"%"))
-    }
+```{r, warning=FALSE}
+
+## MaritalStatus vs Attrition
+
+ms_att <- ggplot(empl.att) +
+ aes(x = MaritalStatus, fill = Attrition) +
+ geom_bar() +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs(title = "By Marital Status", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, face = "bold.italic", hjust = 0.5))
   
-    else {
-      prop_data <- empl.att %>%  
-      group_by({{feature}},{{target}}) %>% 
-      summarise(n = n(), .groups = "drop") %>% 
-      ungroup() %>% 
-      mutate(percent = str_c(round(n/sum(n)*100,0),"%"))
-  }
-}   
-```
-
-```{r}
-prop_gender <- proportions(Gender)
-prop_gender_att <- proportions(Gender, Attrition)
-prop_marital_status <- proportions(MaritalStatus)
-prop_marital_status_att <- proportions(MaritalStatus, Attrition) 
-prop_department <- proportions(Department)
-prop_department_att <- proportions(Department, Attrition)
 ```
 
 
-## 4. Exploratory Data Analysis
+```{r, warning=FALSE}
 
-```{r}
+## Age Group vs Attrition
 
+ag_att <- ggplot(empl.att) +
+ aes(x = AgeGroup, fill = Attrition) +
+ geom_bar() +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs( title = "By Age Group", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, 
+ face = "bold.italic", hjust = 0.5))
+ 
 
-empl.att %>% select(starts_with("years"), Attrition) %>% 
-ggpairs(
-  aes(color = Attrition),
-  lower = list(continuous = wrap(
-    "smooth",
-    alpha = 0.2,
-    size = 0.5,
-    color = "#DE942E"
-  )),
-  diag = list(continuous = "barDiag"),
-  upper = list(continuous = wrap("cor", size = 4))
-) +
-  scale_color_manual(values = c("#818625", "#C8512B")) +
-  scale_fill_manual(values = c("#818625", "#C8512B")) +
-  theme(
-    axis.text = element_text(size = 8),
-    panel.background = element_rect(fill = "white"),
-    strip.background = element_rect(fill = "white"),
-    strip.background.x = element_rect(colour = "black"),
-    strip.background.y = element_rect(colour = "black"),
-    strip.text = element_text(color = "black", face = "bold", size = 8)
-  ) +
-  labs(
-    title = "Pair plot by attrition Var",
-    subtitle = "Pair Plot, scatter plot, Histogram and Correlation coefficient",
-    caption = "Data Source: Kaggle IBM HR Employee Attrition",
-    x = NULL,
-    y = NULL
-  )
+```
+
+```{r, warning=FALSE}
+
+## Gender vs Attrition
+
+ge_att <- ggplot(empl.att) +
+ aes(x = Gender, fill = Attrition) +
+ geom_bar() +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs(title = "By Gender", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, 
+ face = "bold.italic", hjust = 0.5))
+
 ```
 
 
+```{r, warning=FALSE}
 
+## DistanceFromHome vs Attrition
+
+dh_att <- ggplot(empl.att) +
+ aes(x = DistanceFromHome, fill = Attrition) +
+ geom_bar() +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs( x= "Miles",
+  title = "By Distance From Home", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, 
+ face = "bold.italic", hjust = 0.5))
+
+
+
+```
+
+```{r, warning=FALSE}
+
+## Department vs Attrition
+
+dep_att <- ggplot(empl.att) +
+ aes(x = Department, fill = Attrition) +
+ geom_bar() +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs(title = "By Department", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, 
+ face = "bold.italic", hjust = 0.5))
+
+```
+
+```{r, warning=FALSE}
+
+## YearsAtCompany vs Attrition
+
+yac_att <- ggplot(empl.att) +
+ aes(x = YearsAtCompany, fill = Attrition) +
+ geom_density(adjust = 1L) +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs(title = "By Years at the Company", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, 
+ face = "bold.italic", hjust = 0.5))
+
+```
+
+```{r, warning=FALSE}
+## JobLevel vs Attrition
+
+jl_att <- ggplot(empl.att) +
+ aes(x = JobLevel, fill = Attrition) +
+ geom_bar() +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs(title = "By Job Level", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, 
+ face = "bold.italic", hjust = 0.5))
+
+
+```
+
+```{r, warning=FALSE}
+## Montly Income
+
+mi_att<- ggplot(empl.att) +
+ aes(x = MonthlyIncome, fill = Attrition) +
+ geom_density(adjust = 1L) +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs(title = "By Montly Income", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, face = "bold.italic", hjust = 0.5))
+  
+
+```
+
+
+```{r, warning=FALSE}
+## YearsSinceLast Promotion vs Attrition
+
+
+  yslp_att <- ggplot(empl.att) +
+ aes(x = YearsSinceLastPromotion, fill = Attrition) +
+ geom_density(adjust = 1L) +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs(title = "By Years Since Last Promotion", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, 
+ face = "bold.italic", hjust = 0.5))
+
+
+  
+```
+
+```{r, warning=FALSE}
+
+#JobSatisfaction vs Attrition
+
+jbs_att <- ggplot(empl.att) +
+ aes(x = JobSatisfaction, fill = Attrition) +
+ geom_bar() +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs(title = "By Age Group", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, 
+ face = "bold.italic", hjust = 0.5))
+
+
+```
+
+```{r, warning=FALSE}
+
+## OverTime vs Attrition
+
+  
+  ot_att <- ggplot(empl.att) +
+ aes(x = OverTime, fill = Attrition) +
+ geom_bar() +
+ scale_fill_brewer(palette = "Dark2", 
+ direction = 1) +
+ labs(title = "By OverTime", y= " ") +
+ theme_minimal() +
+ theme(plot.title = element_text(size = 12L, 
+ face = "bold.italic", hjust = 0.5))
+
+
+```
+
+```{r, fig.width = 17, fig.height = 9}
+
+grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, ms_att, ag_att, ge_att, dh_att, ncol = 3, nrow = 4)
+
+```
 
 
 ## 5. Survival Model
