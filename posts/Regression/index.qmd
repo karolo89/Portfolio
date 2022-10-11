@@ -77,13 +77,13 @@ str(empl.att)
 
 ## 4. Exploratory Data Analysis
 
-Let's see the number of deserters
+#### Let's see the number of deserters
 
 ```{r}
 table(empl.att$Attrition)
 ```
 
-
+#### Let's take a look at the attrition vs some variables
 
 ```{r, warning=FALSE}
 
@@ -271,7 +271,7 @@ jbs_att <- ggplot(empl.att) +
 
 ```
 
-```{r, fig.width = 17, fig.height = 9}
+```{r, fig.width = 20, fig.height = 12}
 
 grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, ms_att, ag_att, ge_att, dh_att, ncol = 3, nrow = 4)
 
