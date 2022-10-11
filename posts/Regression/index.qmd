@@ -85,7 +85,7 @@ table(empl.att$Attrition)
 
 #### Let's take a look at the attrition vs some variables
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, fig.width = 20, fig.height = 12}
 
 ## MaritalStatus vs Attrition
 
@@ -97,11 +97,7 @@ ms_att <- ggplot(empl.att) +
  labs(title = "By Marital Status", y= " ") +
  theme_minimal() +
  theme(plot.title = element_text(size = 12L, face = "bold.italic", hjust = 0.5))
-  
-```
 
-
-```{r, warning=FALSE}
 
 ## Age Group vs Attrition
 
@@ -114,11 +110,7 @@ ag_att <- ggplot(empl.att) +
  theme_minimal() +
  theme(plot.title = element_text(size = 12L, 
  face = "bold.italic", hjust = 0.5))
- 
 
-```
-
-```{r, warning=FALSE}
 
 ## Gender vs Attrition
 
@@ -132,10 +124,6 @@ ge_att <- ggplot(empl.att) +
  theme(plot.title = element_text(size = 12L, 
  face = "bold.italic", hjust = 0.5))
 
-```
-
-
-```{r, warning=FALSE}
 
 ## DistanceFromHome vs Attrition
 
@@ -151,11 +139,6 @@ dh_att <- ggplot(empl.att) +
  face = "bold.italic", hjust = 0.5))
 
 
-
-```
-
-```{r, warning=FALSE}
-
 ## Department vs Attrition
 
 dep_att <- ggplot(empl.att) +
@@ -168,9 +151,6 @@ dep_att <- ggplot(empl.att) +
  theme(plot.title = element_text(size = 12L, 
  face = "bold.italic", hjust = 0.5))
 
-```
-
-```{r, warning=FALSE}
 
 ## YearsAtCompany vs Attrition
 
@@ -184,9 +164,7 @@ yac_att <- ggplot(empl.att) +
  theme(plot.title = element_text(size = 12L, 
  face = "bold.italic", hjust = 0.5))
 
-```
 
-```{r, warning=FALSE}
 ## JobLevel vs Attrition
 
 jl_att <- ggplot(empl.att) +
@@ -199,10 +177,6 @@ jl_att <- ggplot(empl.att) +
  theme(plot.title = element_text(size = 12L, 
  face = "bold.italic", hjust = 0.5))
 
-
-```
-
-```{r, warning=FALSE}
 ## Montly Income
 
 mi_att<- ggplot(empl.att) +
@@ -213,12 +187,7 @@ mi_att<- ggplot(empl.att) +
  labs(title = "By Montly Income", y= " ") +
  theme_minimal() +
  theme(plot.title = element_text(size = 12L, face = "bold.italic", hjust = 0.5))
-  
 
-```
-
-
-```{r, warning=FALSE}
 ## YearsSinceLast Promotion vs Attrition
 
 
@@ -233,10 +202,6 @@ mi_att<- ggplot(empl.att) +
  face = "bold.italic", hjust = 0.5))
 
 
-  
-```
-
-```{r, warning=FALSE}
 
 #JobSatisfaction vs Attrition
 
@@ -251,10 +216,6 @@ jbs_att <- ggplot(empl.att) +
  face = "bold.italic", hjust = 0.5))
 
 
-```
-
-```{r, warning=FALSE}
-
 ## OverTime vs Attrition
 
   
@@ -268,10 +229,6 @@ jbs_att <- ggplot(empl.att) +
  theme(plot.title = element_text(size = 12L, 
  face = "bold.italic", hjust = 0.5))
 
-
-```
-
-```{r, fig.width = 20, fig.height = 12}
 
 grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, ms_att, ag_att, ge_att, dh_att, ncol = 3, nrow = 4)
 
