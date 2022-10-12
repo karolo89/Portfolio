@@ -26,7 +26,7 @@ library(colorspace)
 This data set came from Kaggle
 
 ```{r}
-employee.att <- read.csv("C:/Users/karol/Desktop/Portfolio/DATASET/IBM-HR-Employee-Attrition.csv")
+employee.att <- read.csv("https://github.com/karolo89/Portfolio/files/9768858/IBM-HR-Employee-Attrition.csv")
 ```
 
 
