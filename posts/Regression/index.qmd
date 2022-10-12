@@ -16,6 +16,7 @@ library(ggplot2)
 library(survival)
 library(skimr)
 library(gridExtra)
+library(grid)
 library(colorspace) 
 
 ```
@@ -85,7 +86,7 @@ table(empl.att$Attrition)
 
 #### Let's take a look at the attrition vs some variables
 
-```{r, warning=FALSE, fig.width = 20, fig.height = 12}
+```{r, warning=FALSE, fig.width = 25, fig.height = 15}
 
 ## MaritalStatus vs Attrition
 
@@ -230,7 +231,7 @@ jbs_att <- ggplot(empl.att) +
  face = "bold.italic", hjust = 0.5))
 
 
-grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, ms_att, ag_att, ge_att, dh_att, ncol = 3, nrow = 4)
+grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, ms_att, ag_att, ge_att, dh_att, ncol = 3, nrow = 4, top= textGrob("Attrition"))
 
 ```
 
