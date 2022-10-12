@@ -1,7 +1,7 @@
 ---
 title: "Employee Churn- Survival Analysis"
 author: "Karol Orozco"
-date: "2022-10-04"
+date: "2022-10"
 ---
 
 ## 1. Introduction
@@ -87,7 +87,7 @@ table(empl.att$Attrition)
 
 #### Let's take a look at the attrition vs some variables
 
-```{r, warning=FALSE, fig.width = 25, fig.height = 15}
+```{r, warning=FALSE, fig.width = 35, fig.height = 25}
 
 ## MaritalStatus vs Attrition
 
@@ -98,7 +98,7 @@ ms_att <- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Marital Status", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, face = "italic", hjust = 0.5))
 
 
 ## Age Group vs Attrition
@@ -110,8 +110,8 @@ ag_att <- ggplot(empl.att) +
  direction = 1) +
  labs( title = "By Age Group", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, 
- face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, 
+ face = "italic", hjust = 0.5))
 
 
 ## Gender vs Attrition
@@ -123,8 +123,8 @@ ge_att <- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Gender", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, 
- face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, 
+ face = "italic", hjust = 0.5))
 
 
 ## DistanceFromHome vs Attrition
@@ -137,8 +137,8 @@ dh_att <- ggplot(empl.att) +
  labs( x= "Miles",
   title = "By Distance From Home", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, 
- face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, 
+ face = "italic", hjust = 0.5))
 
 
 ## Department vs Attrition
@@ -150,8 +150,8 @@ dep_att <- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Department", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, 
- face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, 
+ face = "italic", hjust = 0.5))
 
 
 ## YearsAtCompany vs Attrition
@@ -163,8 +163,8 @@ yac_att <- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Years at the Company", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, 
- face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, 
+ face = "italic", hjust = 0.5))
 
 
 ## JobLevel vs Attrition
@@ -176,8 +176,8 @@ jl_att <- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Job Level", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, 
- face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, 
+ face = "italic", hjust = 0.5))
 
 ## Montly Income
 
@@ -188,7 +188,7 @@ mi_att<- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Montly Income", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, face = "italic", hjust = 0.5))
 
 ## YearsSinceLast Promotion vs Attrition
 
@@ -200,8 +200,8 @@ mi_att<- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Years Since Last Promotion", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, 
- face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, 
+ face = "italic", hjust = 0.5))
 
 
 
@@ -214,8 +214,8 @@ jbs_att <- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Age Group", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, 
- face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, 
+ face = "italic", hjust = 0.5))
 
 
 ## OverTime vs Attrition
@@ -228,11 +228,11 @@ jbs_att <- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By OverTime", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 12L, 
- face = "bold.italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 14L, 
+ face = "italic", hjust = 0.5))
 
 
-grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, ms_att, ag_att, ge_att, dh_att, ncol = 3, nrow = 4, top= textGrob("Attrition"))
+grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, ms_att, ag_att, ge_att, dh_att, ncol = 3, nrow = 4, top= textGrob("Attrition", gp=gpar(fontsize=28,font=8)))
 
 ```
 
