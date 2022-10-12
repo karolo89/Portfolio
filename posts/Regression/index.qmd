@@ -29,6 +29,7 @@ This data set came from Kaggle
 employee.att <- read.csv("C:/Users/karol/Desktop/Portfolio/DATASET/IBM-HR-Employee-Attrition.csv")
 ```
 
+
 Let's take a look at the data:
 
 ```{r}
