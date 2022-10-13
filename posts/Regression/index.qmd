@@ -6,8 +6,6 @@ date: "2022-10"
 
 ## 1. Introduction
 
-
-
 ## 2. Import Libraries
 
 ```{r, echo=FALSE}
@@ -29,7 +27,6 @@ This data set came from Kaggle
 employee.att <- read.csv("https://github.com/karolo89/Portfolio/files/9768858/IBM-HR-Employee-Attrition.csv")
 ```
 
-
 Let's take a look at the data:
 
 ```{r}
@@ -49,14 +46,15 @@ names(empl.att)
 skim(empl.att)
 ```
 
-There are not missing values and most of the variables are positively skewed.
-The age range varies from 18 to 60 years old.
-Total Working Years ranging from 0 to 40 years.
-Monthly Income ranging from 1009 to 19999.
+-   There are not missing values and most of the variables are positively skewed.
 
+-   The age range varies from 18 to 60 years old.
+
+-   Total Working Years ranging from 0 to 40 years.
+
+-   Monthly Income ranging from 1009 to 19999.
 
 #### Convert Variables
-
 
 ```{r}
 
@@ -76,7 +74,6 @@ mutate(Attrition = factor(Attrition, levels = c("Yes", "No")))
 str(empl.att)
 ```
 
-
 ## 4. Exploratory Data Analysis
 
 #### Let's see the number of deserters
@@ -89,16 +86,18 @@ table(empl.att$Attrition)
 
 ```{r, warning=FALSE, fig.width = 35, fig.height = 25}
 
-## MaritalStatus vs Attrition
+## Marital Status vs Attrition
 
 ms_att <- ggplot(empl.att) +
  aes(x = MaritalStatus, fill = Attrition) +
  geom_bar() +
  scale_fill_brewer(palette = "Dark2", 
  direction = 1) +
- labs(title = "By Marital Status", y= " ") +
+ labs(title = "By Marital Status", y= " ", x= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
 
 ## Age Group vs Attrition
@@ -108,10 +107,12 @@ ag_att <- ggplot(empl.att) +
  geom_bar() +
  scale_fill_brewer(palette = "Dark2", 
  direction = 1) +
- labs( title = "By Age Group", y= " ") +
+ labs( title = "By Age Group", y= " ", x= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, 
- face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, 
+ face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
 
 ## Gender vs Attrition
@@ -121,11 +122,18 @@ ge_att <- ggplot(empl.att) +
  geom_bar() +
  scale_fill_brewer(palette = "Dark2", 
  direction = 1) +
- labs(title = "By Gender", y= " ") +
+ labs(title = "By Gender", y= " ", x= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, 
- face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, 
+ face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
+grid.arrange( ms_att, ag_att, ge_att, ncol = 3, nrow = 4, top= textGrob("Attrition", gp=gpar(fontsize=58,font=8)))
+```
+
+
+```{r, warning=FALSE, fig.width = 35, fig.height = 25}
 
 ## DistanceFromHome vs Attrition
 
@@ -137,8 +145,10 @@ dh_att <- ggplot(empl.att) +
  labs( x= "Miles",
   title = "By Distance From Home", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, 
- face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, 
+ face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
 
 ## Department vs Attrition
@@ -148,36 +158,42 @@ dep_att <- ggplot(empl.att) +
  geom_bar() +
  scale_fill_brewer(palette = "Dark2", 
  direction = 1) +
- labs(title = "By Department", y= " ") +
+ labs(title = "By Department", y= " ", x= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, 
- face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, 
+ face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
 
-## YearsAtCompany vs Attrition
+## Years At the Company vs Attrition
 
 yac_att <- ggplot(empl.att) +
  aes(x = YearsAtCompany, fill = Attrition) +
  geom_density(adjust = 1L) +
  scale_fill_brewer(palette = "Dark2", 
  direction = 1) +
- labs(title = "By Years at the Company", y= " ") +
+ labs(title = "By Years at the Company", y= " ", x= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, 
- face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, 
+ face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
 
-## JobLevel vs Attrition
+## Job Level vs Attrition
 
 jl_att <- ggplot(empl.att) +
  aes(x = JobLevel, fill = Attrition) +
  geom_bar() +
  scale_fill_brewer(palette = "Dark2", 
  direction = 1) +
- labs(title = "By Job Level", y= " ") +
+ labs(title = "By Job Level", y= " ", x= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, 
- face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, 
+ face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
 ## Montly Income
 
@@ -186,9 +202,11 @@ mi_att<- ggplot(empl.att) +
  geom_density(adjust = 1L) +
  scale_fill_brewer(palette = "Dark2", 
  direction = 1) +
- labs(title = "By Montly Income", y= " ") +
+ labs(title = "By Montly Income", y= " ", x= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
 ## YearsSinceLast Promotion vs Attrition
 
@@ -200,8 +218,10 @@ mi_att<- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Years Since Last Promotion", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, 
- face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, 
+ face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
 
 
@@ -214,8 +234,10 @@ jbs_att <- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By Age Group", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, 
- face = "italic", hjust = 0.5))
+ theme(plot.title = element_text(size = 24L, 
+ face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 
 
 ## OverTime vs Attrition
@@ -228,18 +250,18 @@ jbs_att <- ggplot(empl.att) +
  direction = 1) +
  labs(title = "By OverTime", y= " ") +
  theme_minimal() +
- theme(plot.title = element_text(size = 14L, 
- face = "italic", hjust = 0.5))
-
-
-grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, ms_att, ag_att, ge_att, dh_att, ncol = 3, nrow = 4, top= textGrob("Attrition", gp=gpar(fontsize=28,font=8)))
-
+ theme(plot.title = element_text(size = 24L, 
+ face = "italic", hjust = 0.5),
+       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
+       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 ```
 
 
+```{r, warning=FALSE, fig.width = 35, fig.height = 25}
+grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, dh_att, ncol = 3, nrow = 3, top= textGrob("Attrition", gp=gpar(fontsize=58,font=8)))
+
+```
+
 ## 5. Survival Model
 
-
 ## 6. Conclusion and Recomendations
-
-
