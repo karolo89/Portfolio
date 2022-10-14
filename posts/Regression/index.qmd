@@ -1,267 +1,154 @@
 ---
-title: "Employee Churn- Survival Analysis"
+title: "Analyzing Employee Turnover"
 author: "Karol Orozco"
 date: "2022-10"
 ---
 
-## 1. Introduction
+## 1. Background
+
+You work for the human capital department of a large corporation. The Board is worried about the relatively high turnover, and your team must look into ways to reduce the number of employees leaving the company. The team needs to understand better the situation, which employees are more likely to leave, and why. Once it is clear what variables impact employee churn, you can present your findings along with your ideas on how to attack the problem.
+
+#### Your challenge
+
+Create a report that covers the following:
+
+-   Which department has the highest employee turnover? Which one has the lowest?
+-   Investigate which variables seem to be better predictors of employee departure.
+-   What recommendations would you make regarding ways to reduce employee turnover?
 
 ## 2. Import Libraries
 
-```{r, echo=FALSE}
-library(tidyverse)
+```{r, echo=FALSE, warning= FALSE}
+
+library(tidyverse) 
 library(ggplot2)
-library(survival)
 library(skimr)
-library(gridExtra)
-library(grid)
-library(colorspace) 
+library(janitor)
+library(knitr)
+library(gghighlight)
 
 ```
 
-## 3. Load and Prepare the Data
+## 3. Prepare and Analyze the Data
 
-This data set came from Kaggle
+```{r, echo=FALSE, warning= FALSE}
+empl_turnover<- read.csv("C:/Users/karol/Desktop/Portfolio/Raw-Data/Raw-Data/employee_churn_data.csv")
+```
+
+The variables are defined as follow:
+
+-   "department" - the department the employee belongs to.
+-   "promoted" - 1 if the employee was promoted in the previous 24 months, 0 otherwise.
+-   "review" - the composite score the employee received in their last evaluation.
+-   "projects" - how many projects the employee is involved in.
+-   "salary" - for confidentiality reasons, salary comes in three tiers: low, medium, high.
+-   "tenure" - how many years the employee has been at the company.
+-   "satisfaction" - a measure of employee satisfaction from surveys.
+-   "bonus" - 1 if the employee received a bonus in the previous 24 months, 0 otherwise.
+-   "avg_hrs_month" - the average hours the employee worked in a month.
+-   "left" - "yes" if the employee ended up leaving, "no" otherwise.
+
+```{r, echo=FALSE, warning= FALSE}
+skim(empl_turnover)
+```
+We have 7 columns:
 
 ```{r}
-employee.att <- read.csv("https://github.com/karolo89/Portfolio/files/9768858/IBM-HR-Employee-Attrition.csv")
+names(empl_turnover)
 ```
 
-Let's take a look at the data:
-
-```{r}
-str(employee.att)
-```
-
-This data set contains 1470 observations and 35 variables. However, for this analysis, I am interested in the following fields:
-
-```{r}
-empl.att <- employee.att %>%
-  dplyr:::select.data.frame("Attrition", "Department", "Age", "Gender", "MaritalStatus", "DistanceFromHome", "JobSatisfaction", "JobLevel", "YearsAtCompany", "YearsSinceLastPromotion", "OverTime", "MonthlyIncome")
-
-names(empl.att)
-```
-
-```{r}
-skim(empl.att)
-```
-
--   There are not missing values and most of the variables are positively skewed.
-
--   The age range varies from 18 to 60 years old.
-
--   Total Working Years ranging from 0 to 40 years.
-
--   Monthly Income ranging from 1009 to 19999.
-
-#### Convert Variables
+- There is no missing data in the data set.
+- Employees are involved between 2 to 5 projects
+- Employees have been at the company between 2 to 12 years
+- The average worked hours per month is between 171.37 and 200.86 hours
+- There are some data types that need to be changed as a factor
 
 ```{r}
 
-empl.att <- empl.att %>%
-mutate_if(is.character, factor) %>% 
-mutate(JobLevel = factor(JobLevel),
-       JobSatisfaction = factor(JobSatisfaction),
-       AgeGroup = case_when(Age > 17 & Age <= 19 ~ "17-19",
-                            Age > 19 & Age <= 30 ~ "20-30",
-                            Age > 30 & Age <= 40 ~ "30-40",
-                            Age > 40 & Age <= 50 ~ "40-50",
-                            Age > 50 & Age <= 60 ~ "50-60", 
-                            Age > 60             ~ "> 60")) %>% 
-mutate(AgeGroup = factor(AgeGroup, level = c("17-19","20-30", "30-40","40-50","50-60","> 60")))%>% 
-mutate(Attrition = factor(Attrition, levels = c("Yes", "No")))
+empl_turnover$department <- as.factor(empl_turnover$department)
+empl_turnover$left<- as.factor(empl_turnover$left)
+empl_turnover$promoted<- as.factor(empl_turnover$promoted)
+empl_turnover$bonus<- as.factor(empl_turnover$bonus)
+empl_turnover$salary<- as.factor(empl_turnover$salary)
 
-str(empl.att)
+
+glimpse(empl_turnover)
 ```
 
-## 4. Exploratory Data Analysis
+#### **Turnover**
 
-#### Let's see the number of deserters
+Number of employees that left the company:
 
 ```{r}
-table(empl.att$Attrition)
+table(empl_turnover$left)
 ```
 
-#### Let's take a look at the attrition vs some variables
+#### **Are the employees leaving the different departments at the same rate?**
 
-```{r, warning=FALSE, fig.width = 35, fig.height = 25}
+```{r}
 
-## Marital Status vs Attrition
+empl_turnover_prop <- empl_turnover %>% 
+  tabyl(department, left) %>%
+  adorn_percentages("row") %>%
+  mutate(Perc_empl_left = paste0(round(yes * 100),"%"))
 
-ms_att <- ggplot(empl.att) +
- aes(x = MaritalStatus, fill = Attrition) +
- geom_bar() +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs(title = "By Marital Status", y= " ", x= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
-
-
-## Age Group vs Attrition
-
-ag_att <- ggplot(empl.att) +
- aes(x = AgeGroup, fill = Attrition) +
- geom_bar() +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs( title = "By Age Group", y= " ", x= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, 
- face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
-
-
-## Gender vs Attrition
-
-ge_att <- ggplot(empl.att) +
- aes(x = Gender, fill = Attrition) +
- geom_bar() +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs(title = "By Gender", y= " ", x= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, 
- face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
-
-grid.arrange( ms_att, ag_att, ge_att, ncol = 3, nrow = 4, top= textGrob("Attrition", gp=gpar(fontsize=58,font=8)))
+kable(empl_turnover_prop,  caption = "Department vs Attrition")
 ```
 
+```{r}
 
-```{r, warning=FALSE, fig.width = 35, fig.height = 25}
-
-## DistanceFromHome vs Attrition
-
-dh_att <- ggplot(empl.att) +
- aes(x = DistanceFromHome, fill = Attrition) +
- geom_bar() +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs( x= "Miles",
-  title = "By Distance From Home", y= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, 
- face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
+empl_turnover$reordept <-reorder(empl_turnover$department, empl_turnover$left, FUN=function(x) mean(as.numeric(x)))
 
 
-## Department vs Attrition
+plot_depart <- empl_turnover %>%
+ggplot(aes(x = reordept, fill = left)) +
+geom_bar(position = "fill")+
+scale_fill_manual(values=c("gray", "blue"))+
 
-dep_att <- ggplot(empl.att) +
- aes(x = Department, fill = Attrition) +
- geom_bar() +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs(title = "By Department", y= " ", x= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, 
- face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
+labs(title = "Turnover by Department",
+      y= " ",
+      x= " ") +
+coord_flip() +
+theme_minimal()+
+theme(
+    plot.title = element_text(size =9, face = "bold", hjust = 0.55),
+    legend.position="bottom")
 
+plot_depart
 
-## Years At the Company vs Attrition
+```
+The overall attrition rate in the company is 29.27%, which means that 2,784 employees have left the company over the past 24 months.
 
-yac_att <- ggplot(empl.att) +
- aes(x = YearsAtCompany, fill = Attrition) +
- geom_density(adjust = 1L) +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs(title = "By Years at the Company", y= " ", x= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, 
- face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
+- The data shows that the IT department has the highest employee turnover rate, followed by logistics. Finance has the lowest rate.
 
+#### **How long were the staff that left working at the company?**
 
-## Job Level vs Attrition
+```{r}
 
-jl_att <- ggplot(empl.att) +
- aes(x = JobLevel, fill = Attrition) +
- geom_bar() +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs(title = "By Job Level", y= " ", x= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, 
- face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
+plot_years <- empl_turnover %>%
+group_by(tenure, left)%>%
+ggplot(aes(x = tenure, fill = left)) +
+geom_histogram(bins = 30L) +
 
-## Montly Income
+scale_fill_manual(values=c("gray", "blue"))+
 
-mi_att<- ggplot(empl.att) +
- aes(x = MonthlyIncome, fill = Attrition) +
- geom_density(adjust = 1L) +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs(title = "By Montly Income", y= " ", x= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
+theme_minimal()+ 
 
-## YearsSinceLast Promotion vs Attrition
+  labs( x= "Years at the Company",
+        y= "Number of Employees",
+        title = "Number of Years Working at the Company")+
 
+theme(plot.title = element_text(size =9, face = "bold", hjust = 0.55),
+legend.position="bottom")
 
-  yslp_att <- ggplot(empl.att) +
- aes(x = YearsSinceLastPromotion, fill = Attrition) +
- geom_density(adjust = 1L) +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs(title = "By Years Since Last Promotion", y= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, 
- face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
+plot_years 
 
-
-
-#JobSatisfaction vs Attrition
-
-jbs_att <- ggplot(empl.att) +
- aes(x = JobSatisfaction, fill = Attrition) +
- geom_bar() +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs(title = "By Age Group", y= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, 
- face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
-
-
-## OverTime vs Attrition
-
-  
-  ot_att <- ggplot(empl.att) +
- aes(x = OverTime, fill = Attrition) +
- geom_bar() +
- scale_fill_brewer(palette = "Dark2", 
- direction = 1) +
- labs(title = "By OverTime", y= " ") +
- theme_minimal() +
- theme(plot.title = element_text(size = 24L, 
- face = "italic", hjust = 0.5),
-       axis.text.x = element_text(color = "grey20", size = 20, face = "plain"),
-       axis.text.y = element_text(color = "grey20", size = 20, face = "plain"))
 ```
 
 
-```{r, warning=FALSE, fig.width = 35, fig.height = 25}
-grid.arrange(ot_att, jbs_att, yslp_att, mi_att, jl_att, dep_att, yac_att, dh_att, ncol = 3, nrow = 3, top= textGrob("Attrition", gp=gpar(fontsize=58,font=8)))
 
-```
+## 4. The Model
 
-## 5. Survival Model
+## 5. Conclusion and Recomendations
 
-## 6. Conclusion and Recomendations
+## 6. References

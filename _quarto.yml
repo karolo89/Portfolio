@@ -13,7 +13,7 @@ website:
         href: https://twitter.com
 format:
   html:
-    theme: darkly
+    theme: minty
     css: styles.css
     code-fold: true
     code-summary: "Show the code"
