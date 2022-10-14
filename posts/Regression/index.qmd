@@ -18,18 +18,23 @@ Create a report that covers the following:
 
 ## 2. Import Libraries
 
-```{r, echo=FALSE, warning= FALSE}
+```{r}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 
 library(tidyverse) 
 library(ggplot2)
 library(skimr)
 library(janitor)
 library(knitr)
-library(gghighlight)
+library(radiant)
+library(colorspace)
+library(gridExtra)
 
 ```
 
 ## 3. Prepare and Analyze the Data
+
+The department has assembled data on almost 10,000 employees. The team used information from exit interviews, performance reviews, and employee records.
 
 ```{r, echo=FALSE, warning= FALSE}
 empl_turnover<- read.csv("C:/Users/karol/Desktop/Portfolio/Raw-Data/Raw-Data/employee_churn_data.csv")
@@ -69,7 +74,7 @@ empl_turnover$department <- as.factor(empl_turnover$department)
 empl_turnover$left<- as.factor(empl_turnover$left)
 empl_turnover$promoted<- as.factor(empl_turnover$promoted)
 empl_turnover$bonus<- as.factor(empl_turnover$bonus)
-empl_turnover$salary<- as.factor(empl_turnover$salary)
+empl_turnover$salary<- factor(empl_turnover$salary, levels = c("low", "medium", "high"))
 
 
 glimpse(empl_turnover)
@@ -97,15 +102,15 @@ kable(empl_turnover_prop,  caption = "Department vs Attrition")
 
 ```{r}
 
-empl_turnover$reordept <-reorder(empl_turnover$department, empl_turnover$left, FUN=function(x) mean(as.numeric(x)))
+empl_turnover$reordept <-reorder(empl_turnover$department, empl_turnover$left, 
+                                 FUN=function(x) mean(as.numeric(x)))
 
 
 plot_depart <- empl_turnover %>%
 ggplot(aes(x = reordept, fill = left)) +
 geom_bar(position = "fill")+
-scale_fill_manual(values=c("gray", "blue"))+
-
-labs(title = "Turnover by Department",
+scale_fill_manual(values=c("gray", "#2166AC"))+
+labs(title = "Turnover Rate by Department",
       y= " ",
       x= " ") +
 coord_flip() +
@@ -117,38 +122,182 @@ theme(
 plot_depart
 
 ```
+
+
 The overall attrition rate in the company is 29.27%, which means that 2,784 employees have left the company over the past 24 months.
 
-- The data shows that the IT department has the highest employee turnover rate, followed by logistics. Finance has the lowest rate.
+- The data shows that the IT department has the highest employee turnover rate, followed by logistics and retail. Finance has the lowest rate.
 
 #### **How long were the staff that left working at the company?**
 
-```{r}
+The majority of employees that left the organization, had been working for the company between 5- 8 years. Also, employees that are involved in  **What does it mean for the organization?** 
 
-plot_years <- empl_turnover %>%
+```{r, warning= FALSE, echo=FALSE, fig.width= 15}
+### Tenure vs Turnover
+
+empl_turnover %>%
 group_by(tenure, left)%>%
 ggplot(aes(x = tenure, fill = left)) +
 geom_histogram(bins = 30L) +
 
-scale_fill_manual(values=c("gray", "blue"))+
+scale_fill_manual(values=c("gray", "#2166AC"))+
 
 theme_minimal()+ 
 
   labs( x= "Years at the Company",
         y= "Number of Employees",
-        title = "Number of Years Working at the Company")+
+        title = "Attrition vs Number of Years Working at the Company")+
 
-theme(plot.title = element_text(size =9, face = "bold", hjust = 0.55),
+theme(plot.title = element_text(size =10, face = "bold", hjust = 0.45),
 legend.position="bottom")
-
-plot_years 
 
 ```
 
 
 
+#### Do the number of projects employees are involved in and the number of hours per month worked matter in their retention?
+
+
+```{r, warning= FALSE, echo=FALSE, fig.width= 15}
+## Projects vs Turnover
+
+projects_turnover <- compare_props(
+  empl_turnover, 
+  var1 = "projects", 
+  var2 = "left", 
+  levs = "yes")
+
+plot_proj <- plot(projects_turnover, plots = "bar", custom = TRUE)+ 
+             labs(title = "Attrition vs Number of Projects",
+                      y = " Percentage of Employees that Left",
+                      x = "Number of Projects Involved in") +
+              scale_fill_discrete_diverging("Blue-Red")+
+              theme_minimal()+
+              theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
+                     legend.position="none")
+
+## Avg hours vs Turnover
+
+d_avg_hrs_month <-empl_turnover %>%
+  group_by(left)%>%
+  summarise(avg_hours_m = mean(avg_hrs_month, na.rm = T),
+            avg_hours_sd = sd(avg_hrs_month, na.rm = T))
+
+d2 <-  empl_turnover |> 
+       select(-left)
+  
+  plot_avg_hrs_month <- empl_turnover %>%
+    ggplot() +
+    aes() +
+    geom_histogram(aes(y = ..density.., x = avg_hrs_month, fill = left), bins=30)+
+    facet_wrap(~ left) +   
+    scale_y_continuous(labels = scales::percent)+
+
+             labs(title = "Attrition vs Avg Hours Worked",
+                      y = "Employment Status",
+                      x = "Number of hours worked") +
+              scale_fill_manual(values=c("gray", "#2166AC"))+ 
+              theme_minimal()+
+              theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
+                     legend.position="none")
+  
+grid.arrange(plot_proj, plot_avg_hrs_month, ncol = 2)
+
+```
+
+
+#### Attrition vs Promotion, Bonus and Salary
+
+```{r, warning= FALSE, echo=FALSE}
+
+empl_turnover$promoted<- ifelse(empl_turnover$promoted==0,"No","Yes") 
+empl_turnover$bonus<- ifelse(empl_turnover$bonus==0,"No","Yes") 
+
+
+### Promoted vs Turnover
+promotion_turnov <- compare_props(
+  empl_turnover, 
+  var1 = "promoted", 
+  var2 = "left", 
+  levs = "yes"
+)
+
+plot_prom <- plot(promotion_turnov, plots = "bar", custom = TRUE)+ 
+             labs(
+                      y = " Percentage of Employees that Left",
+                      x = "Promotion") +
+  
+             scale_fill_manual(values=c("gray", "#2166AC"))+
+
+              theme_minimal()+
+              theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
+                     legend.position="none")
+  
+
+### Bonus vs Turnover
+
+bonus_turnov <- compare_props(
+  empl_turnover, 
+  var1 = "bonus", 
+  var2 = "left", 
+  levs = "yes"
+)
+
+plot_bonus <- plot(bonus_turnov, plots = "bar", custom = TRUE)+ 
+             labs(
+                      y = " ",
+                      x = "Bonus") +
+               scale_fill_manual(values=c("gray", "#2166AC"))+
+
+              theme_minimal()+
+              theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
+                     legend.position="none")
+  
+
+### Salary vs Turnover
+
+salary_turnov <- compare_props(
+  empl_turnover, 
+  var1 = "salary", 
+  var2 = "left", 
+  levs = "yes", 
+  comb = "high:low"
+)
+
+
+plot_salary<- plot(salary_turnov, plots = "bar", custom = TRUE)+ 
+             labs(    y = " ",
+                      x = "Salary Tier") +
+              scale_fill_discrete_diverging("Blue-Red")+
+              theme_minimal()+
+              theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
+                     legend.position="none")
+
+grid.arrange(plot_prom, plot_bonus, plot_salary, ncol = 3)
+
+  
+```
+
+#### Employee Satisfaction and Review score
+
+```{r, warning= FALSE, echo=FALSE}
+
+
+```
+
+
+#### Correlation table- pairwise
+
+```{r, warning= FALSE, echo=FALSE}
+
+
+```
+
+
 ## 4. The Model
 
+
 ## 5. Conclusion and Recomendations
+
 
 ## 6. References
