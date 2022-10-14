@@ -29,6 +29,7 @@ library(knitr)
 library(radiant)
 library(colorspace)
 library(gridExtra)
+library(ggpubr)
 
 ```
 
@@ -114,7 +115,7 @@ labs(title = "Turnover Rate by Department",
       y= " ",
       x= " ") +
 coord_flip() +
-theme_minimal()+
+ ggpubr::theme_pubclean()+
 theme(
     plot.title = element_text(size =9, face = "bold", hjust = 0.55),
     legend.position="bottom")
@@ -128,11 +129,12 @@ The overall attrition rate in the company is 29.27%, which means that 2,784 empl
 
 - The data shows that the IT department has the highest employee turnover rate, followed by logistics and retail. Finance has the lowest rate.
 
-#### **How long were the staff that left working at the company?**
+#### **Attrition vs Years at the company**
 
-The majority of employees that left the organization, had been working for the company between 5- 8 years. Also, employees that are involved in  **What does it mean for the organization?** 
+The majority of employees that left the organization, had been working for the company between 5- 8 years,  and the proportion steadily declined. Also, employees that are involved in  **What does it mean for the organization?** 
 
 ```{r, warning= FALSE, echo=FALSE, fig.width= 15}
+
 ### Tenure vs Turnover
 
 empl_turnover %>%
@@ -142,7 +144,8 @@ geom_histogram(bins = 30L) +
 
 scale_fill_manual(values=c("gray", "#2166AC"))+
 
-theme_minimal()+ 
+ ggpubr::theme_pubclean()+
+
 
   labs( x= "Years at the Company",
         y= "Number of Employees",
@@ -155,10 +158,11 @@ legend.position="bottom")
 
 
 
-#### Do the number of projects employees are involved in and the number of hours per month worked matter in their retention?
+#### **Do the number of projects employees are involved in and the number of hours per month worked matter in their retention?**
 
 
 ```{r, warning= FALSE, echo=FALSE, fig.width= 15}
+
 ## Projects vs Turnover
 
 projects_turnover <- compare_props(
@@ -172,7 +176,7 @@ plot_proj <- plot(projects_turnover, plots = "bar", custom = TRUE)+
                       y = " Percentage of Employees that Left",
                       x = "Number of Projects Involved in") +
               scale_fill_discrete_diverging("Blue-Red")+
-              theme_minimal()+
+ ggpubr::theme_pubclean()+
               theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
                      legend.position="none")
 
@@ -190,6 +194,7 @@ d2 <-  empl_turnover |>
     ggplot() +
     aes() +
     geom_histogram(aes(y = ..density.., x = avg_hrs_month, fill = left), bins=30)+
+    
     facet_wrap(~ left) +   
     scale_y_continuous(labels = scales::percent)+
 
@@ -197,7 +202,7 @@ d2 <-  empl_turnover |>
                       y = "Employment Status",
                       x = "Number of hours worked") +
               scale_fill_manual(values=c("gray", "#2166AC"))+ 
-              theme_minimal()+
+ ggpubr::theme_pubclean()+
               theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
                      legend.position="none")
   
@@ -206,7 +211,7 @@ grid.arrange(plot_proj, plot_avg_hrs_month, ncol = 2)
 ```
 
 
-#### Attrition vs Promotion, Bonus and Salary
+#### **Attrition vs Promotion, Bonus and Salary**
 
 ```{r, warning= FALSE, echo=FALSE}
 
@@ -229,7 +234,7 @@ plot_prom <- plot(promotion_turnov, plots = "bar", custom = TRUE)+
   
              scale_fill_manual(values=c("gray", "#2166AC"))+
 
-              theme_minimal()+
+ ggpubr::theme_pubclean()+
               theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
                      legend.position="none")
   
@@ -249,7 +254,7 @@ plot_bonus <- plot(bonus_turnov, plots = "bar", custom = TRUE)+
                       x = "Bonus") +
                scale_fill_manual(values=c("gray", "#2166AC"))+
 
-              theme_minimal()+
+ ggpubr::theme_pubclean()+
               theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
                      legend.position="none")
   
@@ -266,10 +271,11 @@ salary_turnov <- compare_props(
 
 
 plot_salary<- plot(salary_turnov, plots = "bar", custom = TRUE)+ 
+  
              labs(    y = " ",
                       x = "Salary Tier") +
               scale_fill_discrete_diverging("Blue-Red")+
-              theme_minimal()+
+ ggpubr::theme_pubclean()+
               theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
                      legend.position="none")
 
