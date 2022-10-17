@@ -18,6 +18,15 @@ Create a report that covers the following:
 
 ## 2. Import Libraries
 
+library(tidyverse) 
+library(ggplot2)
+library(skimr)
+library(janitor)
+library(knitr)
+library(radiant)
+library(colorspace)
+library(gridExtra)
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
 
@@ -29,7 +38,6 @@ library(knitr)
 library(radiant)
 library(colorspace)
 library(gridExtra)
-library(ggpubr)
 
 ```
 
@@ -153,7 +161,7 @@ scale_fill_manual(values=c("gray", "#2166AC"))+
         y= "Number of Employees",
         title = "Attrition vs Number of Years Working at the Company")+
 
-theme(plot.title = element_text(size =10, face = "bold", hjust = 0.45),
+theme(plot.title = element_text(size =12, face = "bold", hjust = 0.45),
 legend.position="bottom")
 
 ```
@@ -299,7 +307,7 @@ plot_rev_sat_left<- empl_turnover %>%
           
           plot.title = element_text(size =9, face = "bold", hjust = 0.55),
           plot.title.position = "plot")+
-  scale_color_manual(values=c("gray", "#2166AC"))
+          scale_color_manual(values=c("gray", "#2166AC"))
 
 
 
@@ -308,7 +316,7 @@ plot_rev_sat_left
 
 
 
-#### **Correlation 
+#### **Correlation **
 
 ```{r, warning= FALSE, echo=FALSE}
 
