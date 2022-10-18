@@ -18,14 +18,20 @@ Create a report that covers the following:
 
 ## 2. Import Libraries
 
-library(tidyverse) 
-library(ggplot2)
-library(skimr)
-library(janitor)
-library(knitr)
-library(radiant)
-library(colorspace)
-library(gridExtra)
+- library(tidyverse) 
+- library(ggplot2)
+- library(skimr)
+- library(janitor)
+- library(knitr)
+- library(radiant)
+- library(colorspace)
+- library(gridExtra)
+- library(jtools)
+- library(rpart)
+- library(rpart.plot)
+- library(stargazer)
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
@@ -38,6 +44,12 @@ library(knitr)
 library(radiant)
 library(colorspace)
 library(gridExtra)
+library(fastDummies)
+library(tidymodels)
+library(jtools)
+library(rpart)
+library(rpart.plot)
+library(stargazer)
 
 ```
 
@@ -65,17 +77,14 @@ The variables are defined as follow:
 ```{r, echo=FALSE, warning= FALSE}
 skim(empl_turnover)
 ```
-We have 7 columns:
-
-```{r}
-names(empl_turnover)
-```
 
 - There is no missing data in the data set.
 - Employees are involved between 2 to 5 projects
-- Employees have been at the company between 2 to 12 years
-- The average worked hours per month is between 171.37 and 200.86 hours
-- There are some data types that need to be changed as a factor
+- Employees have been at the company between 2 to 12 years, with an average of 6.5 years
+- The average satisfaction rate in 50.41% for all employees
+- The average worked hours per month ranged from 171.37 to 200.86 hours
+- There are some data types that need to be changed. For example, "left" is a character variable. To convert it into a quantity that takes values of zero and one, I'll convert it into a variable of type factor with two levels: No and Yes. Later, I will use as.numeric() to convert the observations to a number, one or two. I then subtract one to get a variable that takes values zero or one and stores it as left.Numeric
+
 
 ```{r}
 
@@ -84,14 +93,18 @@ empl_turnover$left<- as.factor(empl_turnover$left)
 empl_turnover$promoted<- as.factor(empl_turnover$promoted)
 empl_turnover$bonus<- as.factor(empl_turnover$bonus)
 empl_turnover$salary<- factor(empl_turnover$salary, levels = c("low", "medium", "high"))
+empl_turnover$left.Numeric <- as.numeric(as.factor(empl_turnover$left))-1
 
 
 glimpse(empl_turnover)
 ```
 
+
 #### **Turnover**
 
 Number of employees that left the company:
+
+The overall attrition rate in the company is 29.2%, which means that 2,784 of 9,540 employees have left the company over the past 24 months.
 
 ```{r}
 
@@ -100,6 +113,8 @@ summary(empl_turnover_left)
 ```
 
 #### **Are the employees leaving the different departments at the same rate?**
+
+- The data shows that the IT department has the highest employee turnover rate, followed by logistics and retail. Finance has the lowest rate.
 
 ```{r}
 
@@ -135,15 +150,15 @@ plot_depart
 ```
 
 
-The overall attrition rate in the company is 29.2%, which means that 2,784 of 9,540 employees have left the company over the past 24 months.
-
-- The data shows that the IT department has the highest employee turnover rate, followed by logistics and retail. Finance has the lowest rate.
 
 #### **Attrition vs Years at the company**
 
-The majority of employees that left the organization, had been working for the company between 5- 8 years,  and the proportion steadily declined. Also, employees that are involved in  **What does it mean for the organization?** 
+The majority of employees that left the organization, had been working for the company between 5 to 8 years, and the proportion steadily declined. 
 
-```{r, warning= FALSE, echo=FALSE, fig.width= 15}
+**What does it mean for the organization?** Well,
+
+
+```{r, fig.width= 15}
 
 ### Tenure vs Turnover
 
@@ -170,9 +185,12 @@ legend.position="bottom")
 
 #### **Do the number of projects employees are involved in and the number of hours per month worked matter in their retention?**
 
+Yes, there is a high attrition rate in employees that:
+- Are involved in less than three projects 
+- Tend to work ~184 hours per month (assuming a five days work week- 8 hours each)
+
 
 ```{r, warning= FALSE, echo=FALSE, fig.width= 15}
-
 ## Projects vs Turnover
 
 projects_turnover <- compare_props(
@@ -207,7 +225,11 @@ plot_avg_hrs_month <- empl_turnover %>%
               ggpubr::theme_pubclean()+
               theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
                      legend.position="none")
-  
+```
+
+
+```{r, warning= FALSE, echo=FALSE, fig.width= 15}
+
 grid.arrange(plot_proj, plot_avg_hrs_month, ncol = 2)
 
 ```
@@ -215,8 +237,11 @@ grid.arrange(plot_proj, plot_avg_hrs_month, ncol = 2)
 
 #### **Attrition vs Promotion, Bonus and Salary**
 
-```{r, warning= FALSE, echo=FALSE}
+Most employees are in the medium salary tier, with the rest evenly split between low and high salaries. However, this variable is no significant impact on the turnover status of the employee. Likewise, whether or not an employee received a bonus is not statistically significant on the decision to stay or leave the company.
 
+The promotion variable shows a higher proportion of employees had stayed with the organization if they had received a promotion.
+
+```{r, warning= FALSE, echo=FALSE}
 empl_turnover$promoted<- ifelse(empl_turnover$promoted==0,"No","Yes") 
 empl_turnover$bonus<- ifelse(empl_turnover$bonus==0,"No","Yes") 
 
@@ -279,15 +304,16 @@ plot_salary<- plot(salary_turnov, plots = "bar", custom = TRUE)+
  ggpubr::theme_pubclean()+
               theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
                      legend.position="none")
+```
 
+
+```{r, warning= FALSE, echo=FALSE}
 grid.arrange(plot_prom, plot_bonus, plot_salary, ncol = 3)
-
-  
 ```
 
 #### **Employee Satisfaction and Review score**
 
-staff that exit typically have higher performance reviews coupled with lower satisfaction rates compared to those who stayed. Firstly, a trade off exists between performance review and satisfaction ratings. That is, as performance scores increases across employees, they also tend to have lower satisfaction ratings. This feature is even more pronounced for employees who have left. Suggesting that, as they work harder to attain higher performance review, they're putting themselves at a higher risk of burnout and leaving. This relationship is also salient across departments.
+- Employees tend to have lower satisfaction ratings as performance scores increase across employees. As the chart below shows, this feature is more appreciable for employees who have left the company in the last 24 months.
 
 ```{r fig.width = 8.08, fig.height = 7, dpi = 96}
 
@@ -314,20 +340,63 @@ plot_rev_sat_left<- empl_turnover %>%
 plot_rev_sat_left
 ```
 
+## 4. The Model
+
+```{r}
+names(empl_turnover)
+```
+
+#### Estimation of a First GLM
 
 
-#### **Correlation **
+```{r, results='asis', warning=FALSE, message=FALSE}
 
-```{r, warning= FALSE, echo=FALSE}
+fist_model <- glm(left ~ department+ promoted+ review+ projects+ salary+ tenure + satisfaction+ bonus+ avg_hrs_month,
+                  family = binomial(link = "probit"), data = empl_turnover)
 
-
+stargazer(fist_model, type = "html", style = "apsr")
 
 
 ```
 
+#### **A Scaled Coefficient Plot**
 
-## 4. The Model
+The graph below shows the chosen predictors are deemed important in the decision to leave the company, by conventional standards, as all have a very low probability of no relationship/zero slopes.
 
+```{r}
+
+empl_turnover %>%
+    mutate(review = scale(review), satisfaction = scale(satisfaction), tenure = scale(tenure), avg_hrs_month = scale(avg_hrs_month)) %>%
+  
+    glm(left ~ promoted + review+ satisfaction + avg_hrs_month,
+        family = binomial(link = "probit"), data = .) %>%
+    plot_summs(., inner_ci_level = 0.95)
+
+```
+
+```{r}
+exp(fist_model$coefficients)
+
+```
+
+All else equal,
+
+- 
+
+The confidence intervals for the odds-ratios
+
+```{r}
+exp(confint(fist_model))
+```
+
+
+
+```{r}
+
+fit.BT <- rpart(left ~ promoted + review + projects + satisfaction + avg_hrs_month,
+    data = empl_turnover, method = "class")
+rpart.plot(fit.BT)
+```
 
 ## 5. Conclusion and Recomendations
 
