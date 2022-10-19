@@ -18,20 +18,17 @@ Create a report that covers the following:
 
 ## 2. Import Libraries
 
-- library(tidyverse) 
-- library(ggplot2)
-- library(skimr)
-- library(janitor)
-- library(knitr)
-- library(radiant)
-- library(colorspace)
-- library(gridExtra)
-- library(jtools)
-- library(rpart)
-- library(rpart.plot)
-- library(stargazer)
-
-
+-   library(tidyverse)
+-   library(ggplot2)
+-   library(skimr)
+-   library(janitor)
+-   library(knitr)
+-   library(radiant)
+-   library(colorspace)
+-   library(gridExtra)
+-   library(jtools)
+-   library(dplyr)
+-   library(MASS)
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
@@ -44,12 +41,14 @@ library(knitr)
 library(radiant)
 library(colorspace)
 library(gridExtra)
-library(fastDummies)
-library(tidymodels)
 library(jtools)
 library(rpart)
 library(rpart.plot)
 library(stargazer)
+library(tidymodels)
+library(dplyr)
+library(MASS)
+library(caret)
 
 ```
 
@@ -78,13 +77,12 @@ The variables are defined as follow:
 skim(empl_turnover)
 ```
 
-- There is no missing data in the data set.
-- Employees are involved between 2 to 5 projects
-- Employees have been at the company between 2 to 12 years, with an average of 6.5 years
-- The average satisfaction rate in 50.41% for all employees
-- The average worked hours per month ranged from 171.37 to 200.86 hours
-- There are some data types that need to be changed. For example, "left" is a character variable. To convert it into a quantity that takes values of zero and one, I'll convert it into a variable of type factor with two levels: No and Yes. Later, I will use as.numeric() to convert the observations to a number, one or two. I then subtract one to get a variable that takes values zero or one and stores it as left.Numeric
-
+-   There is no missing data in the data set.
+-   Employees are involved between 2 to 5 projects
+-   Employees have been at the company between 2 to 12 years, with an average of 6.5 years
+-   The average satisfaction rate in 50.41% for all employees
+-   The average worked hours per month ranged from 171.37 to 200.86 hours
+-   There are some data types that need to be changed. For example, "left" is a character variable. To convert it into a quantity that takes values of zero and one, I'll convert it into a variable of type factor with two levels: No and Yes. Later, I will use as.numeric() to convert the observations to a number, one or two. I then subtract one to get a variable that takes values zero or one and stores it as left.Numeric
 
 ```{r}
 
@@ -99,8 +97,7 @@ empl_turnover$left.Numeric <- as.numeric(as.factor(empl_turnover$left))-1
 glimpse(empl_turnover)
 ```
 
-
-#### **Turnover**
+#### Turnover
 
 Number of employees that left the company:
 
@@ -112,9 +109,9 @@ empl_turnover_left <- single_prop(empl_turnover, var = "left", lev = "yes")
 summary(empl_turnover_left)
 ```
 
-#### **Are the employees leaving the different departments at the same rate?**
+#### Are the employees leaving the different departments at the same rate?
 
-- The data shows that the IT department has the highest employee turnover rate, followed by logistics and retail. Finance has the lowest rate.
+-   The data shows that the IT department has the highest employee turnover rate, followed by logistics and retail. Finance has the lowest rate.
 
 ```{r}
 
@@ -147,20 +144,20 @@ theme(
 
 plot_depart
 
+
+
 ```
 
+#### Attrition vs Years at the company
 
-
-#### **Attrition vs Years at the company**
-
-The majority of employees that left the organization, had been working for the company between 5 to 8 years, and the proportion steadily declined. 
+The majority of employees that left the organization, had been working for the company between 5 to 8 years, and the proportion steadily declined.
 
 **What does it mean for the organization?** Well,
-
 
 ```{r, fig.width= 15}
 
 ### Tenure vs Turnover
+
 
 empl_turnover %>%
 group_by(tenure, left)%>%
@@ -181,16 +178,11 @@ legend.position="bottom")
 
 ```
 
+#### Do the number of projects employees are involved in and the number of hours per month worked matter in their retention?
 
+Yes, there is a high attrition rate in employees that: - Are involved in less than three projects - Tend to work \~184 hours per month (assuming a five days work week- 8 hours each)
 
-#### **Do the number of projects employees are involved in and the number of hours per month worked matter in their retention?**
-
-Yes, there is a high attrition rate in employees that:
-- Are involved in less than three projects 
-- Tend to work ~184 hours per month (assuming a five days work week- 8 hours each)
-
-
-```{r, warning= FALSE, echo=FALSE, fig.width= 15}
+```{r}
 ## Projects vs Turnover
 
 projects_turnover <- compare_props(
@@ -204,8 +196,10 @@ plot_proj <- plot(projects_turnover, plots = "bar", custom = TRUE)+
                       y = " Percentage of Employees that Left",
                       x = "Number of Projects Involved in") +
               scale_fill_discrete_diverging("Blue-Red")+
- ggpubr::theme_pubclean()+
-              theme( plot.title = element_text(size =10, face = "bold", hjust = 0.55),
+              ggpubr::theme_pubclean()+
+              theme( plot.title = element_text(size =10, 
+                                               face = "bold", 
+                                               hjust = 0.55),
                      legend.position="none")
 
 ## Avg hours vs Turnover
@@ -227,13 +221,11 @@ plot_avg_hrs_month <- empl_turnover %>%
                      legend.position="none")
 ```
 
-
 ```{r, warning= FALSE, echo=FALSE, fig.width= 15}
 
 grid.arrange(plot_proj, plot_avg_hrs_month, ncol = 2)
 
 ```
-
 
 #### **Attrition vs Promotion, Bonus and Salary**
 
@@ -306,14 +298,13 @@ plot_salary<- plot(salary_turnov, plots = "bar", custom = TRUE)+
                      legend.position="none")
 ```
 
-
 ```{r, warning= FALSE, echo=FALSE}
 grid.arrange(plot_prom, plot_bonus, plot_salary, ncol = 3)
 ```
 
 #### **Employee Satisfaction and Review score**
 
-- Employees tend to have lower satisfaction ratings as performance scores increase across employees. As the chart below shows, this feature is more appreciable for employees who have left the company in the last 24 months.
+-   Employees tend to have lower satisfaction ratings as performance scores increase across employees. As the chart below shows, this feature is more appreciable for employees who have left the company in the last 24 months.
 
 ```{r fig.width = 8.08, fig.height = 7, dpi = 96}
 
@@ -342,63 +333,91 @@ plot_rev_sat_left
 
 ## 4. The Model
 
-```{r}
-names(empl_turnover)
-```
+#### A Scaled Coefficient Plot
 
-#### Estimation of a First GLM
-
-
-```{r, results='asis', warning=FALSE, message=FALSE}
-
-fist_model <- glm(left ~ department+ promoted+ review+ projects+ salary+ tenure + satisfaction+ bonus+ avg_hrs_month,
-                  family = binomial(link = "probit"), data = empl_turnover)
-
-stargazer(fist_model, type = "html", style = "apsr")
-
-
-```
-
-#### **A Scaled Coefficient Plot**
-
-The graph below shows the chosen predictors are deemed important in the decision to leave the company, by conventional standards, as all have a very low probability of no relationship/zero slopes.
+The graph below shows that not all the predictors are important in deciding to leave the company. Review, satisfaction, promoted and avg_hrs_month, by conventional standards, have a very low probability of no relationship/zero slopes.
 
 ```{r}
 
 empl_turnover %>%
-    mutate(review = scale(review), satisfaction = scale(satisfaction), tenure = scale(tenure), avg_hrs_month = scale(avg_hrs_month)) %>%
+    mutate(review = scale(review), satisfaction = scale(satisfaction), tenure = scale(tenure),projects = scale(projects), avg_hrs_month = scale(avg_hrs_month)) %>%
   
-    glm(left ~ promoted + review+ satisfaction + avg_hrs_month,
+    glm(left ~ department+ review+ satisfaction+ avg_hrs_month+ promoted+ tenure+ promoted+ projects+ salary+ bonus,
         family = binomial(link = "probit"), data = .) %>%
     plot_summs(., inner_ci_level = 0.95)
 
 ```
 
-```{r}
-exp(fist_model$coefficients)
+#### Logistic Regression
 
-```
-
-All else equal,
-
-- 
-
-The confidence intervals for the odds-ratios
+For my model I will use the following variables: promoted, review, projects, satisfaction, and average hours worked. This decision was made based on an stepwise regression model (using both forward selection and backward elimination) where all the variables were included and the once with low colinearity were eliminated.
 
 ```{r}
-exp(confint(fist_model))
+empl_tur<- empl_turnover %>% dplyr:::select(c(-reordept, -left.Numeric))
 ```
-
-
 
 ```{r}
 
-fit.BT <- rpart(left ~ promoted + review + projects + satisfaction + avg_hrs_month,
-    data = empl_turnover, method = "class")
-rpart.plot(fit.BT)
+full.model <- glm(left~ department+ promoted+ review+ projects+
+salary+ tenure+ satisfaction+ bonus+ avg_hrs_month, 
+data = empl_tur, family = binomial)
+
+summary(full.model)
 ```
 
-## 5. Conclusion and Recomendations
+#### Let's split the data
+
+```{r}
+
+set.seed(123)
+data_split <- initial_split(empl_tur, prop = 3/4)
+
+train.data <- training(data_split)
+
+test.data  <- testing(data_split)
+```
+
+#### Computing stepwise logistique regression
+
+```{r}
+# Fit the model
+
+model <- glm(left ~ department+ promoted+ review+ projects+
+salary+ tenure+ satisfaction+ bonus+ avg_hrs_month,
+data = train.data, family = binomial) %>%
+  stepAIC(trace = FALSE)
+
+# Summarize the final selected model
+summary(model)
+
+```
+
+#### Perform stepwise variable selection
+
+Select the most contributive variables:
+
+```{r}
+step.model <- full.model %>% stepAIC(trace = FALSE)
+coef(step.model)
+```
+
+```{r}
+library(LogisticDx)
+
+model_diagnostics <- LogisticDx::gof(step.model, plotROC = TRUE)
+
+```
+
+## 
+
+```{r}
+model2 <- glm(formula = left ~ promoted + review + satisfaction + bonus + tenure +  avg_hrs_month, family = binomial, data = train.data)
+
+coef(model2)
 
 
-## 6. References
+model_diagnostics2 <- LogisticDx::gof(model2, plotROC = TRUE)
+
+```
+
+```

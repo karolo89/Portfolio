@@ -226,9 +226,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>library(colorspace)</li>
 <li>library(gridExtra)</li>
 <li>library(jtools)</li>
-<li>library(rpart)</li>
-<li>library(rpart.plot)</li>
-<li>library(stargazer)</li>
+<li>library(dplyr)</li>
+<li>library(MASS)</li>
 </ul>
 </section>
 <section id="prepare-and-analyze-the-data" class="level2">
@@ -514,7 +513,7 @@ $ left.Numeric  &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 </div>
 </div>
 <section id="turnover" class="level4">
-<h4 class="anchored" data-anchor-id="turnover"><strong>Turnover</strong></h4>
+<h4 class="anchored" data-anchor-id="turnover">Turnover</h4>
 <p>Number of employees that left the company:</p>
 <p>The overall attrition rate in the company is 29.2%, which means that 2,784 of 9,540 employees have left the company over the past 24 months.</p>
 <div class="cell">
@@ -543,7 +542,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </section>
 <section id="are-the-employees-leaving-the-different-departments-at-the-same-rate" class="level4">
-<h4 class="anchored" data-anchor-id="are-the-employees-leaving-the-different-departments-at-the-same-rate"><strong>Are the employees leaving the different departments at the same rate?</strong></h4>
+<h4 class="anchored" data-anchor-id="are-the-employees-leaving-the-different-departments-at-the-same-rate">Are the employees leaving the different departments at the same rate?</h4>
 <ul>
 <li>The data shows that the IT department has the highest employee turnover rate, followed by logistics and retail. Finance has the lowest rate.</li>
 </ul>
@@ -661,7 +660,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </section>
 <section id="attrition-vs-years-at-the-company" class="level4">
-<h4 class="anchored" data-anchor-id="attrition-vs-years-at-the-company"><strong>Attrition vs Years at the company</strong></h4>
+<h4 class="anchored" data-anchor-id="attrition-vs-years-at-the-company">Attrition vs Years at the company</h4>
 <p>The majority of employees that left the organization, had been working for the company between 5 to 8 years, and the proportion steadily declined.</p>
 <p><strong>What does it mean for the organization?</strong> Well,</p>
 <div class="cell">
@@ -669,22 +668,23 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Tenure vs Turnover</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>empl_turnover <span class="sc">%&gt;%</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(tenure, left)<span class="sc">%&gt;%</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> tenure, <span class="at">fill =</span> left)) <span class="sc">+</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_histogram</span>(<span class="at">bins =</span> 30L) <span class="sc">+</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))<span class="sc">+</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a> ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()<span class="sc">+</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>empl_turnover <span class="sc">%&gt;%</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(tenure, left)<span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> tenure, <span class="at">fill =</span> left)) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_histogram</span>(<span class="at">bins =</span> 30L) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))<span class="sc">+</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a> ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()<span class="sc">+</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>( <span class="at">x=</span> <span class="st">"Years at the Company"</span>,</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">y=</span> <span class="st">"Number of Employees"</span>,</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Attrition vs Number of Years Working at the Company"</span>)<span class="sc">+</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.45</span>),</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="at">legend.position=</span><span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>( <span class="at">x=</span> <span class="st">"Years at the Company"</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">y=</span> <span class="st">"Number of Employees"</span>,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Attrition vs Number of Years Working at the Company"</span>)<span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.45</span>),</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="at">legend.position=</span><span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="1440"></p>
@@ -692,10 +692,48 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </section>
 <section id="do-the-number-of-projects-employees-are-involved-in-and-the-number-of-hours-per-month-worked-matter-in-their-retention" class="level4">
-<h4 class="anchored" data-anchor-id="do-the-number-of-projects-employees-are-involved-in-and-the-number-of-hours-per-month-worked-matter-in-their-retention"><strong>Do the number of projects employees are involved in and the number of hours per month worked matter in their retention?</strong></h4>
+<h4 class="anchored" data-anchor-id="do-the-number-of-projects-employees-are-involved-in-and-the-number-of-hours-per-month-worked-matter-in-their-retention">Do the number of projects employees are involved in and the number of hours per month worked matter in their retention?</h4>
 <p>Yes, there is a high attrition rate in employees that: - Are involved in less than three projects - Tend to work ~184 hours per month (assuming a five days work week- 8 hours each)</p>
 <div class="cell">
-
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Projects vs Turnover</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>projects_turnover <span class="ot">&lt;-</span> <span class="fu">compare_props</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  empl_turnover, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">var1 =</span> <span class="st">"projects"</span>, </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">var2 =</span> <span class="st">"left"</span>, </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">levs =</span> <span class="st">"yes"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>plot_proj <span class="ot">&lt;-</span> <span class="fu">plot</span>(projects_turnover, <span class="at">plots =</span> <span class="st">"bar"</span>, <span class="at">custom =</span> <span class="cn">TRUE</span>)<span class="sc">+</span> </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>             <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Attrition vs Number of Projects"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> <span class="st">" Percentage of Employees that Left"</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">x =</span> <span class="st">"Number of Projects Involved in"</span>) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>              <span class="fu">scale_fill_discrete_diverging</span>(<span class="st">"Blue-Red"</span>)<span class="sc">+</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>              ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()<span class="sc">+</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>              <span class="fu">theme</span>( <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">10</span>, </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">face =</span> <span class="st">"bold"</span>, </span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">hjust =</span> <span class="fl">0.55</span>),</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>                     <span class="at">legend.position=</span><span class="st">"none"</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="do">## Avg hours vs Turnover</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>plot_avg_hrs_month <span class="ot">&lt;-</span> empl_turnover <span class="sc">%&gt;%</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>() <span class="sc">+</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..density.., <span class="at">x =</span> avg_hrs_month, <span class="at">fill =</span> left), <span class="at">bins=</span><span class="dv">30</span>, )<span class="sc">+</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span> left) <span class="sc">+</span>   </span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent)<span class="sc">+</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>             <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Attrition vs Avg Hours Worked"</span>,</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> <span class="st">"Employment Status (Left)"</span>,</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>                      <span class="at">x =</span> <span class="st">"Number of hours worked"</span>) <span class="sc">+</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>              <span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))<span class="sc">+</span> </span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>              ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()<span class="sc">+</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>              <span class="fu">theme</span>( <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">10</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.55</span>),</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>                     <span class="at">legend.position=</span><span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <div class="cell">
 <div class="cell-output-display">
@@ -724,27 +762,27 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>plot_rev_sat_left<span class="ot">&lt;-</span> empl_turnover <span class="sc">%&gt;%</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>review,<span class="at">y=</span> satisfaction, <span class="at">color=</span>left)) <span class="sc">+</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha=</span><span class="fl">0.16</span>) <span class="sc">+</span> </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span>lm,<span class="at">se=</span><span class="cn">FALSE</span>)<span class="sc">+</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>department, <span class="at">ncol=</span><span class="dv">4</span>)<span class="sc">+</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>   ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()<span class="sc">+</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">labs</span> (<span class="at">x =</span> <span class="st">"Review"</span>, </span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="st">"Satisfaction Level"</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">title=</span> <span class="st">""</span>) <span class="sc">+</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.background=</span> <span class="fu">element_rect</span>(<span class="at">fill=</span> <span class="st">"white"</span>, <span class="at">linetype =</span> <span class="st">"blank"</span>),</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">color=</span> <span class="st">"black"</span>, <span class="at">face=</span> <span class="st">"bold"</span>),</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.text.x =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size=</span> <span class="dv">10</span>),</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">9</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.55</span>),</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.title.position =</span> <span class="st">"plot"</span>)<span class="sc">+</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>          <span class="fu">scale_color_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>plot_rev_sat_left</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plot_rev_sat_left<span class="ot">&lt;-</span> empl_turnover <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>review,<span class="at">y=</span> satisfaction, <span class="at">color=</span>left)) <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha=</span><span class="fl">0.16</span>) <span class="sc">+</span> </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span>lm,<span class="at">se=</span><span class="cn">FALSE</span>)<span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>department, <span class="at">ncol=</span><span class="dv">4</span>)<span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>   ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()<span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">labs</span> (<span class="at">x =</span> <span class="st">"Review"</span>, </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="st">"Satisfaction Level"</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">title=</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.background=</span> <span class="fu">element_rect</span>(<span class="at">fill=</span> <span class="st">"white"</span>, <span class="at">linetype =</span> <span class="st">"blank"</span>),</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">color=</span> <span class="st">"black"</span>, <span class="at">face=</span> <span class="st">"bold"</span>),</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.text.x =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size=</span> <span class="dv">10</span>),</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">9</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.55</span>),</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.title.position =</span> <span class="st">"plot"</span>)<span class="sc">+</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>          <span class="fu">scale_color_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>plot_rev_sat_left</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="775"></p>
@@ -754,454 +792,200 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 <section id="the-model" class="level2">
 <h2 class="anchored" data-anchor-id="the-model">4. The Model</h2>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(empl_turnover)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code> [1] "department"    "promoted"      "review"        "projects"     
- [5] "salary"        "tenure"        "satisfaction"  "bonus"        
- [9] "avg_hrs_month" "left"          "left.Numeric"  "reordept"     </code></pre>
-</div>
-</div>
-<section id="estimation-of-a-first-glm" class="level4">
-<h4 class="anchored" data-anchor-id="estimation-of-a-first-glm">Estimation of a First GLM</h4>
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fist_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(left <span class="sc">~</span> department<span class="sc">+</span> promoted<span class="sc">+</span> review<span class="sc">+</span> projects<span class="sc">+</span> salary<span class="sc">+</span> tenure <span class="sc">+</span> satisfaction<span class="sc">+</span> bonus<span class="sc">+</span> avg_hrs_month,</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"probit"</span>), <span class="at">data =</span> empl_turnover)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>(fist_model, <span class="at">type =</span> <span class="st">"html"</span>, <span class="at">style =</span> <span class="st">"apsr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-
-<table style="text-align:center">
-<tbody><tr>
-<td colspan="2" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-left
-</td>
-</tr>
-<tr>
-<td colspan="2" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-departmentengineering
-</td>
-<td>
-0.008
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.077)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-departmentfinance
-</td>
-<td>
--0.048
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.097)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-departmentIT
-</td>
-<td>
-0.072
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.100)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-departmentlogistics
-</td>
-<td>
-0.053
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.099)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-departmentmarketing
-</td>
-<td>
-0.031
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.084)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-departmentoperations
-</td>
-<td>
--0.020
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.077)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-departmentretail
-</td>
-<td>
-0.070
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.076)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-departmentsales
-</td>
-<td>
--0.004
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.075)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-departmentsupport
-</td>
-<td>
-0.018
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.085)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-promotedYes
-</td>
-<td>
--0.336<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.090)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-review
-</td>
-<td>
-6.474<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.206)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-projects
-</td>
-<td>
--0.039
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.025)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-salarymedium
-</td>
-<td>
-0.049
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.041)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-salaryhigh
-</td>
-<td>
-0.012
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.052)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-tenure
-</td>
-<td>
--0.016
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.049)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-satisfaction
-</td>
-<td>
-1.474<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.107)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-bonusYes
-</td>
-<td>
--0.033
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.035)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-avg_hrs_month
-</td>
-<td>
-0.045<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.017)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-Constant
-</td>
-<td>
--13.745<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(2.802)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-N
-</td>
-<td>
-9,540
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-Log Likelihood
-</td>
-<td>
--5,174.597
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-AIC
-</td>
-<td>
-10,387.190
-</td>
-</tr>
-<tr>
-<td colspan="2" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td colspan="2" style="text-align:left">
-<sup><em></em></sup><em>p &lt; .1; <sup><strong></strong></sup><strong>p &lt; .05; <sup></sup></strong></em>p &lt; .01
-</td>
-</tr>
-
-</tbody></table>
-</section>
 <section id="a-scaled-coefficient-plot" class="level4">
-<h4 class="anchored" data-anchor-id="a-scaled-coefficient-plot"><strong>A Scaled Coefficient Plot</strong></h4>
-<p>The graph below shows the chosen predictors are deemed important in the decision to leave the company, by conventional standards, as all have a very low probability of no relationship/zero slopes.</p>
+<h4 class="anchored" data-anchor-id="a-scaled-coefficient-plot">A Scaled Coefficient Plot</h4>
+<p>The graph below shows that not all the predictors are important in deciding to leave the company. Review, satisfaction, promoted and avg_hrs_month, by conventional standards, have a very low probability of no relationship/zero slopes.</p>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>empl_turnover <span class="sc">%&gt;%</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">review =</span> <span class="fu">scale</span>(review), <span class="at">satisfaction =</span> <span class="fu">scale</span>(satisfaction), <span class="at">tenure =</span> <span class="fu">scale</span>(tenure), <span class="at">avg_hrs_month =</span> <span class="fu">scale</span>(avg_hrs_month)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">glm</span>(left <span class="sc">~</span> promoted <span class="sc">+</span> review<span class="sc">+</span> satisfaction <span class="sc">+</span> avg_hrs_month,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"probit"</span>), <span class="at">data =</span> .) <span class="sc">%&gt;%</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot_summs</span>(., <span class="at">inner_ci_level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>empl_turnover <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">review =</span> <span class="fu">scale</span>(review), <span class="at">satisfaction =</span> <span class="fu">scale</span>(satisfaction), <span class="at">tenure =</span> <span class="fu">scale</span>(tenure),<span class="at">projects =</span> <span class="fu">scale</span>(projects), <span class="at">avg_hrs_month =</span> <span class="fu">scale</span>(avg_hrs_month)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">glm</span>(left <span class="sc">~</span> department<span class="sc">+</span> review<span class="sc">+</span> satisfaction<span class="sc">+</span> avg_hrs_month<span class="sc">+</span> promoted<span class="sc">+</span> tenure<span class="sc">+</span> promoted<span class="sc">+</span> projects<span class="sc">+</span> salary<span class="sc">+</span> bonus,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"probit"</span>), <span class="at">data =</span> .) <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot_summs</span>(., <span class="at">inner_ci_level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
 </div>
+</div>
+</section>
+<section id="logistic-regression" class="level4">
+<h4 class="anchored" data-anchor-id="logistic-regression">Logistic Regression</h4>
+<p>For my model I will use the following variables: promoted, review, projects, satisfaction, and average hours worked. This decision was made based on an stepwise regression model (using both forward selection and backward elimination) where all the variables were included and the once with low colinearity were eliminated.</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>empl_tur<span class="ot">&lt;-</span> empl_turnover <span class="sc">%&gt;%</span> dplyr<span class="sc">:::</span><span class="fu">select</span>(<span class="fu">c</span>(<span class="sc">-</span>reordept, <span class="sc">-</span>left.Numeric))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(fist_model<span class="sc">$</span>coefficients)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>full.model <span class="ot">&lt;-</span> <span class="fu">glm</span>(left<span class="sc">~</span> department<span class="sc">+</span> promoted<span class="sc">+</span> review<span class="sc">+</span> projects<span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>salary<span class="sc">+</span> tenure<span class="sc">+</span> satisfaction<span class="sc">+</span> bonus<span class="sc">+</span> avg_hrs_month, </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="at">data =</span> empl_tur, <span class="at">family =</span> binomial)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(full.model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>          (Intercept) departmentengineering     departmentfinance 
-         1.072936e-06          1.008184e+00          9.532048e-01 
-         departmentIT   departmentlogistics   departmentmarketing 
-         1.075123e+00          1.054431e+00          1.031526e+00 
- departmentoperations      departmentretail       departmentsales 
-         9.803633e-01          1.073022e+00          9.962452e-01 
-    departmentsupport           promotedYes                review 
-         1.018490e+00          7.149125e-01          6.483703e+02 
-             projects          salarymedium            salaryhigh 
-         9.614144e-01          1.049773e+00          1.012216e+00 
-               tenure          satisfaction              bonusYes 
-         9.839700e-01          4.367494e+00          9.674300e-01 
-        avg_hrs_month 
-         1.046350e+00 </code></pre>
+<pre><code>
+Call:
+glm(formula = left ~ department + promoted + review + projects + 
+    salary + tenure + satisfaction + bonus + avg_hrs_month, family = binomial, 
+    data = empl_tur)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.4381  -0.8205  -0.6034   1.0706   2.7779  
+
+Coefficients:
+                        Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)           -21.493059   4.739307  -4.535 5.76e-06 ***
+departmentengineering   0.010344   0.130062   0.080 0.936608    
+departmentfinance      -0.070328   0.165088  -0.426 0.670107    
+departmentIT            0.121550   0.168377   0.722 0.470360    
+departmentlogistics     0.098104   0.167795   0.585 0.558773    
+departmentmarketing     0.043406   0.141465   0.307 0.758972    
+departmentoperations   -0.028534   0.129996  -0.219 0.826263    
+departmentretail        0.114473   0.129461   0.884 0.376575    
+departmentsales        -0.005853   0.127297  -0.046 0.963328    
+departmentsupport       0.024313   0.144010   0.169 0.865934    
+promotedYes            -0.558972   0.156892  -3.563 0.000367 ***
+review                 11.160858   0.363223  30.727  &lt; 2e-16 ***
+projects               -0.067532   0.041581  -1.624 0.104350    
+salarymedium            0.075272   0.069816   1.078 0.280970    
+salaryhigh              0.018895   0.087327   0.216 0.828700    
+tenure                 -0.011131   0.082660  -0.135 0.892880    
+satisfaction            2.457897   0.186556  13.175  &lt; 2e-16 ***
+bonusYes               -0.057958   0.059113  -0.980 0.326853    
+avg_hrs_month           0.066040   0.028298   2.334 0.019609 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 11520  on 9539  degrees of freedom
+Residual deviance: 10337  on 9521  degrees of freedom
+AIC: 10375
+
+Number of Fisher Scoring iterations: 4</code></pre>
 </div>
 </div>
-<p>All else equal,</p>
-<ul>
-<li></li>
-</ul>
-<p>The confidence intervals for the odds-ratios</p>
+</section>
+<section id="lets-split-the-data" class="level4">
+<h4 class="anchored" data-anchor-id="lets-split-the-data">Let’s split the data</h4>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>(fist_model))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>data_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(empl_tur, <span class="at">prop =</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">4</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>train.data <span class="ot">&lt;-</span> <span class="fu">training</span>(data_split)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>test.data  <span class="ot">&lt;-</span> <span class="fu">testing</span>(data_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="computing-stepwise-logistique-regression" class="level4">
+<h4 class="anchored" data-anchor-id="computing-stepwise-logistique-regression">Computing stepwise logistique regression</h4>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">glm</span>(left <span class="sc">~</span> department<span class="sc">+</span> promoted<span class="sc">+</span> review<span class="sc">+</span> projects<span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>salary<span class="sc">+</span> tenure<span class="sc">+</span> satisfaction<span class="sc">+</span> bonus<span class="sc">+</span> avg_hrs_month,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="at">data =</span> train.data, <span class="at">family =</span> binomial) <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stepAIC</span>(<span class="at">trace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize the final selected model</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>                             2.5 %       97.5 %
-(Intercept)           4.479402e-09 2.555836e-04
-departmentengineering 8.680227e-01 1.172381e+00
-departmentfinance     7.868521e-01 1.154481e+00
-departmentIT          8.847389e-01 1.306345e+00
-departmentlogistics   8.669936e-01 1.282205e+00
-departmentmarketing   8.761377e-01 1.215477e+00
-departmentoperations  8.440660e-01 1.140018e+00
-departmentretail      9.243293e-01 1.247159e+00
-departmentsales       8.604869e-01 1.154899e+00
-departmentsupport     8.626117e-01 1.203414e+00
-promotedYes           5.977079e-01 8.514388e-01
-review                4.366161e+02 9.657228e+02
-projects              9.162055e-01 1.008823e+00
-salarymedium          9.681911e-01 1.138699e+00
-salaryhigh            9.145515e-01 1.120379e+00
-tenure                8.944537e-01 1.082440e+00
-satisfaction          3.533664e+00 5.406458e+00
-bonusYes              9.033618e-01 1.035781e+00
-avg_hrs_month         1.012700e+00 1.081136e+00</code></pre>
+<pre><code>
+Call:
+glm(formula = left ~ promoted + review + satisfaction + bonus + 
+    avg_hrs_month, family = binomial, data = train.data)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.0471  -0.8148  -0.5930   1.0487   2.7958  
+
+Coefficients:
+                Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)   -20.765742   1.441891 -14.402  &lt; 2e-16 ***
+promotedYes    -0.586594   0.178620  -3.284  0.00102 ** 
+review         11.655310   0.428243  27.217  &lt; 2e-16 ***
+satisfaction    2.680873   0.219774  12.198  &lt; 2e-16 ***
+bonusYes       -0.131276   0.069554  -1.887  0.05911 .  
+avg_hrs_month   0.058488   0.006937   8.431  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 8595.3  on 7154  degrees of freedom
+Residual deviance: 7660.6  on 7149  degrees of freedom
+AIC: 7672.6
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+</section>
+<section id="perform-stepwise-variable-selection" class="level4">
+<h4 class="anchored" data-anchor-id="perform-stepwise-variable-selection">Perform stepwise variable selection</h4>
+<p>Select the most contributive variables:</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>step.model <span class="ot">&lt;-</span> full.model <span class="sc">%&gt;%</span> <span class="fu">stepAIC</span>(<span class="at">trace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(step.model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  (Intercept)   promotedYes        review      projects  satisfaction 
+ -20.78275350   -0.56064635   11.15148701   -0.06756327    2.45678963 
+avg_hrs_month 
+   0.06220750 </code></pre>
 </div>
 </div>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fit.BT <span class="ot">&lt;-</span> <span class="fu">rpart</span>(left <span class="sc">~</span> promoted <span class="sc">+</span> review <span class="sc">+</span> projects <span class="sc">+</span> satisfaction <span class="sc">+</span> avg_hrs_month,</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> empl_turnover, <span class="at">method =</span> <span class="st">"class"</span>)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(fit.BT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(LogisticDx)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>model_diagnostics <span class="ot">&lt;-</span> LogisticDx<span class="sc">::</span><span class="fu">gof</span>(step.model, <span class="at">plotROC =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
 </section>
-<section id="conclusion-and-recomendations" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion-and-recomendations">5. Conclusion and Recomendations</h2>
-</section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">6. References</h2>
+<section id="section" class="level2">
+<h2 class="anchored" data-anchor-id="section"></h2>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">formula =</span> left <span class="sc">~</span> promoted <span class="sc">+</span> review <span class="sc">+</span> satisfaction <span class="sc">+</span> bonus <span class="sc">+</span> tenure <span class="sc">+</span>  avg_hrs_month, <span class="at">family =</span> binomial, <span class="at">data =</span> train.data)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(model2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  (Intercept)   promotedYes        review  satisfaction      bonusYes 
+ -24.92708321   -0.58724188   11.66591046    2.67842602   -0.13178813 
+       tenure avg_hrs_month 
+  -0.07543137    0.08367092 </code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model_diagnostics2 <span class="ot">&lt;-</span> LogisticDx<span class="sc">::</span><span class="fu">gof</span>(model2, <span class="at">plotROC =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>```</p>
 
 
 </section>
