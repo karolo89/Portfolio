@@ -1,7 +1,7 @@
 ---
 title: "Instacart"
 author: "Karol Orozco"
-date: "2022-10"
+date: "2022-10-21"
 ---
 
 ## Background 
@@ -10,17 +10,17 @@ The data analyzed came for kaggle, https://www.kaggle.com/c/instacart-market-bas
 
 Once the dataset is downloaded, it weighs 200.7 MB in zip format. Once unzipped, six files appear:
 
-departments.csv: Collect name and id for different departments.
+- departments.csv: Collect name and id for different departments.
 
-aisle.csv: That collects the corridors and the different sections.
+- aisle.csv: That collects the corridors and the different sections.
 
-products.csv: Collect all the products that are for sale in the store.
+- products.csv: Collect all the products that are for sale in the store.
 
-orders.csv: Collect all the orders made by customers, or which is the same, all the shopping carts (Market_Basket).
+- orders.csv: Collect all the orders made by customers, or which is the same, all the shopping carts (Market_Basket).
 
-order_products_prior.csv: Collect the products that were purchased in an order and all the customer’s purchase history throughout that year.
+- order_products_prior.csv: Collect the products that were purchased in an order and all the customer’s purchase history throughout that year.
 
-order_products_train.csv: Collect the products that were purchased in an order reflecting the last basket purchased by each customer.
+- order_products_train.csv: Collect the products that were purchased in an order reflecting the last basket purchased by each customer.
 
 For this analysis, we will use the order_products_train.csv, which offers a data sample of the order_products_prior.csv
 
@@ -37,7 +37,7 @@ library(RColorBrewer)
 library(scales)
 library(treemap) ## devtools::install_github("timelyportfolio/d3treeR")
 library(d3treeR)
- 
+library(flextable)
 
 ```
 
@@ -53,16 +53,41 @@ products <- read.csv("C:/Users/karol/Desktop/DATA/INSTA/products.csv")
 aisles <- read.csv("C:/Users/karol/Desktop/DATA/INSTA/aisles.csv")
 ```
 
+
+#### Departments
 ```{r}
-head(departments)
-head(order_products)
-head(orders)
-head(products)
-head(aisles)
+glimpse(departments)
 
 ```
 
-##### Combining the data
+#### Order Products
+
+```{r}
+glimpse(order_products)
+
+```
+
+#### Orders
+
+```{r}
+glimpse(orders)
+```
+
+
+#### Products
+
+```{r}
+glimpse(products)
+```
+
+#### Aisles
+
+```{r}
+glimpse(aisles)
+
+```
+
+##### Combining and Transforming the data
 
 ```{r}
 
@@ -70,15 +95,12 @@ orders$order_hour_of_day <- as.numeric(orders$order_hour_of_day)
 
 products <- products%>% mutate(category =  ifelse(grepl("Organic", products$product_name), "Organic",  "Non-organic"))
 df <- products %>% group_by(department_id, aisle_id, product_id, product_name, category) %>% dplyr::summarize(n=n())
+
+
 df <- df %>% left_join(departments,by="department_id")
 df<-  df %>% left_join(aisles,by="aisle_id")
 data <- merge(x= order_products,y= df, by= "product_id")
 data <- merge(x= data, y= orders, by= "order_id")
-
-```
-
-
-```{r}
 
 
 products <- products %>% mutate(product_name = as.factor(product_name))
@@ -95,7 +117,8 @@ data <- data %>% mutate(reordered = as.factor(reordered))
 
 
 ```{r}
-glimpse(data)
+
+str(data)
 
 ```
 
@@ -160,9 +183,9 @@ So, from the above graph, its clear that Maximum no of orders are placed between
 
 Actions: Develop strategies to increase sales during the quietest days of the week:
 
-Offer discounts on certain items.
+- Offer discounts on certain items.
 
-Offer free delivery with orders over a specific dollar amount.
+- Offer free delivery with orders over a specific dollar amount.
 
 Positive note: Customers can shop on a Wednesday or Thursday, and most likely, they will never encounter “out of stock” items or delivery/pick delays.
 
@@ -193,6 +216,7 @@ Most customers wait approximately 30 days to place their next order, followed by
 
 
 #### Bestsellers Products
+
 ```{r}
 
 type <- data   %>%
@@ -244,11 +268,10 @@ ggplotly(best, tooltip = "text")
        
 The highest ordered products are Banana, Bag of Organic Bananas, Organic Strawberries and Organic Baby Spinach. So to increase the sale of Strawberries the retailer can put it near the Bananas.
 
-Less Popular Products
-Categorically we see what areas we can improve sales on by addressing various marketing strategies.
+Less Popular Products:
+- Categorically we see what areas we can improve sales on by addressing various marketing strategies.
 
 ```{r}
-library(flextable)
 set_flextable_defaults(font.family = "Arial", font.size = 9, padding = 2)
 
 less_p <- data   %>%
@@ -298,7 +321,7 @@ f_org <-flextable(head(less_org, n= 5))%>%
 
 f_org 
 ```
-```{r}
+```{r, fig.show = "hide", results = "hide"}
 Prod_portf <- data %>% 
   group_by(product_id) %>% 
   dplyr::summarize(count=n()) %>% 
@@ -308,16 +331,14 @@ Prod_portf <- data %>%
   dplyr::summarize(sumcount = sum(count)) %>% 
   left_join(df, by = c("department_id", "aisle_id")) %>% 
   mutate(onesize = 1)
-```
 
-
-```{r, fig.show = "hide", results = "hide"}
 
 ## Treemap
 
 p <-  treemap(Prod_portf,
               index=c("department","aisle"),
         vSize="n",
+        vColor= "department",
         type="index",
         
         #Main
@@ -326,8 +347,8 @@ p <-  treemap(Prod_portf,
         sortID="-sumcount")
 ```
 
-```{r}
 
+```{r}
 d3tree2( p,  rootname = "Portfolio" )
 
 ```
