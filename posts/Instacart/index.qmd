@@ -38,6 +38,9 @@ library(scales)
 library(treemap) ## devtools::install_github("timelyportfolio/d3treeR")
 library(d3treeR)
 library(flextable)
+library(webshot)
+
+
 
 ```
 
@@ -285,7 +288,8 @@ less_p <- data   %>%
          Category= category)%>% 
   select(Product, Number_of_Orders, Category) 
 
-f <-flextable(head(less_p, n= 5))%>%
+
+flextable(head(less_p, n= 5))%>%
   align(
     j = c("Product", "Number_of_Orders", "Category"), 
     align = "center", part = "all") %>% 
@@ -293,9 +297,9 @@ f <-flextable(head(less_p, n= 5))%>%
   theme_zebra(odd_header = "#F26A58", even_header = "#F26A58",
               odd_body = "#fff5f5", even_body = "#f8f9fa") %>% 
   color(part = "header", color = "white")%>% 
-  align(align = "right", part = "all")%>% autofit() 
+  align(align = "right", part = "all")%>% autofit()  
 
-f 
+ 
 
 less_org <- data   %>%
     group_by(product_id)%>% 
@@ -309,7 +313,7 @@ less_org <- data   %>%
          Category= category)%>% 
   select(Product, Number_of_Orders, Category) 
 
-f_org <-flextable(head(less_org, n= 5))%>%
+flextable(head(less_org, n= 5))%>%
   align(
     j = c("Product", "Number_of_Orders", "Category"), 
     align = "center", part = "all") %>% 
@@ -317,10 +321,11 @@ f_org <-flextable(head(less_org, n= 5))%>%
   theme_zebra(odd_header = "#0AAD0A", even_header = "#0AAD0A",
               odd_body = "#fff5f5" , even_body = "#FAF1E5") %>% 
   color(part = "header", color = "white")%>% 
-  align(align = "right", part = "all")%>% autofit() 
+  align(align = "right", part = "all")%>% autofit()
 
-f_org 
+
 ```
+
 ```{r, fig.show = "hide", results = "hide"}
 Prod_portf <- data %>% 
   group_by(product_id) %>% 
