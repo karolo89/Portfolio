@@ -38,9 +38,6 @@ library(scales)
 library(treemap) ## devtools::install_github("timelyportfolio/d3treeR")
 library(d3treeR)
 library(flextable)
-library(webshot)
-
-
 
 ```
 
