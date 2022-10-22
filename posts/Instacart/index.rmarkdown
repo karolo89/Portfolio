@@ -1,0 +1,352 @@
+---
+title: "Instacart"
+author: "Karol Orozco"
+date: "2022-10"
+---
+
+
+## Background 
+
+The data analyzed came for kaggle, https://www.kaggle.com/c/instacart-market-basket-analysis/data. The dataset is anonymized and contains a sample of over 3 million grocery orders from more than 200,000 Instacart users
+
+Once the dataset is downloaded, it weighs 200.7 MB in zip format. Once unzipped, six files appear:
+
+departments.csv: Collect name and id for different departments.
+
+aisle.csv: That collects the corridors and the different sections.
+
+products.csv: Collect all the products that are for sale in the store.
+
+orders.csv: Collect all the orders made by customers, or which is the same, all the shopping carts (Market_Basket).
+
+order_products_prior.csv: Collect the products that were purchased in an order and all the customer’s purchase history throughout that year.
+
+order_products_train.csv: Collect the products that were purchased in an order reflecting the last basket purchased by each customer.
+
+For this analysis, we will use the order_products_train.csv, which offers a data sample of the order_products_prior.csv
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
+library(tidyverse)
+library(ggplot2)
+library(radiant)
+library(colorspace)
+library(readr)
+library(plyr) ## Tools for Splitting, Applying and Combining Data
+library(plotly)
+library(RColorBrewer)
+library(scales)
+library(treemap) ## devtools::install_github("timelyportfolio/d3treeR")
+library(d3treeR)
+ 
+
+```
+
+
+## Prepare and Analyze the Data
+
+Load the data: Departments, order_products, orders, products and aisles
+
+
+```{r}
+departments <- read.csv("C:/Users/karol/Desktop/DATA/INSTA/departments.csv")
+order_products <- read.csv("C:/Users/karol/Desktop/DATA/INSTA/order_products__train.csv")
+orders <- read.csv("C:/Users/karol/Desktop/DATA/INSTA/orders.csv")
+products <- read.csv("C:/Users/karol/Desktop/DATA/INSTA/products.csv")
+aisles <- read.csv("C:/Users/karol/Desktop/DATA/INSTA/aisles.csv")
+```
+
+```{r}
+head(departments)
+head(order_products)
+head(orders)
+head(products)
+head(aisles)
+
+```
+
+
+##### Combining the data
+
+
+```{r}
+
+orders$order_hour_of_day <- as.numeric(orders$order_hour_of_day)
+
+products <- products%>% mutate(category =  ifelse(grepl("Organic", products$product_name), "Organic",  "Non-organic"))
+df <- products %>% group_by(department_id, aisle_id, product_id, product_name, category) %>% dplyr::summarize(n=n())
+df <- df %>% left_join(departments,by="department_id")
+df<-  df %>% left_join(aisles,by="aisle_id")
+data <- merge(x= order_products,y= df, by= "product_id")
+data <- merge(x= data, y= orders, by= "order_id")
+
+```
+
+```{r}
+
+
+products <- products %>% mutate(product_name = as.factor(product_name))
+
+aisles <- aisles %>% mutate(aisle = as.factor(aisle))
+departments <- departments %>% mutate(department = as.factor(department))
+data <- data %>% mutate(product_name = as.factor(product_name))
+data <- data %>% mutate(order_id = as.character(order_id))
+data <- data %>% mutate(add_to_cart_order = as.factor(add_to_cart_order))
+data <- data %>% mutate(reordered = as.factor(reordered))
+
+
+```
+
+```{r}
+glimpse(data)
+
+```
+
+
+### Data Exploration
+
+Maximum number of orders are placed between 9:00am and 4:00pm on Sunday and Monday. There is also a big number of orders during Friday and Saturday.
+
+
+```{r}
+day_week <- orders %>%
+    mutate(day = as.factor(order_dow)) %>%
+    mutate(hour = as.factor(order_hour_of_day)) %>%
+    group_by(day,hour) %>%
+    dplyr::summarise(count = n()) %>%
+    arrange(desc(count))
+
+day_weekp <-day_week %>%
+    ggplot(aes(x=day, y=hour))+
+    geom_tile(aes(fill=count), colour = "white") + 
+  
+    scale_fill_gradient(name= "Number of\nOrders", 
+                        low = "#FFF5EE",
+                        high = "#CC5500")+
+    scale_x_discrete( position = "top",
+                    breaks = c("0", "1", "2", "3", "4", "5", "6"),
+                    label = c("Sunday", "Monday", "Tuesday",
+                              "Wednesday","Thursday", "Friday", "Saturday"),
+                    expand=c(0,0))+
+    scale_y_discrete( 
+                    breaks = c("0", "6", "12", "18", "23"),
+                    label = c("12am", "6am", "12pm", "6pm", "11pm"),
+                    expand=c(0,0))+
+  
+    labs(title="Which Day and What Time Do Customers Order the Most?",
+            x="", 
+            y="")+
+  
+    ggpubr::theme_pubclean()+
+    theme(
+      
+    axis.line=element_blank(),                                               
+    axis.ticks=element_line(size=0.4),
+    axis.text = element_text(size= 10),
+
+    plot.background=element_blank(),         
+    plot.title = element_text(size =10, hjust = 0.50, vjust = 1),
+    plot.caption = element_text(hjust = 0, size = 5, 
+                                margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")),
+
+    
+    panel.grid = element_blank(),
+    
+    legend.position = "bottom",
+    legend.title = element_text(size= 9),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.key.width=grid::unit(2,"cm"),
+    legend.key.height=grid::unit(0.2,"cm")
+)
+
+day_weekp
+```
+
+So, from the above graph, its clear that Maximum no of orders are placed between 10:00AM and 5:00PM on Sunday and Monday.
+
+Actions: Develop strategies to increase sales during the quietest days of the week:
+
+Offer discounts on certain items.
+
+Offer free delivery with orders over a specific dollar amount.
+
+Positive note: Customers can shop on a Wednesday or Thursday, and most likely, they will never encounter “out of stock” items or delivery/pick delays.
+
+
+
+
+```{r}
+
+data%>%
+  group_by(days_since_prior_order) %>%
+  dplyr::summarise(torders = n())%>%
+  mutate(color= ifelse(torders>100000, "#CC5500", "gray"))%>%
+
+  ggplot(aes(x = days_since_prior_order, y= torders, fill= color)) + 
+  geom_col(show.legend = FALSE) +
+  scale_x_continuous(breaks = seq(0, 30, 5))+
+  scale_y_continuous(labels = scales::comma)+
+  scale_fill_manual("", values = c("#CC5500", "gray"))+
+  labs(x= "Days Since Prior Order",
+       y= "Number of Orders",
+       title = "How Many Days Do Customer Wait to Place a New Order?")+
+  
+ ggpubr::theme_pubclean()+
+ theme(plot.title = element_text(size =10, hjust = 0.50, vjust = 1),
+           axis.text = element_text(size= 10)) 
+```
+
+
+Most customers wait approximately 30 days to place their next order, followed by another majority of customers who wait seven days to make their next purchase.
+
+
+#### Bestsellers Products
+
+```{r}
+
+type <- data   %>%
+    group_by(product_id)%>% 
+    dplyr::summarize(count = n()) %>% 
+    top_n(20, wt = count) %>%
+    left_join(select(products, product_id, product_name, category), by="product_id") %>%
+    arrange(desc(count))
+
+ 
+
+best <- type %>% 
+ggplot(aes(x=reorder(product_name,count), y=count, color= category, text= paste0(product_name, ", Total Orders:", count)))+    geom_point(size= 2)+
+    geom_segment(aes(x=reorder(product_name,count), 
+                     xend=reorder(product_name,count), 
+                     y=0, 
+                     yend=count), size=0.8)+
+  
+    scale_y_continuous(labels = scales::comma) +
+  
+      labs(title="Bestsellers Products",
+           subtitle = "Organic vs Non-Organic",
+           y="", 
+           x="", 
+           legend = "")+
+     scale_color_manual("", values = c("#CC5500", "#0AAD0A"))+
+
+      theme(
+       axis.text.x= element_text( size= 7),
+       axis.text.y= element_text( size= 8),
+
+       plot.title = element_text(hjust=0.5, size= 12, vjust = 0.5),
+       plot.subtitle = element_text(hjust=0.5, size= 9, vjust = 0.5),
+       
+       panel.grid.major.x = element_blank(),
+       panel.grid.major.y = element_blank(),
+       panel.grid.minor.y = element_blank(),
+       panel.grid = element_line(color = "#e5e5e5"))+
+  
+     ggpubr::theme_pubclean()+
+
+  
+  
+     coord_flip()
+
+ggplotly(best, tooltip = "text")
+```
+
+
+       
+The highest ordered products are Banana, Bag of Organic Bananas, Organic Strawberries and Organic Baby Spinach. So to increase the sale of Strawberries the retailer can put it near the Bananas.
+
+Less Popular Products
+Categorically we see what areas we can improve sales on by addressing various marketing strategies.
+
+
+```{r}
+library(flextable)
+set_flextable_defaults(font.family = "Arial", font.size = 9, padding = 2)
+
+less_p <- data   %>%
+    group_by(product_id)%>% 
+    dplyr::summarize(count = n()) %>% 
+    top_n(-6, wt = count) %>%
+    left_join(select(products, product_id, product_name, category), by="product_id") %>%
+    arrange(desc(count))%>% 
+        mutate(Number_of_Orders= count,
+         Product = product_name,
+         Category= category)%>% 
+  select(Product, Number_of_Orders, Category) 
+
+f <-flextable(head(less_p, n= 5))%>%
+  align(
+    j = c("Product", "Number_of_Orders", "Category"), 
+    align = "center", part = "all") %>% 
+  padding(padding = 3, part = "all")%>% 
+  theme_zebra(odd_header = "#F26A58", even_header = "#F26A58",
+              odd_body = "#fff5f5", even_body = "#f8f9fa") %>% 
+  color(part = "header", color = "white")%>% 
+  align(align = "right", part = "all")%>% autofit() 
+
+f 
+
+less_org <- data   %>%
+    group_by(product_id)%>% 
+    filter(category== "Organic")%>%
+    dplyr::summarize(count = n()) %>% 
+    top_n(-6, wt = count) %>%
+    left_join(select(products, product_id, product_name, category), by="product_id") %>%
+    arrange(desc(count))%>% 
+        mutate(Number_of_Orders= count,
+         Product = product_name,
+         Category= category)%>% 
+  select(Product, Number_of_Orders, Category) 
+
+f_org <-flextable(head(less_org, n= 5))%>%
+  align(
+    j = c("Product", "Number_of_Orders", "Category"), 
+    align = "center", part = "all") %>% 
+  padding(padding = 3, part = "all")%>% 
+  theme_zebra(odd_header = "#0AAD0A", even_header = "#0AAD0A",
+              odd_body = "#fff5f5" , even_body = "#FAF1E5") %>% 
+  color(part = "header", color = "white")%>% 
+  align(align = "right", part = "all")%>% autofit() 
+
+f_org 
+```
+
+```{r}
+Prod_portf <- data %>% 
+  group_by(product_id) %>% 
+  dplyr::summarize(count=n()) %>% 
+  left_join(products,by="product_id") %>% 
+  ungroup() %>% 
+  group_by(department_id,aisle_id) %>% 
+  dplyr::summarize(sumcount = sum(count)) %>% 
+  left_join(df, by = c("department_id", "aisle_id")) %>% 
+  mutate(onesize = 1)
+```
+
+```{r, fig.show = "hide", results = "hide"}
+
+## Treemap
+
+p <-  treemap(Prod_portf,
+              index=c("department","aisle"),
+        vSize="n",
+        type="index",
+        
+        #Main
+        palette= "Set3",
+        title="Product Portfolio",
+        sortID="-sumcount")
+```
+
+```{r}
+
+d3tree2( p,  rootname = "Portfolio" )
+
+```
+
+
+
+
+## The Model
+
+## Next Steps
