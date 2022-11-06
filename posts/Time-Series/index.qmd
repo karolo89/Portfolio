@@ -5,8 +5,132 @@ date: "2022-10-04"
 categories: [news, code, analysis]
 ---
 
-This is a post with executable code.
+```{r, message=FALSE, warning=FALSE}
+
+library(tidyverse)
+library(lubridate); library(tsibble)
+library(readxl)
+library(purrr)
+library(gganimate)
+library(fpp3)
+
+```
+
+## Load the Data
+
+You can find this free dataset on the Zillow website: https://www.zillow.com/research/data/#other-metrics
+
 
 ```{r}
-1 + 1
+raw_city <- read.csv("C:/Users/karol/Desktop/Portfolio/City_zori_sm_month.csv")
 ```
+
+- RegionID	This is unique Id for the Regions
+- SizeRank	This is the ranking done based on the size of the region
+- RegionName	This field contains the zip code of the region.
+- RegionType	Type of region is Zip.
+- StateName	State
+- State	This column provide the specific City Name of Housing Data
+- Metro	This provide the name of the metro city around that region
+- County Name	This is the county name for that region
+- Months Column	These columns contains the prices of region for every month since 2015- 2022
+
+```{r}
+
+str(raw_city[,c(1:11)])
+```
+
+We have to make this dataset tidy. Tidy Data is a way of structuring data so that it can be easily understood by people and analyzed by machines.
+
+## Prepare and Convert the Data
+
+I need to remove the X at the beginning of the dates (X3.31.2015,...)
+
+```{r}
+names(raw_city) <- sub("^X", "", names(raw_city))
+str(raw_city[,c(1:10)],10)
+```
+
+Now, I will create a new column called Price, where the values from the dates column will merge into it.
+
+```{r}
+rent_city <- raw_city %>% 
+  pivot_longer(-c(RegionID,SizeRank,RegionName,RegionType,StateName,State,Metro,CountyName),
+    names_to = "Monthly",
+    values_to = "Price"
+  ) 
+str(rent_city)
+
+```
+
+
+
+
+```{r}
+#Converting the Date from factor to character
+rent_clean <- rent_city %>%
+            mutate(Monthly_parsed = as.Date(Monthly,"%m.%d.%Y"))
+
+
+rent_clean[["Monthly"]]<- as.character(rent_clean$Monthly)
+
+rent_city[["Monthly"]]<- as.character(rent_city$Monthly)
+summary(rent_city)
+```
+
+
+We see some missing values in the Price variable, but before I deal with those values, I will filter my data to the cities that I am interested the most: Houston, Orlando and Portland.
+
+
+```{r}
+
+preferred_cities <- rent_clean %>%
+  filter(rent_clean$RegionName %in% c("Houston", "Orlando", "Portland"))
+
+summary(preferred_cities)
+```
+
+
+After filtering the data, we don't have any missing values
+
+```{r}
+colSums(is.na(preferred_cities))
+```
+
+```{r}
+ts_rent_pref_cities <- preferred_cities[,c("Monthly_parsed","Price")]
+
+
+#### Display the first 10 elements of the dataset
+
+head(ts_rent_pref_cities, n = 10)
+
+#### Display the last 10 elements of the dataset
+
+tail(ts_rent_pref_cities, n = 10)
+
+```
+We see that the date goes from March 31, 2015, to September 30, 2022, with a monthly calculation of the rental value.
+
+```{r, fig.width= 15, message=FALSE, warning=FALSE}
+
+preferred_cities %>%
+  ggplot(aes(x= Monthly_parsed, y= Price, color= RegionName)) +
+  geom_line(size=2) +
+  labs(y="Rent Price in /n US Dollars", 
+       x= "Year",
+       title="Rent Cost in Portland, Orlando & Houston, 2015-2022",
+       caption = "data:https://www.zillow.com/research/data")+
+  facet_grid(RegionName~ ., scales = "free_y")+
+  hrbrthemes::theme_ipsum_rc()+  
+  theme(legend.position = "none") 
+
+```
+
+# Decomposition
+
+## Classical Decomposition
+
+
+
+

@@ -229,7 +229,8 @@ type <- data   %>%
  
 
 best <- type %>% 
-ggplot(aes(x=reorder(product_name,count), y=count, color= category, text= paste0(product_name, ", Total Orders:", count)))+    geom_point(size= 2)+
+ggplot(aes(x=reorder(product_name,count), y=count, color= category, text= paste0(product_name, ", Total Orders:", count)))+    
+  geom_point(size= 2)+
     geom_segment(aes(x=reorder(product_name,count), 
                      xend=reorder(product_name,count), 
                      y=0, 
@@ -248,18 +249,12 @@ ggplot(aes(x=reorder(product_name,count), y=count, color= category, text= paste0
        axis.text.x= element_text( size= 7),
        axis.text.y= element_text( size= 8),
 
-       plot.title = element_text(hjust=0.5, size= 12, vjust = 0.5),
-       plot.subtitle = element_text(hjust=0.5, size= 9, vjust = 0.5),
-       
        panel.grid.major.x = element_blank(),
        panel.grid.major.y = element_blank(),
        panel.grid.minor.y = element_blank(),
        panel.grid = element_line(color = "#e5e5e5"))+
   
      ggpubr::theme_pubclean()+
-
-  
-  
      coord_flip()
 
 ggplotly(best, tooltip = "text")
@@ -268,60 +263,6 @@ ggplotly(best, tooltip = "text")
        
 The highest ordered products are Banana, Bag of Organic Bananas, Organic Strawberries and Organic Baby Spinach. So to increase the sale of Strawberries the retailer can put it near the Bananas.
 
-Less Popular Products:
-- Categorically we see what areas we can improve sales on by addressing various marketing strategies.
-
-```{r}
-set_flextable_defaults(font.family = "Arial", font.size = 9, padding = 2)
-
-less_p <- data   %>%
-    group_by(product_id)%>% 
-    dplyr::summarize(count = n()) %>% 
-    top_n(-6, wt = count) %>%
-    left_join(select(products, product_id, product_name, category), by="product_id") %>%
-    arrange(desc(count))%>% 
-        mutate(Number_of_Orders= count,
-         Product = product_name,
-         Category= category)%>% 
-  select(Product, Number_of_Orders, Category) 
-
-
-flextable(head(less_p, n= 5))%>%
-  align(
-    j = c("Product", "Number_of_Orders", "Category"), 
-    align = "center", part = "all") %>% 
-  padding(padding = 3, part = "all")%>% 
-  theme_zebra(odd_header = "#F26A58", even_header = "#F26A58",
-              odd_body = "#fff5f5", even_body = "#f8f9fa") %>% 
-  color(part = "header", color = "white")%>% 
-  align(align = "right", part = "all")%>% autofit()  
-
- 
-
-less_org <- data   %>%
-    group_by(product_id)%>% 
-    filter(category== "Organic")%>%
-    dplyr::summarize(count = n()) %>% 
-    top_n(-6, wt = count) %>%
-    left_join(select(products, product_id, product_name, category), by="product_id") %>%
-    arrange(desc(count))%>% 
-        mutate(Number_of_Orders= count,
-         Product = product_name,
-         Category= category)%>% 
-  select(Product, Number_of_Orders, Category) 
-
-flextable(head(less_org, n= 5))%>%
-  align(
-    j = c("Product", "Number_of_Orders", "Category"), 
-    align = "center", part = "all") %>% 
-  padding(padding = 3, part = "all")%>% 
-  theme_zebra(odd_header = "#0AAD0A", even_header = "#0AAD0A",
-              odd_body = "#fff5f5" , even_body = "#FAF1E5") %>% 
-  color(part = "header", color = "white")%>% 
-  align(align = "right", part = "all")%>% autofit()
-
-
-```
 
 ```{r, fig.show = "hide", results = "hide"}
 Prod_portf <- data %>% 
@@ -354,9 +295,3 @@ p <-  treemap(Prod_portf,
 d3tree2( p,  rootname = "Portfolio" )
 
 ```
-
-
-
-## The Model
-
-## Next Steps
