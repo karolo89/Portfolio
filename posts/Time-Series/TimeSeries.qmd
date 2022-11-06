@@ -27,8 +27,8 @@ raw_city <- read.csv("C:/Users/karol/Desktop/Portfolio/City_zori_sm_month.csv")
 
 - RegionID	This is unique Id for the Regions
 - SizeRank	This is the ranking done based on the size of the region
-- RegionName	This field contains the zip code of the region.
-- RegionType	Type of region is Zip.
+- RegionName	This field contains the name of the city.
+- RegionType	Type of region.
 - StateName	State
 - State	This column provide the specific City Name of Housing Data
 - Metro	This provide the name of the metro city around that region
@@ -112,7 +112,7 @@ tail(ts_rent_pref_cities, n = 10)
 ```
 We see that the date goes from March 31, 2015, to September 30, 2022, with a monthly calculation of the rental value.
 
-```{r, fig.width= 15, message=FALSE, warning=FALSE}
+```{r, fig.height= 10, message=FALSE, warning=FALSE}
 
 preferred_cities %>%
   ggplot(aes(x= Monthly_parsed, y= Price, color= RegionName)) +
@@ -126,10 +126,6 @@ preferred_cities %>%
   theme(legend.position = "none") 
 
 ```
-
-# Decomposition
-
-## Classical Decomposition
 
 
 
