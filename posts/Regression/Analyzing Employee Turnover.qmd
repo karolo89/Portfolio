@@ -397,20 +397,6 @@ summary(model)
 Select the most contributive variables:
 
 ```{r}
-step.model <- full.model %>% stepAIC(trace = FALSE)
-coef(step.model)
-```
-
-```{r}
-library(LogisticDx)
-
-model_diagnostics <- LogisticDx::gof(step.model, plotROC = TRUE)
-
-```
-
-## 
-
-```{r}
 model2 <- glm(formula = left ~ promoted + review + satisfaction + bonus + tenure +  avg_hrs_month, family = binomial, data = train.data)
 
 coef(model2)
@@ -420,4 +406,6 @@ model_diagnostics2 <- LogisticDx::gof(model2, plotROC = TRUE)
 
 ```
 
-```
+The accuracy of this model is 74%, that is - the model about 74% of the time can correctly classify whether an individual will leave or stay.
+
+Further work can explore other classification models (such as decision trees) to improve performance for determining factors influencing an employee's reason to leave. Improving prediction response can help identify the most at-risk staff.

@@ -655,7 +655,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>plot_depart</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -687,7 +687,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="at">legend.position=</span><span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="1440"></p>
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="1440"></p>
 </div>
 </div>
 </section>
@@ -737,7 +737,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="1440"></p>
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="1440"></p>
 </div>
 </div>
 </section>
@@ -750,7 +750,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -785,7 +785,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>plot_rev_sat_left</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="775"></p>
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="775"></p>
 </div>
 </div>
 </section>
@@ -806,7 +806,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot_summs</span>(., <span class="at">inner_ci_level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -939,37 +939,9 @@ Number of Fisher Scoring iterations: 4</code></pre>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>step.model <span class="ot">&lt;-</span> full.model <span class="sc">%&gt;%</span> <span class="fu">stepAIC</span>(<span class="at">trace =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(step.model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>  (Intercept)   promotedYes        review      projects  satisfaction 
- -20.78275350   -0.56064635   11.15148701   -0.06756327    2.45678963 
-avg_hrs_month 
-   0.06220750 </code></pre>
-</div>
-</div>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(LogisticDx)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>model_diagnostics <span class="ot">&lt;-</span> LogisticDx<span class="sc">::</span><span class="fu">gof</span>(step.model, <span class="at">plotROC =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
-</section>
-<section id="section" class="level2">
-<h2 class="anchored" data-anchor-id="section"></h2>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">formula =</span> left <span class="sc">~</span> promoted <span class="sc">+</span> review <span class="sc">+</span> satisfaction <span class="sc">+</span> bonus <span class="sc">+</span> tenure <span class="sc">+</span>  avg_hrs_month, <span class="at">family =</span> binomial, <span class="at">data =</span> train.data)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(model2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">formula =</span> left <span class="sc">~</span> promoted <span class="sc">+</span> review <span class="sc">+</span> satisfaction <span class="sc">+</span> bonus <span class="sc">+</span> tenure <span class="sc">+</span>  avg_hrs_month, <span class="at">family =</span> binomial, <span class="at">data =</span> train.data)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(model2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  (Intercept)   promotedYes        review  satisfaction      bonusYes 
@@ -979,15 +951,17 @@ avg_hrs_month
 </div>
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model_diagnostics2 <span class="ot">&lt;-</span> LogisticDx<span class="sc">::</span><span class="fu">gof</span>(model2, <span class="at">plotROC =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_diagnostics2 <span class="ot">&lt;-</span> LogisticDx<span class="sc">::</span><span class="fu">gof</span>(model2, <span class="at">plotROC =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>```</p>
+<p>The accuracy of this model is 74%, that is - the model about 74% of the time can correctly classify whether an individual will leave or stay.</p>
+<p>Further work can explore other classification models (such as decision trees) to improve performance for determining factors influencing an employee’s reason to leave. Improving prediction response can help identify the most at-risk staff.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
