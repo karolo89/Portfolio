@@ -10,6 +10,8 @@ categories: [news, code, analysis]
 library(tidyverse)
 library(lubridate); library(tsibble)
 library(readxl)
+library(fpp3)
+
 
 ```
 
@@ -104,21 +106,23 @@ summary(preferred_cities)
 A time series can be recorded as a tsibble object in R. tsibble objects extend tidy data frames (tibble objects) by introducing temporal structure, and to do it, we need to declare key and index. In this case, the Monthly_parsed containing the data-time is the index and the RegionID is the key. Other columns can be considered as measured variables.
 
 ```{r fig.height= 10, message=FALSE, warning=FALSE}
+
 tsb_pref_cities <- preferred_cities %>%
-                   select(RegionName,RegionID, Monthly_parsed, Price)%>%
-                   as_tsibble(key= c(RegionID, RegionName), index= Monthly_parsed)
+                   select(RegionName,RegionID, Monthly_parsed, Price)
 
 tsb_pref_cities <-tsb_pref_cities%>%
-  group_by_key() %>%
-  index_by(year_month = ~ yearmonth(.)) # show the month name and year
+  as_tsibble(key= RegionName, index= Monthly_parsed)%>%
+                   index_by(year_month = ~ yearmonth(.))
 
-tsb_pref_cities 
+tsibble_df <-tsb_pref_cities%>%
+  select(-RegionID)%>%
+  as_tsibble(key= RegionName, index= year_month)
 ```
-To visualize the data, I could usee the autoplot() command, but I rather to create my graph.
+To visualize the data, I could usee the autoplot() command, but I rather to create my graph with ggplot.
 
 ```{r fig.height= 10, message=FALSE, warning=FALSE}
 
-plot_cities <- tsb_pref_cities %>%
+plot_cities <- tsibble_df %>%
   ggplot(aes(x= year_month, y= Price, color= RegionName)) +
   geom_line(size=1)+
    
@@ -132,6 +136,86 @@ plot_cities <- tsb_pref_cities %>%
 
 plot_cities
 ```
+#### Portland's Seasonal Plot
+
+```{r}
+pdx <- tsibble_df %>%
+  filter(RegionName == "Portland")
+
+
+pdx%>%
+gg_season(Price, labels = "both")+
+  ggpubr::theme_pubclean()+
+  labs(x= "",
+       y= "",
+       title="Seasonal Plot: Portland- Rent Cost")+
+  scale_y_continuous(labels=scales::dollar_format())
+```
+
+```{r}
+pdx %>%
+  ACF(Price, lag_max = 48) %>%
+  autoplot()+
+  ggpubr::theme_pubclean()
+```
+
+```{r}
+dcmp <- pdx %>%
+  model(stl = STL(Price))
+components(dcmp)
+```
+The output above shows the components of an STL decomposition. The original data is shown (as Price), followed by the estimated components. This output forms a “dable” or decomposition table. The header to the table shows that the Price series has been decomposed additively.
+
+
+The trend column (containing the trend-cycle, follows the overall movement of the series, ignoring any seasonality and random fluctuations
+
+```{r}
+components(dcmp) %>%
+  as_tsibble() %>%
+  autoplot(Price, colour="gray") +
+  geom_line(aes(y=trend), colour = "#D55E00")+
+  ggpubr::theme_pubclean()
+```
+We can plot all of the components in a single figure using autoplot()
+
+```{r, fig.height= 10}
+components(dcmp) %>% 
+  autoplot(colour = "steelblue") + theme_minimal()+
+  labs(x= "")+ theme(panel.spacing = unit(.8, "cm"))
+
+```
+The three components are shown separately in the bottom three panels. These components can be added together to reconstruct the data shown in the top panel.
+
+
+### Seasonally adjusted data
+
+If the seasonal component is removed from the original data, the resulting values are the “seasonally adjusted” data. 
+
+
+```{r}
+components(dcmp) %>%
+  as_tsibble() %>%
+  autoplot(Price, colour = "gray") +
+  geom_line(aes(y=season_adjust), colour = "#0072B2")+
+  ggpubr::theme_pubclean()
+```
+
+```{r}
+tsibble_df %>%
+  features(Price, feat_stl)
+```
+### Method: Plot ACF + PACF
+
+```{r, message=FALSE, warning=FALSE}
+pdx %>%
+  gg_tsdisplay(difference(Price, 12),
+               plot_type='partial', lag=36) +
+  labs(title="Seasonally differenced", y="")
+```
+These are also clearly non-stationary
+
+
+
 
 
 ## Step 5: Using and evaluating a forecasting model
