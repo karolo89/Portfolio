@@ -10,11 +10,13 @@ categories: [news, code, analysis]
 library(tidyverse)
 library(lubridate); library(tsibble)
 library(readxl)
-library(fpp3)
 
 ```
+
+
 ## Step 1: Problem Definition
 
+In this project, I will perform a time series analysis using Zillow's historical median home prices for the US from March 2015 to October 2022. The project aims to provide information on renting costs in Orlando- FL, Kissimmee- FL, Portland- OR, and Houston- TX, and find the month that offers the lowest price to move in.
 
 ## Step 2: Gathering Information
 
