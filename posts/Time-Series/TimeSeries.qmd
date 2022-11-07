@@ -10,13 +10,13 @@ categories: [news, code, analysis]
 library(tidyverse)
 library(lubridate); library(tsibble)
 library(readxl)
-library(purrr)
-library(gganimate)
 library(fpp3)
 
 ```
+## Step 1: Problem Definition
 
-## Load the Data
+
+## Step 2: Gathering Information
 
 You can find this free dataset on the Zillow website: https://www.zillow.com/research/data/#other-metrics
 
@@ -25,15 +25,17 @@ You can find this free dataset on the Zillow website: https://www.zillow.com/res
 raw_city <- read.csv("C:/Users/karol/Desktop/Portfolio/City_zori_sm_month.csv")
 ```
 
-- RegionID	This is unique Id for the Regions
-- SizeRank	This is the ranking done based on the size of the region
-- RegionName	This field contains the name of the city.
-- RegionType	Type of region.
-- StateName	State
-- State	This column provide the specific City Name of Housing Data
-- Metro	This provide the name of the metro city around that region
-- County Name	This is the county name for that region
-- Months Column	These columns contains the prices of region for every month since 2015- 2022
+- RegionID:	This is unique Id for the Regions
+- SizeRank:	This is the ranking done based on the size of the region
+- RegionName:	This field contains the name of the city.
+- RegionType:	Type of region.
+- StateName:	State
+- State:	This column provide the specific City Name of Housing Data
+- Metro:	This provide the name of the metro city around that region
+- County: Name	This is the county name for that region
+- Months: Column	These columns contains the prices of region for every month since 2015- 2022
+
+## Step 3: Preliminary (exploratory) analysis.
 
 ```{r}
 
@@ -41,8 +43,6 @@ str(raw_city[,c(1:11)])
 ```
 
 We have to make this dataset tidy. Tidy Data is a way of structuring data so that it can be easily understood by people and analyzed by machines.
-
-## Prepare and Convert the Data
 
 I need to remove the X at the beginning of the dates (X3.31.2015,...)
 
@@ -63,11 +63,9 @@ str(rent_city)
 
 ```
 
-
-
-
 ```{r}
 #Converting the Date from factor to character
+
 rent_clean <- rent_city %>%
             mutate(Monthly_parsed = as.Date(Monthly,"%m.%d.%Y"))
 
@@ -79,54 +77,60 @@ summary(rent_city)
 ```
 
 
-We see some missing values in the Price variable, but before I deal with those values, I will filter my data to the cities that I am interested the most: Houston, Orlando and Portland.
+We see some missing values in the Price variable, but before I deal with those values, I will filter my data to the cities that I am interested the most: Houston, Orlando, Kissimmee and Portland.
 
 
 ```{r}
 
 preferred_cities <- rent_clean %>%
-  filter(rent_clean$RegionName %in% c("Houston", "Orlando", "Portland"))
+  dplyr:::filter(RegionName %in% c("Houston", "Orlando", "Portland", "Kissimmee")) %>%
+  dplyr:::filter(RegionID %in% c("13121", "13373", "18847", "39051"))
 
 summary(preferred_cities)
 ```
 
 
-After filtering the data, we don't have any missing values
+- After filtering the data, we don't have any missing values
+- We see that the date goes from March 31, 2015, to September 30, 2022, with a monthly calculation of the rental value.
+- The monthly rent cost goes from 1,172 to 2,153 dollars
 
-```{r}
-colSums(is.na(preferred_cities))
+
+## Step 4: Choosing and fitting models
+
+#### Coerce to a tsibble with as_tsibble()
+
+A time series can be recorded as a tsibble object in R. tsibble objects extend tidy data frames (tibble objects) by introducing temporal structure, and to do it, we need to declare key and index. In this case, the Monthly_parsed containing the data-time is the index and the RegionID is the key. Other columns can be considered as measured variables.
+
+```{r fig.height= 10, message=FALSE, warning=FALSE}
+tsb_pref_cities <- preferred_cities %>%
+                   select(RegionName,RegionID, Monthly_parsed, Price)%>%
+                   as_tsibble(key= c(RegionID, RegionName), index= Monthly_parsed)
+
+tsb_pref_cities <-tsb_pref_cities%>%
+  group_by_key() %>%
+  index_by(year_month = ~ yearmonth(.)) # show the month name and year
+
+tsb_pref_cities 
 ```
+To visualize the data, I could usee the autoplot() command, but I rather to create my graph.
 
-```{r}
-ts_rent_pref_cities <- preferred_cities[,c("Monthly_parsed","Price")]
+```{r fig.height= 10, message=FALSE, warning=FALSE}
 
-
-#### Display the first 10 elements of the dataset
-
-head(ts_rent_pref_cities, n = 10)
-
-#### Display the last 10 elements of the dataset
-
-tail(ts_rent_pref_cities, n = 10)
-
-```
-We see that the date goes from March 31, 2015, to September 30, 2022, with a monthly calculation of the rental value.
-
-```{r, fig.height= 10, message=FALSE, warning=FALSE}
-
-preferred_cities %>%
-  ggplot(aes(x= Monthly_parsed, y= Price, color= RegionName)) +
-  geom_line(size=2) +
-  labs(y="Rent Price in /n US Dollars", 
+plot_cities <- tsb_pref_cities %>%
+  ggplot(aes(x= year_month, y= Price, color= RegionName)) +
+  geom_line(size=1)+
+   
+    labs(y="Rent Price in US Dollars", 
        x= "Year",
-       title="Rent Cost in Portland, Orlando & Houston, 2015-2022",
+       title="Rent Cost in Portland, Kissimmee, Orlando & Houston, 2015-2022",
        caption = "data:https://www.zillow.com/research/data")+
-  facet_grid(RegionName~ ., scales = "free_y")+
-  hrbrthemes::theme_ipsum_rc()+  
-  theme(legend.position = "none") 
+  scale_colour_hue(name= " ")+
+  scale_y_continuous(labels=scales::dollar_format())+
+  ggpubr::theme_pubclean()
 
+plot_cities
 ```
 
 
-
+## Step 5: Using and evaluating a forecasting model
 

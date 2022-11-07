@@ -212,13 +212,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate); <span class="fu">library</span>(tsibble)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fpp3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fpp3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="load-the-data" class="level2">
-<h2 class="anchored" data-anchor-id="load-the-data">Load the Data</h2>
+<section id="step-1-problem-definition" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-problem-definition">Step 1: Problem Definition</h2>
+</section>
+<section id="step-2-gathering-information" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-gathering-information">Step 2: Gathering Information</h2>
 <p>You can find this free dataset on the Zillow website: https://www.zillow.com/research/data/#other-metrics</p>
 <div class="cell">
 <details>
@@ -227,16 +228,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </details>
 </div>
 <ul>
-<li>RegionID This is unique Id for the Regions</li>
-<li>SizeRank This is the ranking done based on the size of the region</li>
-<li>RegionName This field contains the zip code of the region.</li>
-<li>RegionType Type of region is Zip.</li>
-<li>StateName State</li>
-<li>State This column provide the specific City Name of Housing Data</li>
-<li>Metro This provide the name of the metro city around that region</li>
-<li>County Name This is the county name for that region</li>
-<li>Months Column These columns contains the prices of region for every month since 2015- 2022</li>
+<li>RegionID: This is unique Id for the Regions</li>
+<li>SizeRank: This is the ranking done based on the size of the region</li>
+<li>RegionName: This field contains the name of the city.</li>
+<li>RegionType: Type of region.</li>
+<li>StateName: State</li>
+<li>State: This column provide the specific City Name of Housing Data</li>
+<li>Metro: This provide the name of the metro city around that region</li>
+<li>County: Name This is the county name for that region</li>
+<li>Months: Column These columns contains the prices of region for every month since 2015- 2022</li>
 </ul>
+</section>
+<section id="step-3-preliminary-exploratory-analysis." class="level2">
+<h2 class="anchored" data-anchor-id="step-3-preliminary-exploratory-analysis.">Step 3: Preliminary (exploratory) analysis.</h2>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
@@ -258,9 +262,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>We have to make this dataset tidy. Tidy Data is a way of structuring data so that it can be easily understood by people and analyzed by machines.</p>
-</section>
-<section id="prepare-and-convert-the-data" class="level2">
-<h2 class="anchored" data-anchor-id="prepare-and-convert-the-data">Prepare and Convert the Data</h2>
 <p>I need to remove the X at the beginning of the dates (X3.31.2015,…)</p>
 <div class="cell">
 <details>
@@ -311,14 +312,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <details>
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Converting the Date from factor to character</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>rent_clean <span class="ot">&lt;-</span> rent_city <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(<span class="at">Monthly_parsed =</span> <span class="fu">as.Date</span>(Monthly,<span class="st">"%m.%d.%Y"</span>))</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>rent_clean <span class="ot">&lt;-</span> rent_city <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(<span class="at">Monthly_parsed =</span> <span class="fu">as.Date</span>(Monthly,<span class="st">"%m.%d.%Y"</span>))</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>rent_clean[[<span class="st">"Monthly"</span>]]<span class="ot">&lt;-</span> <span class="fu">as.character</span>(rent_clean<span class="sc">$</span>Monthly)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>rent_city[[<span class="st">"Monthly"</span>]]<span class="ot">&lt;-</span> <span class="fu">as.character</span>(rent_city<span class="sc">$</span>Monthly)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rent_city)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>rent_clean[[<span class="st">"Monthly"</span>]]<span class="ot">&lt;-</span> <span class="fu">as.character</span>(rent_clean<span class="sc">$</span>Monthly)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>rent_city[[<span class="st">"Monthly"</span>]]<span class="ot">&lt;-</span> <span class="fu">as.character</span>(rent_city<span class="sc">$</span>Monthly)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rent_city)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>    RegionID         SizeRank        RegionName         RegionType       
@@ -347,23 +349,24 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
                     NA's   :28270     </code></pre>
 </div>
 </div>
-<p>We see some missing values in the Price variable, but before I deal with those values, I will filter my data to the cities that I am interested the most: Houston, Orlando and Portland.</p>
+<p>We see some missing values in the Price variable, but before I deal with those values, I will filter my data to the cities that I am interested the most: Houston, Orlando, Kissimmee and Portland.</p>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>preferred_cities <span class="ot">&lt;-</span> rent_clean <span class="sc">%&gt;%</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(rent_clean<span class="sc">$</span>RegionName <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Houston"</span>, <span class="st">"Orlando"</span>, <span class="st">"Portland"</span>))</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(preferred_cities)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">:::</span><span class="fu">filter</span>(RegionName <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Houston"</span>, <span class="st">"Orlando"</span>, <span class="st">"Portland"</span>, <span class="st">"Kissimmee"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">:::</span><span class="fu">filter</span>(RegionID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"13121"</span>, <span class="st">"13373"</span>, <span class="st">"18847"</span>, <span class="st">"39051"</span>))</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(preferred_cities)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>    RegionID        SizeRank      RegionName         RegionType       
- Min.   :13121   Min.   :  2.0   Length:364         Length:364        
- 1st Qu.:13310   1st Qu.: 15.5   Class :character   Class :character  
- Median :26212   Median : 21.0   Mode  :character   Mode  :character  
- Mean   :26490   Mean   :206.2                                        
- 3rd Qu.:39392   3rd Qu.:211.8                                        
- Max.   :40415   Max.   :781.0                                        
+<pre><code>    RegionID        SizeRank       RegionName         RegionType       
+ Min.   :13121   Min.   :  2.00   Length:364         Length:364        
+ 1st Qu.:13310   1st Qu.: 15.50   Class :character   Class :character  
+ Median :16110   Median : 21.00   Mode  :character   Mode  :character  
+ Mean   :21098   Mean   : 50.25                                        
+ 3rd Qu.:23898   3rd Qu.: 55.75                                        
+ Max.   :39051   Max.   :157.00                                        
   StateName            State              Metro            CountyName       
  Length:364         Length:364         Length:364         Length:364        
  Class :character   Class :character   Class :character   Class :character  
@@ -372,103 +375,85 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
                                                                             
                                                                             
    Monthly              Price      Monthly_parsed      
- Length:364         Min.   :1195   Min.   :2015-03-31  
- Class :character   1st Qu.:1370   1st Qu.:2017-01-31  
- Mode  :character   Median :1514   Median :2018-12-31  
-                    Mean   :1540   Mean   :2018-12-30  
-                    3rd Qu.:1631   3rd Qu.:2020-11-30  
-                    Max.   :2330   Max.   :2022-09-30  </code></pre>
+ Length:364         Min.   :1172   Min.   :2015-03-31  
+ Class :character   1st Qu.:1346   1st Qu.:2017-01-31  
+ Mode  :character   Median :1476   Median :2018-12-31  
+                    Mean   :1492   Mean   :2018-12-30  
+                    3rd Qu.:1575   3rd Qu.:2020-11-30  
+                    Max.   :2153   Max.   :2022-09-30  </code></pre>
 </div>
 </div>
-<p>After filtering the data, we don’t have any missing values</p>
+<ul>
+<li>After filtering the data, we don’t have any missing values</li>
+<li>We see that the date goes from March 31, 2015, to September 30, 2022, with a monthly calculation of the rental value.</li>
+<li>The monthly rent cost goes from 1,172 to 2,153 dollars</li>
+</ul>
+</section>
+<section id="step-4-choosing-and-fitting-models" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-choosing-and-fitting-models">Step 4: Choosing and fitting models</h2>
+<section id="coerce-to-a-tsibble-with-as_tsibble" class="level4">
+<h4 class="anchored" data-anchor-id="coerce-to-a-tsibble-with-as_tsibble">Coerce to a tsibble with as_tsibble()</h4>
+<p>A time series can be recorded as a tsibble object in R. tsibble objects extend tidy data frames (tibble objects) by introducing temporal structure, and to do it, we need to declare key and index. In this case, the Monthly_parsed containing the data-time is the index and the RegionID is the key. Other columns can be considered as measured variables.</p>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(preferred_cities))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tsb_pref_cities <span class="ot">&lt;-</span> preferred_cities <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">select</span>(RegionName,RegionID, Monthly_parsed, Price)<span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">as_tsibble</span>(<span class="at">key=</span> <span class="fu">c</span>(RegionID, RegionName), <span class="at">index=</span> Monthly_parsed)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>tsb_pref_cities <span class="ot">&lt;-</span>tsb_pref_cities<span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_key</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">index_by</span>(<span class="at">year_month =</span> <span class="sc">~</span> <span class="fu">yearmonth</span>(.)) <span class="co"># show the month name and year</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>tsb_pref_cities </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>      RegionID       SizeRank     RegionName     RegionType      StateName 
-             0              0              0              0              0 
-         State          Metro     CountyName        Monthly          Price 
-             0              0              0              0              0 
-Monthly_parsed 
-             0 </code></pre>
+<pre><code># A tsibble: 364 x 5 [1D]
+# Key:       RegionID, RegionName [4]
+# Groups:    RegionID, RegionName @ year_month [364]
+   RegionName RegionID Monthly_parsed Price year_month
+   &lt;chr&gt;         &lt;int&gt; &lt;date&gt;         &lt;dbl&gt;      &lt;mth&gt;
+ 1 Orlando       13121 2015-03-31     1195.   2015 Mar
+ 2 Orlando       13121 2015-04-30     1206.   2015 Apr
+ 3 Orlando       13121 2015-05-31     1220.   2015 May
+ 4 Orlando       13121 2015-06-30     1225.   2015 Jun
+ 5 Orlando       13121 2015-07-31     1232.   2015 Jul
+ 6 Orlando       13121 2015-08-31     1230.   2015 Aug
+ 7 Orlando       13121 2015-09-30     1239.   2015 Sep
+ 8 Orlando       13121 2015-10-31     1243.   2015 Oct
+ 9 Orlando       13121 2015-11-30     1250.   2015 Nov
+10 Orlando       13121 2015-12-31     1250.   2015 Dec
+# … with 354 more rows</code></pre>
 </div>
 </div>
+<p>To visualize the data, I could usee the autoplot() command, but I rather to create my graph.</p>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ts_rent_pref_cities <span class="ot">&lt;-</span> preferred_cities[,<span class="fu">c</span>(<span class="st">"Monthly_parsed"</span>,<span class="st">"Price"</span>)]</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="do">#### Display the first 10 elements of the dataset</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ts_rent_pref_cities, <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 2
-   Monthly_parsed Price
-   &lt;date&gt;         &lt;dbl&gt;
- 1 2015-03-31     1285.
- 2 2015-04-30     1293.
- 3 2015-05-31     1304.
- 4 2015-06-30     1314.
- 5 2015-07-31     1318.
- 6 2015-08-31     1318.
- 7 2015-09-30     1312.
- 8 2015-10-31     1306.
- 9 2015-11-30     1304.
-10 2015-12-31     1307.</code></pre>
-</div>
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">#### Display the last 10 elements of the dataset</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(ts_rent_pref_cities, <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 2
-   Monthly_parsed Price
-   &lt;date&gt;         &lt;dbl&gt;
- 1 2021-12-31     2120.
- 2 2022-01-31     2118.
- 3 2022-02-28     2098.
- 4 2022-03-31     2096.
- 5 2022-04-30     2181.
- 6 2022-05-31     2228.
- 7 2022-06-30     2267.
- 8 2022-07-31     2296.
- 9 2022-08-31     2327.
-10 2022-09-30     2330.</code></pre>
-</div>
-</div>
-<p>We see that the date goes from March 31, 2015, to September 30, 2022, with a monthly calculation of the rental value.</p>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>preferred_cities <span class="sc">%&gt;%</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> Monthly_parsed, <span class="at">y=</span> Price, <span class="at">color=</span> RegionName)) <span class="sc">+</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size=</span><span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y=</span><span class="st">"Rent Price in /n US Dollars"</span>, </span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x=</span> <span class="st">"Year"</span>,</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"Rent Cost in Portland, Orlando &amp; Houston, 2015-2022"</span>,</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"data:https://www.zillow.com/research/data"</span>)<span class="sc">+</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(RegionName<span class="sc">~</span> ., <span class="at">scales =</span> <span class="st">"free_y"</span>)<span class="sc">+</span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  hrbrthemes<span class="sc">::</span><span class="fu">theme_ipsum_rc</span>()<span class="sc">+</span>  </span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>plot_cities <span class="ot">&lt;-</span> tsb_pref_cities <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> year_month, <span class="at">y=</span> Price, <span class="at">color=</span> RegionName)) <span class="sc">+</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size=</span><span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">y=</span><span class="st">"Rent Price in US Dollars"</span>, </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x=</span> <span class="st">"Year"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">"Rent Cost in Portland, Kissimmee, Orlando &amp; Houston, 2015-2022"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"data:https://www.zillow.com/research/data"</span>)<span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_hue</span>(<span class="at">name=</span> <span class="st">" "</span>)<span class="sc">+</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels=</span>scales<span class="sc">::</span><span class="fu">dollar_format</span>())<span class="sc">+</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>plot_cities</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="TimeSeries_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="1440"></p>
+<p><img src="TimeSeries_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
-<section id="decomposition" class="level1">
-<h1>Decomposition</h1>
-<section id="classical-decomposition" class="level2">
-<h2 class="anchored" data-anchor-id="classical-decomposition">Classical Decomposition</h2>
-
-
 </section>
+<section id="step-5-using-and-evaluating-a-forecasting-model" class="level2">
+<h2 class="anchored" data-anchor-id="step-5-using-and-evaluating-a-forecasting-model">Step 5: Using and evaluating a forecasting model</h2>
+
+
 </section>
 
 </main> <!-- /main -->
