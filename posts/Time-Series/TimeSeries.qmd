@@ -95,9 +95,6 @@ summary(preferred_cities)
 - We see that the date goes from March 31, 2015, to September 30, 2022, with a monthly calculation of the rental value.
 - The monthly rent cost goes from 1,172 to 2,153 dollars
 
-
-## Step 4: Choosing and fitting models
-
 #### Coerce to a tsibble with as_tsibble()- Three Cities
 
 A time series can be recorded as a tsibble object in R. tsibble objects extend tidy data frames (tibble objects) by introducing temporal structure, and to do it, we need to declare key and index. In this case, the Monthly_parsed containing the data-time is the index and the RegionID is the key. Other columns can be considered as measured variables.
@@ -209,6 +206,7 @@ gg_subseries(Price)+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
+## Step 4: Choosing and fitting models
 
 
 ## Step 5: Using and evaluating a forecasting model

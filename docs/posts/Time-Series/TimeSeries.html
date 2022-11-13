@@ -207,8 +207,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate); <span class="fu">library</span>(tsibble)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fpp3)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fpp3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="step-1-problem-definition" class="level2">
@@ -385,9 +384,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>We see that the date goes from March 31, 2015, to September 30, 2022, with a monthly calculation of the rental value.</li>
 <li>The monthly rent cost goes from 1,172 to 2,153 dollars</li>
 </ul>
-</section>
-<section id="step-4-choosing-and-fitting-models" class="level2">
-<h2 class="anchored" data-anchor-id="step-4-choosing-and-fitting-models">Step 4: Choosing and fitting models</h2>
 <section id="coerce-to-a-tsibble-with-as_tsibble--three-cities" class="level4">
 <h4 class="anchored" data-anchor-id="coerce-to-a-tsibble-with-as_tsibble--three-cities">Coerce to a tsibble with as_tsibble()- Three Cities</h4>
 <p>A time series can be recorded as a tsibble object in R. tsibble objects extend tidy data frames (tibble objects) by introducing temporal structure, and to do it, we need to declare key and index. In this case, the Monthly_parsed containing the data-time is the index and the RegionID is the key. Other columns can be considered as measured variables.</p>
@@ -529,6 +525,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </section>
+</section>
+<section id="step-4-choosing-and-fitting-models" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-choosing-and-fitting-models">Step 4: Choosing and fitting models</h2>
 </section>
 <section id="step-5-using-and-evaluating-a-forecasting-model" class="level2">
 <h2 class="anchored" data-anchor-id="step-5-using-and-evaluating-a-forecasting-model">Step 5: Using and evaluating a forecasting model</h2>
