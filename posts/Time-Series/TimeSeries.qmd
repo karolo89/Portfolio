@@ -10,14 +10,12 @@ library(tidyverse)
 library(lubridate); library(tsibble)
 library(readxl)
 library(fpp3)
-
-
 ```
 
 
 ## Step 1: Problem Definition
 
-In this project, I will perform a time series analysis using Zillow's historical median home prices for the US from March 2015 to October 2022. The project aims to provide information on renting costs in Orlando- FL, Kissimmee- FL, Portland- OR, and Houston- TX, and find the month that offers the lowest price to move in.
+In this project, I will perform a time series analysis using Zillow's historical median home prices for the US from March 2015 to October 2022. The project aims to provide information on renting costs in Orlando- FL, Portland- OR, and Houston- TX, and find the month that offers the lowest price to move in.
 
 ## Step 2: Gathering Information
 
@@ -80,14 +78,14 @@ summary(rent_city)
 ```
 
 
-We see some missing values in the Price variable, but before I deal with those values, I will filter my data to the cities that I am interested the most: Houston, Orlando, Kissimmee and Portland.
+We see some missing values in the Price variable, but before I deal with those values, I will filter my data to the cities that I am interested the most: Houston, Orlando, and Portland.
 
 
 ```{r}
 
 preferred_cities <- rent_clean %>%
-  dplyr:::filter(RegionName %in% c("Houston", "Orlando", "Portland", "Kissimmee")) %>%
-  dplyr:::filter(RegionID %in% c("13121", "13373", "18847", "39051"))
+  dplyr:::filter(RegionName %in% c("Houston", "Orlando", "Portland")) %>%
+  dplyr:::filter(RegionID %in% c("13121", "13373", "39051"))
 
 summary(preferred_cities)
 ```
@@ -100,7 +98,7 @@ summary(preferred_cities)
 
 ## Step 4: Choosing and fitting models
 
-#### Coerce to a tsibble with as_tsibble()
+#### Coerce to a tsibble with as_tsibble()- Three Cities
 
 A time series can be recorded as a tsibble object in R. tsibble objects extend tidy data frames (tibble objects) by introducing temporal structure, and to do it, we need to declare key and index. In this case, the Monthly_parsed containing the data-time is the index and the RegionID is the key. Other columns can be considered as measured variables.
 
@@ -117,6 +115,7 @@ tsibble_df <-tsb_pref_cities%>%
   select(-RegionID)%>%
   as_tsibble(key= RegionName, index= year_month)
 ```
+
 To visualize the data, I could usee the autoplot() command, but I rather to create my graph with ggplot.
 
 ```{r fig.height= 10, message=FALSE, warning=FALSE}
@@ -127,93 +126,88 @@ plot_cities <- tsibble_df %>%
    
     labs(y="Rent Price in US Dollars", 
        x= "Year",
-       title="Rent Cost in Portland, Kissimmee, Orlando & Houston, 2015-2022",
+       title="Rent Cost in Portland, Orlando & Houston, 2015-2022",
        caption = "data:https://www.zillow.com/research/data")+
   scale_colour_hue(name= " ")+
-  scale_y_continuous(labels=scales::dollar_format())+
-  ggpubr::theme_pubclean()
+  scale_y_continuous(labels=scales::dollar_format())
 
 plot_cities
 ```
-#### Portland's Seasonal Plot
+#### Seasonal Plots
 
-```{r}
+```{r, fig.width= 12}
 pdx <- tsibble_df %>%
   filter(RegionName == "Portland")
 
-
 pdx%>%
 gg_season(Price, labels = "both")+
-  ggpubr::theme_pubclean()+
   labs(x= "",
        y= "",
-       title="Seasonal Plot: Portland- Rent Cost")+
+       title="Portland")+
   scale_y_continuous(labels=scales::dollar_format())
+
+```
+
+
+```{r, fig.width= 12}
+hst <- tsibble_df %>%
+  filter(RegionName == "Houston")
+
+
+hst%>%
+gg_season(Price, labels = "both")+
+  labs(x= "",
+       y= "",
+       title="Houston")+
+  scale_y_continuous(labels=scales::dollar_format())
+
+```
+
+
+```{r, fig.width= 12}
+
+orl <- tsibble_df %>%
+  filter(RegionName == "Orlando")
+
+
+orl%>%
+gg_season(Price, labels = "both")+
+  labs(x= "",
+       y= "",
+       title="Orlando")+
+  scale_y_continuous(labels=scales::dollar_format())
+
+```
+
+#### Subseries
+
+```{r}
+
+pdx%>%
+gg_subseries(Price)+
+  labs(y= "Rent Price",
+       x= "Year")+
+  scale_y_continuous(labels=scales::dollar_format())+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
 ```{r}
-pdx %>%
-  ACF(Price, lag_max = 48) %>%
-  autoplot()+
-  ggpubr::theme_pubclean()
+hst %>%
+gg_subseries(Price)+
+  labs(y= "Rent Price",
+       x= "Year")+
+  scale_y_continuous(labels=scales::dollar_format())+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
 ```{r}
-dcmp <- pdx %>%
-  model(stl = STL(Price))
-components(dcmp)
+orl%>%
+gg_subseries(Price)+
+  labs(y= "Rent Price",
+       x= "Year")+
+  scale_y_continuous(labels=scales::dollar_format())+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
-The output above shows the components of an STL decomposition. The original data is shown (as Price), followed by the estimated components. This output forms a “dable” or decomposition table. The header to the table shows that the Price series has been decomposed additively.
-
-
-The trend column (containing the trend-cycle, follows the overall movement of the series, ignoring any seasonality and random fluctuations
-
-```{r}
-components(dcmp) %>%
-  as_tsibble() %>%
-  autoplot(Price, colour="gray") +
-  geom_line(aes(y=trend), colour = "#D55E00")+
-  ggpubr::theme_pubclean()
-```
-We can plot all of the components in a single figure using autoplot()
-
-```{r, fig.height= 10}
-components(dcmp) %>% 
-  autoplot(colour = "steelblue") + theme_minimal()+
-  labs(x= "")+ theme(panel.spacing = unit(.8, "cm"))
-
-```
-The three components are shown separately in the bottom three panels. These components can be added together to reconstruct the data shown in the top panel.
-
-
-### Seasonally adjusted data
-
-If the seasonal component is removed from the original data, the resulting values are the “seasonally adjusted” data. 
-
-
-```{r}
-components(dcmp) %>%
-  as_tsibble() %>%
-  autoplot(Price, colour = "gray") +
-  geom_line(aes(y=season_adjust), colour = "#0072B2")+
-  ggpubr::theme_pubclean()
-```
-
-```{r}
-tsibble_df %>%
-  features(Price, feat_stl)
-```
-### Method: Plot ACF + PACF
-
-```{r, message=FALSE, warning=FALSE}
-pdx %>%
-  gg_tsdisplay(difference(Price, 12),
-               plot_type='partial', lag=36) +
-  labs(title="Seasonally differenced", y="")
-```
-These are also clearly non-stationary
-
-
 
 
 
