@@ -10,6 +10,22 @@ library(tidyverse)
 library(lubridate); library(tsibble)
 library(readxl)
 library(fpp3)
+
+library(cowplot)
+library(showtext)
+showtext_auto()
+
+library(plotly)
+library(feasts)
+library(glue)
+
+
+# Add fonts from Google.
+font_add_google("Roboto Mono", "Roboto Mono")
+font_add_google("Open Sans", "Open Sans")
+font_add_google("Special Elite", "Special Elite")
+
+
 ```
 
 
@@ -115,7 +131,7 @@ tsibble_df <-tsb_pref_cities%>%
 
 To visualize the data, I could usee the autoplot() command, but I rather to create my graph with ggplot.
 
-```{r fig.height= 10, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 
 plot_cities <- tsibble_df %>%
   ggplot(aes(x= year_month, y= Price, color= RegionName)) +
@@ -125,54 +141,128 @@ plot_cities <- tsibble_df %>%
        x= "Year",
        title="Rent Cost in Portland, Orlando & Houston, 2015-2022",
        caption = "data:https://www.zillow.com/research/data")+
-  scale_colour_hue(name= " ")+
-  scale_y_continuous(labels=scales::dollar_format())
+  scale_y_continuous(labels=scales::dollar_format())+
+  scale_colour_hue(name= " ")
+
 
 plot_cities
 ```
 #### Seasonal Plots
 
-```{r, fig.width= 12}
+```{r, fig.width= 10}
 pdx <- tsibble_df %>%
   filter(RegionName == "Portland")
 
-pdx%>%
+seas_pdx <- pdx%>%
 gg_season(Price, labels = "both")+
   labs(x= "",
        y= "",
-       title="Portland")+
-  scale_y_continuous(labels=scales::dollar_format())
+       title="Portland's Seasonal Plot")+
+  
+  scale_y_continuous(labels=scales::dollar_format())+
+theme_set(theme_minimal(base_family = "Roboto Mono"))
+theme_update(
+  plot.background = element_rect(fill = "#fafaf5", color = "#fafaf5"),
+  panel.background = element_rect(fill = NA, color = NA),
+  panel.border = element_rect(fill = NA, color = NA),
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor = element_blank(),
+  axis.text.x = element_blank(),
+  axis.text.y = element_text(size = 10),
+  axis.ticks = element_blank(),
+  axis.title.y = element_text(size = 13, margin = margin(r = 10)),
+  legend.title = element_text(size = 9),
+  plot.caption = element_text(
+    family = "Special Elite",
+    size = 10,
+    color = "grey70",
+    face = "bold",
+    hjust = .5,
+    margin = margin(5, 0, 20, 0)
+  ),
+  plot.margin = margin(10, 25, 10, 25)
+)
 
+ggplotly(seas_pdx,  tooltip=c("y"))
 ```
 
 
-```{r, fig.width= 12}
+```{r, fig.width= 10}
 hst <- tsibble_df %>%
   filter(RegionName == "Houston")
 
 
-hst%>%
+seas_hst <- hst%>%
 gg_season(Price, labels = "both")+
   labs(x= "",
        y= "",
-       title="Houston")+
-  scale_y_continuous(labels=scales::dollar_format())
+       title="Houston's Seasonal Plot")+
+  scale_y_continuous(labels=scales::dollar_format())+
+# Set ggplot theme
+theme_set(theme_minimal(base_family = "Roboto Mono"))
+theme_update(
+  plot.background = element_rect(fill = "#fafaf5", color = "#fafaf5"),
+  panel.background = element_rect(fill = NA, color = NA),
+  panel.border = element_rect(fill = NA, color = NA),
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor = element_blank(),
+  axis.text.x = element_blank(),
+  axis.text.y = element_text(size = 10),
+  axis.ticks = element_blank(),
+  axis.title.y = element_text(size = 13, margin = margin(r = 10)),
+  legend.title = element_text(size = 9),
+  plot.caption = element_text(
+    family = "Special Elite",
+    size = 10,
+    color = "grey70",
+    face = "bold",
+    margin = margin(5, 0, 20, 0)
+  ),
+  plot.margin = margin(10, 25, 10, 25)
+)
+
+ggplotly(seas_hst,  tooltip=c("y"))
+
 
 ```
 
 
-```{r, fig.width= 12}
+```{r, fig.width= 10}
 
 orl <- tsibble_df %>%
   filter(RegionName == "Orlando")
 
 
-orl%>%
+seas_orl <- orl%>%
 gg_season(Price, labels = "both")+
   labs(x= "",
        y= "",
-       title="Orlando")+
-  scale_y_continuous(labels=scales::dollar_format())
+       title="Orlando's Seasonal Plot")+
+  scale_y_continuous(labels=scales::dollar_format())+
+# Set ggplot theme
+theme_set(theme_minimal(base_family = "Roboto Mono"))
+theme_update(
+  plot.background = element_rect(fill = "#fafaf5", color = "#fafaf5"),
+  panel.background = element_rect(fill = NA, color = NA),
+  panel.border = element_rect(fill = NA, color = NA),
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor = element_blank(),
+  axis.text.x = element_blank(),
+  axis.text.y = element_text(size = 10),
+  axis.ticks = element_blank(),
+  axis.title.y = element_text(size = 13, margin = margin(r = 10)),
+  legend.title = element_text(size = 9),
+  plot.caption = element_text(
+    family = "Special Elite",
+    size = 10,
+    color = "grey70",
+    face = "bold",
+    hjust = .5,
+    margin = margin(5, 0, 20, 0)
+  ),
+  plot.margin = margin(10, 25, 10, 25)
+)
+ggplotly(seas_orl,  tooltip=c("y"))
 
 ```
 
@@ -183,7 +273,7 @@ gg_season(Price, labels = "both")+
 pdx%>%
 gg_subseries(Price)+
   labs(y= "Rent Price",
-       x= "Year")+
+       x= "Year")+theme_minimal()+
   scale_y_continuous(labels=scales::dollar_format())+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
@@ -192,7 +282,7 @@ gg_subseries(Price)+
 hst %>%
 gg_subseries(Price)+
   labs(y= "Rent Price",
-       x= "Year")+
+       x= "Year")+theme_minimal()+
   scale_y_continuous(labels=scales::dollar_format())+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
@@ -201,9 +291,46 @@ gg_subseries(Price)+
 orl%>%
 gg_subseries(Price)+
   labs(y= "Rent Price",
-       x= "Year")+
+       x= "Year")+theme_minimal()+
   scale_y_continuous(labels=scales::dollar_format())+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+#### Features: Summary
+
+
+```{r}
+tsb_pref_cities %>%
+    features(Price, features = list(mean = mean, min = min, max = max, sd = sd,
+        quantile))
+```
+
+#### Decomposition Features
+
+```{r}
+feast_pref_cities <-
+tsb_pref_cities %>% features(Price, feat_stl)
+
+feast_pref_cities
+```
+
+#### coef_hurst
+
+A measure of the degree to which adjacent observations depend on one another over time. Generically, this statistic takes values between zero and one with one indicating very high levels of dependence through time.
+
+```{r}
+tsb_pref_cities %>% features(Price,coef_hurst)
+```
+#### The Absence of Correlation
+
+```{r}
+tsb_pref_cities %>% features(Price, features = list(box_pierce, ljung_box))
+```
+
+#### The Box-Cox
+
+```{r}
+
+tsb_pref_cities %>% features(Price, features = guerrero) 
 ```
 
 ## Step 4: Choosing and fitting models
