@@ -142,10 +142,34 @@ plot_cities <- tsibble_df %>%
        title="Rent Cost in Portland, Orlando & Houston, 2015-2022",
        caption = "data:https://www.zillow.com/research/data")+
   scale_y_continuous(labels=scales::dollar_format())+
-  scale_colour_hue(name= " ")
+  scale_colour_hue(name= " ")+
+# Set ggplot theme
+theme_set(theme_minimal(base_family = "Roboto Mono"))
+theme_update(
+  plot.background = element_rect(fill = "#fafaf5", color = "#fafaf5"),
+  panel.background = element_rect(fill = NA, color = NA),
+  panel.border = element_rect(fill = NA, color = NA),
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor = element_blank(),
+  axis.text.y = element_text(size = 10),
+    axis.text.x = element_text(size = 10),
+
+  axis.ticks = element_blank(),
+  axis.title.y = element_text(size = 13, margin = margin(r = 10)),
+  legend.title = element_text(size = 9),
+  plot.caption = element_text(
+    family = "Special Elite",
+    size = 10,
+    color = "grey70",
+    face = "bold",
+    margin = margin(5, 0, 20, 0)
+  ),
+  plot.margin = margin(10, 25, 10, 25)
+)
+
+ggplotly(plot_cities,  tooltip=c("y"))
 
 
-plot_cities
 ```
 #### Seasonal Plots
 
@@ -160,6 +184,7 @@ gg_season(Price, labels = "both")+
        title="Portland's Seasonal Plot")+
   
   scale_y_continuous(labels=scales::dollar_format())+
+# Set ggplot theme
 theme_set(theme_minimal(base_family = "Roboto Mono"))
 theme_update(
   plot.background = element_rect(fill = "#fafaf5", color = "#fafaf5"),
@@ -177,7 +202,6 @@ theme_update(
     size = 10,
     color = "grey70",
     face = "bold",
-    hjust = .5,
     margin = margin(5, 0, 20, 0)
   ),
   plot.margin = margin(10, 25, 10, 25)
@@ -276,6 +300,7 @@ gg_subseries(Price)+
        x= "Year")+theme_minimal()+
   scale_y_continuous(labels=scales::dollar_format())+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
 ```
 
 ```{r}
