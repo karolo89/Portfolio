@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.163">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Karol Orozco">
+<meta name="dcterms.date" content="2022-12-01">
+
+<title>Portfolio - Predicting Employee Attrition</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Portfolio</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">About</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/"><i class="bi bi-github" role="img">
+</i> 
+ </a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com"><i class="bi bi-twitter" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Predicting Employee Attrition</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Karol Orozco </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 1, 2022</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">1. Background</h2>
+<p>You work for the human capital department of a large corporation. The Board is worried about the relatively high turnover, and your team must look into ways to reduce the number of employees leaving the company. The team needs to understand better the situation, which employees are more likely to leave, and why. Once it is clear what variables impact employee churn, you can present your findings along with your ideas on how to attack the problem.</p>
+<section id="your-challenge" class="level4">
+<h4 class="anchored" data-anchor-id="your-challenge">Your challenge</h4>
+<p>Create a report that covers the following:</p>
+<ul>
+<li>Which department has the highest employee turnover? Which one has the lowest?</li>
+<li>Investigate which variables seem to be better predictors of employee departure.</li>
+<li>What recommendations would you make regarding ways to reduce employee turnover?</li>
+</ul>
+</section>
+</section>
+<section id="import-libraries" class="level2">
+<h2 class="anchored" data-anchor-id="import-libraries">2. Import Libraries</h2>
+<ul>
+<li>library(tidyverse)</li>
+<li>library(ggplot2)</li>
+<li>library(skimr)</li>
+<li>library(janitor)</li>
+<li>library(knitr)</li>
+<li>library(radiant)</li>
+<li>library(colorspace)</li>
+<li>library(gridExtra)</li>
+<li>library(jtools)</li>
+<li>library(dplyr)</li>
+<li>library(MASS)</li>
+</ul>
+</section>
+<section id="prepare-and-analyze-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="prepare-and-analyze-the-data">3. Prepare and Analyze the Data</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>  X     MMM.YY Emp_ID Age Gender City Education_Level Salary Dateofjoining
+1 1 2016-01-01      1  28   Male  C23          Master  57387    2015-12-24
+2 2 2016-02-01      1  28   Male  C23          Master  57387    2015-12-24
+3 3 2016-03-01      1  28   Male  C23          Master  57387    2015-12-24
+4 4 2017-11-01      2  31   Male   C7          Master  67016    2017-11-06
+5 5 2017-12-01      2  31   Male   C7          Master  67016    2017-11-06
+6 6 2016-12-01      4  43   Male  C13          Master  65603    2016-12-07
+  LastWorkingDate Joining.Designation Designation Total.Business.Value
+1            &lt;NA&gt;                   1           1              2381060
+2            &lt;NA&gt;                   1           1              -665480
+3      2016-03-11                   1           1                    0
+4            &lt;NA&gt;                   2           2                    0
+5            &lt;NA&gt;                   2           2                    0
+6            &lt;NA&gt;                   2           2                    0
+  Quarterly.Rating
+1                2
+2                2
+3                2
+4                1
+5                1
+6                1</code></pre>
+</div>
+</div>
+<section id="the-variables-are-defined-as-follow" class="level4">
+<h4 class="anchored" data-anchor-id="the-variables-are-defined-as-follow">The variables are defined as follow:</h4>
+<ul>
+<li><p>MMMM-YY: Reporting Date (Monthly)</p></li>
+<li><p>Emp_ID: Unique id for employees</p></li>
+<li><p>Age: ge of the employee</p></li>
+<li><p>Gender: Gender of the employee</p></li>
+<li><p>City: City Code of the employee</p></li>
+<li><p>Education_Level: Education level : Bachelor, Master or College</p></li>
+<li><p>Salary: Salary of the employee</p></li>
+<li><p>Dateofjoining: Joining date for the employee</p></li>
+<li><p>LastWorkingDate: Last date of working for the employee</p></li>
+<li><p>Joining Designation: Designation of the employee at the time of joining</p></li>
+<li><p>Designation: Designation of the employee at the time of reporting</p></li>
+<li><p>TotalBusinessValue: The total business value acquired by the employee in a month (negative business indicates cancellation/refund of sold insurance policies)</p></li>
+<li><p>Quarterly Rating: Quarterly rating of the employee: 1,2,3,4 (higher is better)</p></li>
+</ul>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>       X             MMM.YY              Emp_ID               Age       
+ Min.   :    1   Min.   :2016-01-01   Length:19104       Min.   :21.00  
+ 1st Qu.: 4777   1st Qu.:2016-06-01   Class :character   1st Qu.:30.00  
+ Median : 9552   Median :2016-12-01   Mode  :character   Median :34.00  
+ Mean   : 9552   Mean   :2016-12-10                      Mean   :34.65  
+ 3rd Qu.:14328   3rd Qu.:2017-07-01                      3rd Qu.:39.00  
+ Max.   :19104   Max.   :2017-12-01                      Max.   :58.00  
+                                                                        
+    Gender          City           Education_Level     Salary      
+ Female: 8001   Length:19104       Bachelor:6864   Min.   : 10747  
+ Male  :11103   Class :character   College :5913   1st Qu.: 42383  
+                Mode  :character   Master  :6327   Median : 60087  
+                                                   Mean   : 65652  
+                                                   3rd Qu.: 83969  
+                                                   Max.   :188418  
+                                                                   
+ Dateofjoining        LastWorkingDate      Joining.Designation Designation
+ Min.   :2010-04-01   Min.   :2015-12-31   Min.   :1.000       1:5202     
+ 1st Qu.:2013-11-29   1st Qu.:2016-06-06   1st Qu.:1.000       2:6627     
+ Median :2015-09-12   Median :2016-12-20   Median :1.000       3:4826     
+ Mean   :2015-04-29   Mean   :2016-12-21   Mean   :1.691       4:2144     
+ 3rd Qu.:2016-11-05   3rd Qu.:2017-07-03   3rd Qu.:2.000       5: 305     
+ Max.   :2017-12-28   Max.   :2017-12-28   Max.   :5.000                  
+                      NA's   :17488                                       
+ Total.Business.Value Quarterly.Rating
+ Min.   :-6000000     1:7679          
+ 1st Qu.:       0     2:5553          
+ Median :  250000     3:3895          
+ Mean   :  571662     4:1977          
+ 3rd Qu.:  699700                     
+ Max.   :33747720                     
+                                      </code></pre>
+</div>
+</div>
+<ul>
+<li><p>This datase contains 19104 obs. of 13 variables</p></li>
+<li><p>The median age is 34 years old</p></li>
+<li><p>Now, we need to know that in order to predict if the employee will leave the company or not can be best predicted if we have last working day info available and hence although the missing percentage is high, it’s not because of Null values but the employees are not planning to leave the company and hence have not provided the info.Therefore we should not remove this feature from our data, instead we need to treat this as our target variable.</p></li>
+<li><p>Salary goes from 42383 to 188418 dollars</p></li>
+</ul>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>empl_churn <span class="ot">&lt;-</span> empl_turnover <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Churn=</span>  <span class="fu">ifelse</span>(<span class="fu">is.na</span>(LastWorkingDate), <span class="st">"0"</span>, <span class="st">"1"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="turnover" class="level4">
+<h4 class="anchored" data-anchor-id="turnover">Turnover</h4>
+<p>Number of employees that left the company:</p>
+<p>The overall attrition rate in the company is 8.5%, which means that 1,616 employees have left the company.</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">single_prop</span>(empl_churn, <span class="at">var =</span> <span class="st">"Churn"</span>, <span class="at">lev =</span> <span class="st">"1"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Single proportion test (binomial exact)
+Data      : empl_churn 
+Variable  : Churn 
+Level     : 1 in Churn 
+Confidence: 0.95 
+Null hyp. : the proportion of 1 in Churn = 0.5 
+Alt. hyp. : the proportion of 1 in Churn not equal to 0.5 
+
+     p    ns      n n_missing    sd    se    me
+ 0.085 1,616 19,104         0 0.278 0.002 0.004
+
+   diff    ns p.value  2.5% 97.5%    
+ -0.415 1,616  &lt; .001 0.081 0.089 ***
+
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>empl_churn<span class="sc">$</span>Churn.Numeric <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(empl_churn<span class="sc">$</span>Churn))<span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(empl_churn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 19,104
+Columns: 16
+$ X                    &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15…
+$ MMM.YY               &lt;date&gt; 2016-01-01, 2016-02-01, 2016-03-01, 2017-11-01, …
+$ Emp_ID               &lt;chr&gt; "1", "1", "1", "2", "2", "4", "4", "4", "4", "4",…
+$ Age                  &lt;int&gt; 28, 28, 28, 31, 31, 43, 43, 43, 43, 43, 29, 29, 2…
+$ Gender               &lt;fct&gt; Male, Male, Male, Male, Male, Male, Male, Male, M…
+$ City                 &lt;chr&gt; "C23", "C23", "C23", "C7", "C7", "C13", "C13", "C…
+$ Education_Level      &lt;fct&gt; Master, Master, Master, Master, Master, Master, M…
+$ Salary               &lt;int&gt; 57387, 57387, 57387, 67016, 67016, 65603, 65603, …
+$ Dateofjoining        &lt;date&gt; 2015-12-24, 2015-12-24, 2015-12-24, 2017-11-06, …
+$ LastWorkingDate      &lt;date&gt; NA, NA, 2016-03-11, NA, NA, NA, NA, NA, NA, 2017…
+$ Joining.Designation  &lt;int&gt; 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 3, 3, 3, 3…
+$ Designation          &lt;fct&gt; 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 3, 3, 3, 3…
+$ Total.Business.Value &lt;int&gt; 2381060, -665480, 0, 0, 0, 0, 0, 0, 350000, 0, 0,…
+$ Quarterly.Rating     &lt;fct&gt; 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2…
+$ Churn                &lt;chr&gt; "0", "0", "1", "0", "0", "0", "0", "0", "0", "1",…
+$ Churn.Numeric        &lt;dbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0…</code></pre>
+</div>
+</div>
+</section>
+<section id="are-the-employees-leaving-the-destination-at-the-same-rate" class="level4">
+<h4 class="anchored" data-anchor-id="are-the-employees-leaving-the-destination-at-the-same-rate">Are the employees leaving the destination at the same rate?</h4>
+<ul>
+<li>The data shows that Destination 1 has the highest employee turnover rate, followed by 2 and destination 5 has the lowest rate.</li>
+</ul>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>empl_turnover_prop <span class="ot">&lt;-</span> empl_churn <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(Designation, Churn) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_percentages</span>(<span class="st">"row"</span>) </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(empl_turnover_prop,  <span class="at">caption =</span> <span class="st">"Destination vs Attrition"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Destination vs Attrition</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Designation</th>
+<th style="text-align: right;">0</th>
+<th style="text-align: right;">1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">0.8854287</td>
+<td style="text-align: right;">0.1145713</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">0.9094613</td>
+<td style="text-align: right;">0.0905387</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">0.9301699</td>
+<td style="text-align: right;">0.0698301</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">0.9673507</td>
+<td style="text-align: right;">0.0326493</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: right;">0.9573770</td>
+<td style="text-align: right;">0.0426230</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="attrition-vs-age" class="level4">
+<h4 class="anchored" data-anchor-id="attrition-vs-age">Attrition vs Age</h4>
+<p>The majority of employees that left the organization are in their 30’s , and the proportion steadily declined.</p>
+<p><strong>What does it mean for the organization?</strong> Well,</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Age vs Turnover</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>empl_churn <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(Age, Churn)<span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Age, <span class="at">fill =</span> Churn)) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_histogram</span>(<span class="at">bins =</span> 30L) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))<span class="sc">+</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a> ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()<span class="sc">+</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>( <span class="at">x=</span> <span class="st">"Age"</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">y=</span> <span class="st">"Number of Employees"</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Attrition vs Age"</span>)<span class="sc">+</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.45</span>),</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="at">legend.position=</span><span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="1440"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(empl_churn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "X"                    "MMM.YY"               "Emp_ID"              
+ [4] "Age"                  "Gender"               "City"                
+ [7] "Education_Level"      "Salary"               "Dateofjoining"       
+[10] "LastWorkingDate"      "Joining.Designation"  "Designation"         
+[13] "Total.Business.Value" "Quarterly.Rating"     "Churn"               
+[16] "Churn.Numeric"       </code></pre>
+</div>
+</div>
+<div class="cell">
+
+</div>
+</section>
+</section>
+<section id="the-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-model">4. The Model</h2>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

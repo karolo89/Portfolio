@@ -11,7 +11,6 @@ library(lubridate); library(tsibble)
 library(readxl)
 library(fpp3)
 
-library(cowplot)
 library(showtext)
 showtext_auto()
 
@@ -31,7 +30,7 @@ font_add_google("Special Elite", "Special Elite")
 
 ## Step 1: Problem Definition
 
-In this project, I will perform a time series analysis using Zillow's historical median home prices for the US from March 2015 to October 2022. The project aims to provide information on renting costs in Orlando- FL, Portland- OR, and Houston- TX, and find the month that offers the lowest price to move in.
+In this project, I will perform a time series analysis using Zillow's historical median home prices for the US from March 2015 to October 2022. The project aims to provide information on renting costs in Portland, OR, Colorado Springs, CO, and Orlando, FL, and find the month that offers the lowest price to move in.
 
 ## Step 2: Gathering Information
 
@@ -100,8 +99,8 @@ We see some missing values in the Price variable, but before I deal with those v
 ```{r}
 
 preferred_cities <- rent_clean %>%
-  dplyr:::filter(RegionName %in% c("Houston", "Orlando", "Portland")) %>%
-  dplyr:::filter(RegionID %in% c("13121", "13373", "39051"))
+  dplyr:::filter(RegionName %in% c("Colorado Springs", "Orlando", "Portland")) %>%
+  dplyr:::filter(RegionID %in% c("4172", "13121", "13373"))
 
 summary(preferred_cities)
 ```
@@ -131,31 +130,23 @@ tsibble_df <-tsb_pref_cities%>%
 
 To visualize the data, I could usee the autoplot() command, but I rather to create my graph with ggplot.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, fig.width= 9}
 
 plot_cities <- tsibble_df %>%
   ggplot(aes(x= year_month, y= Price, color= RegionName)) +
   geom_line(size=1)+
    
-    labs(y="Rent Price in US Dollars", 
+    labs(y=" ", 
        x= "Year",
-       title="Rent Cost in Portland, Orlando & Houston, 2015-2022",
+       title="Average Rent Price in Portland, Orlando & Houston, 2015-2022",
        caption = "data:https://www.zillow.com/research/data")+
   scale_y_continuous(labels=scales::dollar_format())+
   scale_colour_hue(name= " ")+
 # Set ggplot theme
 theme_set(theme_minimal(base_family = "Roboto Mono"))
 theme_update(
-  plot.background = element_rect(fill = "#fafaf5", color = "#fafaf5"),
-  panel.background = element_rect(fill = NA, color = NA),
-  panel.border = element_rect(fill = NA, color = NA),
-  panel.grid.major.x = element_blank(),
-  panel.grid.minor = element_blank(),
   axis.text.y = element_text(size = 10),
     axis.text.x = element_text(size = 10),
-
-  axis.ticks = element_blank(),
-  axis.title.y = element_text(size = 13, margin = margin(r = 10)),
   legend.title = element_text(size = 9),
   plot.caption = element_text(
     family = "Special Elite",
@@ -167,13 +158,13 @@ theme_update(
   plot.margin = margin(10, 25, 10, 25)
 )
 
-ggplotly(plot_cities,  tooltip=c("y"))
+plot_cities
 
 
 ```
 #### Seasonal Plots
 
-```{r, fig.width= 10}
+```{r, fig.width= 9, warning=FALSE, message=FALSE}
 pdx <- tsibble_df %>%
   filter(RegionName == "Portland")
 
@@ -187,10 +178,7 @@ gg_season(Price, labels = "both")+
 # Set ggplot theme
 theme_set(theme_minimal(base_family = "Roboto Mono"))
 theme_update(
-  plot.background = element_rect(fill = "#fafaf5", color = "#fafaf5"),
-  panel.background = element_rect(fill = NA, color = NA),
-  panel.border = element_rect(fill = NA, color = NA),
-  panel.grid.major.x = element_blank(),
+
   panel.grid.minor = element_blank(),
   axis.text.x = element_blank(),
   axis.text.y = element_text(size = 10),
@@ -206,29 +194,24 @@ theme_update(
   ),
   plot.margin = margin(10, 25, 10, 25)
 )
-
-ggplotly(seas_pdx,  tooltip=c("y"))
+seas_pdx
 ```
 
 
-```{r, fig.width= 10}
-hst <- tsibble_df %>%
-  filter(RegionName == "Houston")
+```{r, fig.width= 9, warning=FALSE, message=FALSE}
+colsp <- tsibble_df %>%
+  filter(RegionName == "Colorado Springs")
 
 
-seas_hst <- hst%>%
+seas_colsp <- colsp%>%
 gg_season(Price, labels = "both")+
   labs(x= "",
        y= "",
-       title="Houston's Seasonal Plot")+
+       title="Colorado Springs' Seasonal Plot")+
   scale_y_continuous(labels=scales::dollar_format())+
 # Set ggplot theme
 theme_set(theme_minimal(base_family = "Roboto Mono"))
 theme_update(
-  plot.background = element_rect(fill = "#fafaf5", color = "#fafaf5"),
-  panel.background = element_rect(fill = NA, color = NA),
-  panel.border = element_rect(fill = NA, color = NA),
-  panel.grid.major.x = element_blank(),
   panel.grid.minor = element_blank(),
   axis.text.x = element_blank(),
   axis.text.y = element_text(size = 10),
@@ -245,14 +228,11 @@ theme_update(
   plot.margin = margin(10, 25, 10, 25)
 )
 
-ggplotly(seas_hst,  tooltip=c("y"))
-
-
+seas_colsp
 ```
 
 
-```{r, fig.width= 10}
-
+```{r, fig.width= 9, warning=FALSE, message=FALSE}
 orl <- tsibble_df %>%
   filter(RegionName == "Orlando")
 
@@ -266,10 +246,6 @@ gg_season(Price, labels = "both")+
 # Set ggplot theme
 theme_set(theme_minimal(base_family = "Roboto Mono"))
 theme_update(
-  plot.background = element_rect(fill = "#fafaf5", color = "#fafaf5"),
-  panel.background = element_rect(fill = NA, color = NA),
-  panel.border = element_rect(fill = NA, color = NA),
-  panel.grid.major.x = element_blank(),
   panel.grid.minor = element_blank(),
   axis.text.x = element_blank(),
   axis.text.y = element_text(size = 10),
@@ -286,8 +262,8 @@ theme_update(
   ),
   plot.margin = margin(10, 25, 10, 25)
 )
-ggplotly(seas_orl,  tooltip=c("y"))
 
+seas_orl
 ```
 
 #### Subseries
@@ -304,7 +280,7 @@ gg_subseries(Price)+
 ```
 
 ```{r}
-hst %>%
+colsp %>%
 gg_subseries(Price)+
   labs(y= "Rent Price",
        x= "Year")+theme_minimal()+
@@ -324,6 +300,7 @@ gg_subseries(Price)+
 
 
 ```{r}
+
 tsb_pref_cities %>%
     features(Price, features = list(mean = mean, min = min, max = max, sd = sd,
         quantile))
@@ -351,12 +328,7 @@ tsb_pref_cities %>% features(Price,coef_hurst)
 tsb_pref_cities %>% features(Price, features = list(box_pierce, ljung_box))
 ```
 
-#### The Box-Cox
 
-```{r}
-
-tsb_pref_cities %>% features(Price, features = guerrero) 
-```
 
 ## Step 4: Choosing and fitting models
 
