@@ -9,7 +9,7 @@ date: "2022-12"
 the goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 library(tidyverse)
 library(ggplot2)
 library(readr)
@@ -168,6 +168,7 @@ glimpse(houses_pdx)
 
 ```
 
+
 ### Data Splitting
 
 ```{r}
@@ -188,10 +189,14 @@ test_data <- testing(data_split)
 ### Validaton Set
 
 ```{r}
-cv_folds <-
+house_folds <-
  vfold_cv(train_data, 
           v = 5, 
           strata = price_category) 
+```
+
+```{r}
+names(train_data)
 ```
 
 ```{r}
@@ -201,7 +206,7 @@ pdx_rec <-
   update_role(longitude, latitude, 
               new_role = "ID") %>% 
   
-  step_log(bathrooms, bedrooms) %>% ## step_log() will log transform data
+  step_log(bathrooms, schools0distance, schools1distance, schools2distance, livingArea,yearBuilt ) %>% ## step_log() will log transform data
   
   step_naomit(everything(), skip = TRUE) %>% 
   
@@ -256,7 +261,7 @@ log_wflow
 ```{r}
 log_res <- log_wflow %>% 
   fit_resamples(
-    resamples = cv_folds, 
+    resamples = house_folds, 
     metrics = metric_set(
     recall, precision, f_meas, 
     accuracy, kap,
@@ -277,7 +282,7 @@ get_model <- function(x) {
 log_res_2 <- 
   log_wflow %>% 
   fit_resamples(
-    resamples = cv_folds, 
+    resamples = house_folds, 
     metrics = metric_set(
       recall, precision, f_meas, 
       accuracy, kap,
