@@ -163,10 +163,6 @@ pdx_long <- houses_pdx %>%
   select(-homeType, -yearBuilt, -lotSize)%>%
     pivot_longer(!price_category, names_to = "features", values_to = "values")
 
-
-# Print the first 10 rows
-pdx_long %>% 
-  slice_head(n = 10)
 ```
 
 ```{r}
