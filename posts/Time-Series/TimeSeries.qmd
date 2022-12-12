@@ -4,7 +4,11 @@ author: "Karol Orozco"
 date: "2022-12-04"
 ---
 
+## Background
 
+In this project, I will perform Time series analysis using the Zillow Home Value Index (ZHVI) dataset: A smoothed, seasonally adjusted measure of the typical home value and market changes across Portland, OR, four bedroom houses. It reflects the typical value for homes in the 35th to 65th percentile range.
+
+Here is the link: https://www.zillow.com/research/data/
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -115,6 +119,26 @@ plot_pdx_house
 
 Data is non- stationary, we can see a trend-cycle component in the graph above.
 
+
+```{r}
+tsibble_pdx %>%
+gg_subseries(Price/1000)+
+  labs(y= "Price in Thousands of Dollars",
+       x= "Year")+theme_minimal()+
+  scale_y_continuous(labels=scales::dollar_format())+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+```{r, fig.width= 10}
+tsibble_pdx%>%
+gg_season(Price/1000, labels = "both")+
+  labs(x= "",
+       y= "Price in Thousands of Dollars ", 
+       title="Portland's Seasonal Plot")+
+  
+  scale_y_continuous(labels=scales::dollar_format())+
+  theme_minimal()
+```
 
 ## Determining Stationarity
 
