@@ -12,23 +12,13 @@ You work for the human capital department of a large corporation. The Board is w
 
 Create a report that covers the following:
 
--   Which department has the highest employee turnover? Which one has the lowest?
+-   Which designation has the highest employee turnover? Which one has the lowest?
 -   Investigate which variables seem to be better predictors of employee departure.
 -   What recommendations would you make regarding ways to reduce employee turnover?
 
-## 2. Import Libraries
+## 2. Get the Data
 
--   library(tidyverse)
--   library(ggplot2)
--   library(skimr)
--   library(janitor)
--   library(knitr)
--   library(radiant)
--   library(colorspace)
--   library(gridExtra)
--   library(jtools)
--   library(dplyr)
--   library(MASS)
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
@@ -36,28 +26,24 @@ knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
 library(tidyverse) 
 library(ggplot2)
 library(skimr)
-library(janitor)
 library(knitr)
 library(radiant)
 library(colorspace)
-library(gridExtra)
-library(jtools)
-library(rpart)
-library(rpart.plot)
-library(stargazer)
-library(tidymodels)
 library(dplyr)
-library(MASS)
-library(caret)
+library(janitor)
+
 
 ```
 
-## 3. Prepare and Analyze the Data
+
+
 
 ```{r, echo=FALSE, warning= FALSE}
+
 empl_turnover<- read.csv("C:/Users/karol/Desktop/clean_churn.csv")
 
 head(empl_turnover)
+
 ```
 
 #### The variables are defined as follow:
@@ -88,9 +74,21 @@ head(empl_turnover)
 
 - Quarterly Rating: Quarterly rating of the employee: 1,2,3,4 (higher is better)
 
+## 3. Prepare and Analyze the Data
+
+- This dataset contains 19104 obs. of  13 variables. We see some duplicate Employees ID, and we should remove them 
 
 ```{r, echo=FALSE, warning= FALSE}
+## Remove Duplicated Employees ID
 
+empl_turnover<- empl_turnover[!duplicated(empl_turnover$Emp_ID), ]
+
+
+```
+
+Now we have 2,381 rows
+
+```{r, echo=FALSE, warning= FALSE}
 ## Dates
 empl_turnover[["MMM.YY"]]<- as.Date(empl_turnover$MMM.YY)
 empl_turnover[["LastWorkingDate"]]<- as.Date(empl_turnover$LastWorkingDate)
@@ -102,23 +100,32 @@ empl_turnover[["Emp_ID"]]<- as.character(empl_turnover$Emp_ID)
 empl_turnover[["Gender"]]<- as.factor(empl_turnover$Gender)
 empl_turnover[["Education_Level"]]<- as.factor(empl_turnover$Education_Level)
 empl_turnover[["Designation"]]<- as.factor(empl_turnover$Designation)
+empl_turnover[["Joining.Designation"]]<- as.factor(empl_turnover$Joining.Designation)
 
 empl_turnover[["Quarterly.Rating"]]<- as.factor(empl_turnover$Quarterly.Rating)
 
+##Other
+empl_turnover[["Emp_ID"]]<- as.character(empl_turnover$Emp_ID)
+empl_turnover[["X"]]<- as.character(empl_turnover$X)
 
 summary(empl_turnover)
 ```
-- This datase contains 19104 obs. of  13 variables
 
-- The median age is 34 years old
+- The median age is 33 years old
 
 -   Now, we need to know that in order to predict if the employee will leave the company or not can be best predicted if we have last working day info available and hence although the missing percentage is high, it's not because of Null values but the employees are not planning to leave the company and hence have not provided the info.Therefore we should not remove this feature from our data, instead we need to treat this as our target variable.
 
-- Salary goes from 42383 to 188418 dollars
- 
+- Salary goes from 10747 to 188418 dollars
+
+- Most of the employees have a Master degree
+
 ```{r}
 
-empl_churn <- empl_turnover %>% mutate(Churn=  ifelse(is.na(LastWorkingDate), "0", "1"))
+empl_churn <- empl_turnover %>% mutate(Churn=  ifelse(is.na(LastWorkingDate), "No", "Yes"))
+
+empl_churn$Churn.Numeric <- as.numeric(as.factor(empl_churn$Churn))-1
+
+glimpse(empl_churn)
 
 ```
 
@@ -127,38 +134,55 @@ empl_churn <- empl_turnover %>% mutate(Churn=  ifelse(is.na(LastWorkingDate), "0
 
 Number of employees that left the company:
 
-The overall attrition rate in the company is 8.5%, which means that 1,616 employees have left the company.
+The overall attrition rate in the company in average is 4.28%, which means that 102 employees have left the company during 2016-2017.``
 
 ```{r}
-result <- single_prop(empl_churn, var = "Churn", lev = "1")
-summary(result)
+table(empl_churn$Churn)
 ```
 
 ```{r}
-empl_churn$Churn.Numeric <- as.numeric(as.factor(empl_churn$Churn))-1
+ggplot(empl_churn,aes(x = Churn, group = Gender)) + 
+    geom_bar(aes(y = ..prop.., fill = factor(..x..)), 
+    stat="count", color = "black", alpha = 0.7) +
+  
+    geom_text(aes(label = scales::percent(..prop..),
+    y= ..prop.. ), stat= "count", position = position_stack(vjust = 0.5), size = 4.5) +
+  
+    facet_grid(~Gender) +
+  
+    scale_y_continuous(labels = scales::percent)+
 
-glimpse(empl_churn)
+    guides(fill = F)+
+    labs(
+    x = "Left", y = "Percentage",
+    title="Turnover Proportion by Gender")+
+   scale_fill_manual(values=c("gray", "#2166AC"))+
+    theme(text = element_text(size = 12), 
+    plot.title = element_text(hjust = 0.5), 
+    title = element_text(size = 12))+
+
+
+ ggpubr::theme_pubclean()
 
 ```
 
-#### Are the employees leaving the destination at the same rate?
 
--   The data shows that Destination 1 has the highest employee turnover rate, followed by 2 and destination 5 has the lowest rate.
+There is a small difference in the proportion of women and men that left the company. 
+
 
 ```{r}
 
 empl_turnover_prop <- empl_churn %>% 
   tabyl(Designation, Churn) %>%
   adorn_percentages("row") 
-kable(empl_turnover_prop,  caption = "Destination vs Attrition")
+kable(empl_turnover_prop,  caption = "Designation vs Attrition")
 ```
-
+-   The data shows that Destination 1 and 5 has the highest employee turnover rate, destination 4 and 3 has the lowest rate.
 
 #### Attrition vs Age
 
 The majority of employees that left the organization are in their 30's , and the proportion steadily declined.
 
-**What does it mean for the organization?** Well,
 
 ```{r, fig.width= 15}
 
@@ -183,14 +207,61 @@ theme(plot.title = element_text(size =12, face = "bold", hjust = 0.45),
 legend.position="bottom")
 
 ```
-```{r}
-names(empl_churn)
-```
+
+
+## Education vs Churn
 
 ```{r}
 
+result <- compare_props(
+  empl_churn, 
+  var1 = "Education_Level", 
+  var2 = "Churn", 
+  levs = "No", 
+  comb = "Bachelor:College"
+)
+summary(result, show = FALSE)
+plot(result, plots = "dodge", custom = TRUE)+
+
+scale_fill_manual(values=c("gray", "#2166AC"))+
+
+ ggpubr::theme_pubclean()+
+
+
+  labs( x= " ",
+        y= "% of Churn",
+        title = "Attrition vs Education")+
+
+theme(plot.title = element_text(size =12, face = "bold", hjust = 0.45),
+legend.position="bottom")
 ```
 
-## 4. The Model
+- Employees with College degree have the highest number of people living the company
+
+```{r}
+
+ggplot(empl_churn) +
+ aes(x = Salary, y = Churn, fill = Churn) +
+ geom_boxplot() +
+
+scale_fill_manual(values=c("gray", "#2166AC"))+
+
+ ggpubr::theme_pubclean()
+
+
+```
+
+```{r}
+library(corrplot)
+GGally::ggpairs(empl_churn[, unlist(lapply(empl_churn, is.numeric))]) 
+
+```
+
+## 4. The Model- Binary Logistic regression for churn prediction
+
+```{r}
+test <- read.csv("C:/Users/karol/Desktop/test_hXY9mYw.csv", sep="")
+```
+
 
 

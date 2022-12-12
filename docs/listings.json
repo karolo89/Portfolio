@@ -2,9 +2,10 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/Employee Turnover/Analyzing Employee Turnover.html",
-      "/posts/Instacart/index.html",
       "/posts/Time-Series/TimeSeries.html",
+      "/posts/Employee Turnover/Analyzing Employee Turnover.html",
+      "/posts/Instacart/index.knit.html",
+      "/posts/Instacart/index.html",
       "/posts/Regression/Analyzing Employee Turnover.html"
     ]
   }

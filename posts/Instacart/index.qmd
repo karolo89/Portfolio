@@ -4,23 +4,23 @@ author: "Karol Orozco"
 date: "2022-10-21"
 ---
 
-## Background 
+## Background
 
 The data analyzed came for kaggle, https://www.kaggle.com/c/instacart-market-basket-analysis/data. The dataset is anonymized and contains a sample of over 3 million grocery orders from more than 200,000 Instacart users
 
 Once the dataset is downloaded, it weighs 200.7 MB in zip format. Once unzipped, six files appear:
 
-- departments.csv: Collect name and id for different departments.
+-   departments.csv: Collect name and id for different departments.
 
-- aisle.csv: That collects the corridors and the different sections.
+-   aisle.csv: That collects the corridors and the different sections.
 
-- products.csv: Collect all the products that are for sale in the store.
+-   products.csv: Collect all the products that are for sale in the store.
 
-- orders.csv: Collect all the orders made by customers, or which is the same, all the shopping carts (Market_Basket).
+-   orders.csv: Collect all the orders made by customers, or which is the same, all the shopping carts (Market_Basket).
 
-- order_products_prior.csv: Collect the products that were purchased in an order and all the customer’s purchase history throughout that year.
+-   order_products_prior.csv: Collect the products that were purchased in an order and all the customer's purchase history throughout that year.
 
-- order_products_train.csv: Collect the products that were purchased in an order reflecting the last basket purchased by each customer.
+-   order_products_train.csv: Collect the products that were purchased in an order reflecting the last basket purchased by each customer.
 
 For this analysis, we will use the order_products_train.csv, which offers a data sample of the order_products_prior.csv
 
@@ -53,8 +53,8 @@ products <- read.csv("C:/Users/karol/Desktop/DATA/INSTA/products.csv")
 aisles <- read.csv("C:/Users/karol/Desktop/DATA/INSTA/aisles.csv")
 ```
 
-
 #### Departments
+
 ```{r}
 glimpse(departments)
 
@@ -72,7 +72,6 @@ glimpse(order_products)
 ```{r}
 glimpse(orders)
 ```
-
 
 #### Products
 
@@ -114,7 +113,6 @@ data <- data %>% mutate(reordered = as.factor(reordered))
 
 
 ```
-
 
 ```{r}
 
@@ -179,17 +177,16 @@ day_weekp <-day_week %>%
 
 day_weekp
 ```
+
 So, from the above graph, its clear that Maximum no of orders are placed between 10:00AM and 5:00PM on Sunday and Monday.
 
 Actions: Develop strategies to increase sales during the quietest days of the week:
 
-- Offer discounts on certain items.
+-   Offer discounts on certain items.
 
-- Offer free delivery with orders over a specific dollar amount.
+-   Offer free delivery with orders over a specific dollar amount.
 
-Positive note: Customers can shop on a Wednesday or Thursday, and most likely, they will never encounter “out of stock” items or delivery/pick delays.
-
-
+Positive note: Customers can shop on a Wednesday or Thursday, and most likely, they will never encounter "out of stock" items or delivery/pick delays.
 
 ```{r}
 
@@ -213,7 +210,6 @@ data%>%
 ```
 
 Most customers wait approximately 30 days to place their next order, followed by another majority of customers who wait seven days to make their next purchase.
-
 
 #### Bestsellers Products
 
@@ -260,9 +256,7 @@ ggplot(aes(x=reorder(product_name,count), y=count, color= category, text= paste0
 ggplotly(best, tooltip = "text")
 ```
 
-       
 The highest ordered products are Banana, Bag of Organic Bananas, Organic Strawberries and Organic Baby Spinach. So to increase the sale of Strawberries the retailer can put it near the Bananas.
-
 
 ```{r, fig.show = "hide", results = "hide"}
 Prod_portf <- data %>% 
@@ -289,7 +283,6 @@ p <-  treemap(Prod_portf,
         title="Product Portfolio",
         sortID="-sumcount")
 ```
-
 
 ```{r}
 d3tree2( p,  rootname = "Portfolio" )

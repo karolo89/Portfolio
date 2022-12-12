@@ -1,337 +1,278 @@
 ---
 title: "Time Series Project"
 author: "Karol Orozco"
-date: "2022-10-04"
+date: "2022-12-04"
 ---
 
-```{r, message=FALSE, warning=FALSE}
 
-library(tidyverse)
-library(lubridate); library(tsibble)
-library(readxl)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
 library(fpp3)
-
-library(showtext)
-showtext_auto()
-
-library(plotly)
-library(feasts)
-library(glue)
-
-
-# Add fonts from Google.
-font_add_google("Roboto Mono", "Roboto Mono")
-font_add_google("Open Sans", "Open Sans")
-font_add_google("Special Elite", "Special Elite")
-
+library(tidyverse)
+library(knitr)
+library(lubridate)
+library(dplyr)
+library(fable)
+library(tsibble)
+library(hrbrthemes)
+library(fabletools)
 
 ```
 
-
-## Step 1: Problem Definition
-
-In this project, I will perform a time series analysis using Zillow's historical median home prices for the US from March 2015 to October 2022. The project aims to provide information on renting costs in Portland, OR, Colorado Springs, CO, and Orlando, FL, and find the month that offers the lowest price to move in.
-
-## Step 2: Gathering Information
-
-You can find this free dataset on the Zillow website: https://www.zillow.com/research/data/#other-metrics
-
+## The Data
 
 ```{r}
-raw_city <- read.csv("C:/Users/karol/Desktop/Portfolio/City_zori_sm_month.csv")
-```
+metrofour <- read.csv("C:/Users/karol/Desktop/City_zhvi_bdrmcnt_4_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv")
 
-- RegionID:	This is unique Id for the Regions
-- SizeRank:	This is the ranking done based on the size of the region
-- RegionName:	This field contains the name of the city.
-- RegionType:	Type of region.
-- StateName:	State
-- State:	This column provide the specific City Name of Housing Data
-- Metro:	This provide the name of the metro city around that region
-- County: Name	This is the county name for that region
-- Months: Column	These columns contains the prices of region for every month since 2015- 2022
+str(metrofour[,c(1:11)])
 
-## Step 3: Preliminary (exploratory) analysis.
-
-```{r}
-
-str(raw_city[,c(1:11)])
 ```
 
 We have to make this dataset tidy. Tidy Data is a way of structuring data so that it can be easily understood by people and analyzed by machines.
 
-I need to remove the X at the beginning of the dates (X3.31.2015,...)
+I need to remove the X at the beginning of the dates (X2000.01.31,X2000.02.29,…)
 
 ```{r}
-names(raw_city) <- sub("^X", "", names(raw_city))
-str(raw_city[,c(1:10)],10)
+names(metrofour) <- sub("^X", "", names(metrofour))
+
+str(metrofour[,c(1:11)])
 ```
 
-Now, I will create a new column called Price, where the values from the dates column will merge into it.
 
 ```{r}
-rent_city <- raw_city %>% 
-  pivot_longer(-c(RegionID,SizeRank,RegionName,RegionType,StateName,State,Metro,CountyName),
+house_price <- metrofour %>% 
+  pivot_longer(-c(RegionID, SizeRank, RegionName, RegionType, StateName, State, Metro, CountyName),
     names_to = "Monthly",
     values_to = "Price"
   ) 
-str(rent_city)
-
+str(metrofour[,c(1:11)])
 ```
 
 ```{r}
 #Converting the Date from factor to character
 
-rent_clean <- rent_city %>%
-            mutate(Monthly_parsed = as.Date(Monthly,"%m.%d.%Y"))
+house_clean <- house_price %>%
+            mutate(Monthly_parsed = as.Date(Monthly,"%Y.%m.%d"))
 
 
-rent_clean[["Monthly"]]<- as.character(rent_clean$Monthly)
+house_clean[["Monthly"]]<- as.character(house_clean$Monthly)
 
-rent_city[["Monthly"]]<- as.character(rent_city$Monthly)
-summary(rent_city)
+house_price[["Monthly"]]<- as.character(house_price $Monthly)
+summary(house_clean)
 ```
-
-
-We see some missing values in the Price variable, but before I deal with those values, I will filter my data to the cities that I am interested the most: Houston, Orlando, and Portland.
+We see some missing values in the Price variable, but before I deal with those values, I will filter my data to the cities that I am interested the most
 
 
 ```{r}
+pdx_data <- house_clean %>%
+  dplyr:::filter(RegionID== 13373)  %>%
+  dplyr:::filter(Monthly_parsed >= "2014-01-01")
 
-preferred_cities <- rent_clean %>%
-  dplyr:::filter(RegionName %in% c("Colorado Springs", "Orlando", "Portland")) %>%
-  dplyr:::filter(RegionID %in% c("4172", "13121", "13373"))
+summary(pdx_data)
 
-summary(preferred_cities)
 ```
+After filtering the data, we don’t have any missing values
 
-
-- After filtering the data, we don't have any missing values
-- We see that the date goes from March 31, 2015, to September 30, 2022, with a monthly calculation of the rental value.
-- The monthly rent cost goes from 1,172 to 2,153 dollars
-
-#### Coerce to a tsibble with as_tsibble()- Three Cities
+### Coerce to a tsibble with as_tsibble()
 
 A time series can be recorded as a tsibble object in R. tsibble objects extend tidy data frames (tibble objects) by introducing temporal structure, and to do it, we need to declare key and index. In this case, the Monthly_parsed containing the data-time is the index and the RegionID is the key. Other columns can be considered as measured variables.
 
-```{r fig.height= 10, message=FALSE, warning=FALSE}
-
-tsb_pref_cities <- preferred_cities %>%
+```{r}
+tsb_pdx <- pdx_data %>%
                    select(RegionName,RegionID, Monthly_parsed, Price)
 
-tsb_pref_cities <-tsb_pref_cities%>%
+tsb_pref_pdx <-tsb_pdx%>%
   as_tsibble(key= RegionName, index= Monthly_parsed)%>%
                    index_by(year_month = ~ yearmonth(.))
 
-tsibble_df <-tsb_pref_cities%>%
+tsibble_pdx <-tsb_pref_pdx%>%
   select(-RegionID)%>%
-  as_tsibble(key= RegionName, index= year_month)
+  as_tsibble(key= RegionName, index= year_month)%>%
+  mutate(Prices = Price/1000)
 ```
 
-To visualize the data, I could usee the autoplot() command, but I rather to create my graph with ggplot.
+## Data Visualization
 
-```{r, message=FALSE, warning=FALSE, fig.width= 9}
+To visualize the data, I could use the autoplot() command, but I rather to create my graph with ggplot.
 
-plot_cities <- tsibble_df %>%
-  ggplot(aes(x= year_month, y= Price, color= RegionName)) +
-  geom_line(size=1)+
+```{r}
+plot_pdx_house <- tsibble_pdx %>%
+  ggplot(aes(x= year_month, y= Prices)) +
+  geom_line(size=1, color= "darkgreen")+
    
-    labs(y=" ", 
-       x= "Year",
-       title="Average Rent Price in Portland, Orlando & Houston, 2015-2022",
+    labs(y="Price in Thousands of Dollars ", 
+       x= " ",
+       title=" Four Bedroom House Prices in Portland, OR, 2012-2022 ",
        caption = "data:https://www.zillow.com/research/data")+
   scale_y_continuous(labels=scales::dollar_format())+
-  scale_colour_hue(name= " ")+
-# Set ggplot theme
-theme_set(theme_minimal(base_family = "Roboto Mono"))
-theme_update(
-  axis.text.y = element_text(size = 10),
-    axis.text.x = element_text(size = 10),
-  legend.title = element_text(size = 9),
-  plot.caption = element_text(
-    family = "Special Elite",
-    size = 10,
-    color = "grey70",
-    face = "bold",
-    margin = margin(5, 0, 20, 0)
-  ),
-  plot.margin = margin(10, 25, 10, 25)
-)
-
-plot_cities
+  theme_minimal()
 
 
-```
-#### Seasonal Plots
-
-```{r, fig.width= 9, warning=FALSE, message=FALSE}
-pdx <- tsibble_df %>%
-  filter(RegionName == "Portland")
-
-seas_pdx <- pdx%>%
-gg_season(Price, labels = "both")+
-  labs(x= "",
-       y= "",
-       title="Portland's Seasonal Plot")+
-  
-  scale_y_continuous(labels=scales::dollar_format())+
-# Set ggplot theme
-theme_set(theme_minimal(base_family = "Roboto Mono"))
-theme_update(
-
-  panel.grid.minor = element_blank(),
-  axis.text.x = element_blank(),
-  axis.text.y = element_text(size = 10),
-  axis.ticks = element_blank(),
-  axis.title.y = element_text(size = 13, margin = margin(r = 10)),
-  legend.title = element_text(size = 9),
-  plot.caption = element_text(
-    family = "Special Elite",
-    size = 10,
-    color = "grey70",
-    face = "bold",
-    margin = margin(5, 0, 20, 0)
-  ),
-  plot.margin = margin(10, 25, 10, 25)
-)
-seas_pdx
+plot_pdx_house 
 ```
 
-
-```{r, fig.width= 9, warning=FALSE, message=FALSE}
-colsp <- tsibble_df %>%
-  filter(RegionName == "Colorado Springs")
+Data is non- stationary, we can see a trend-cycle component in the graph above.
 
 
-seas_colsp <- colsp%>%
-gg_season(Price, labels = "both")+
-  labs(x= "",
-       y= "",
-       title="Colorado Springs' Seasonal Plot")+
-  scale_y_continuous(labels=scales::dollar_format())+
-# Set ggplot theme
-theme_set(theme_minimal(base_family = "Roboto Mono"))
-theme_update(
-  panel.grid.minor = element_blank(),
-  axis.text.x = element_blank(),
-  axis.text.y = element_text(size = 10),
-  axis.ticks = element_blank(),
-  axis.title.y = element_text(size = 13, margin = margin(r = 10)),
-  legend.title = element_text(size = 9),
-  plot.caption = element_text(
-    family = "Special Elite",
-    size = 10,
-    color = "grey70",
-    face = "bold",
-    margin = margin(5, 0, 20, 0)
-  ),
-  plot.margin = margin(10, 25, 10, 25)
-)
+## Determining Stationarity
 
-seas_colsp
+In our analysis, we use the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test (Kwiatkowski et al., 1992). In this test, the null hypothesis is that the data are stationary, and we look for evidence that the null hypothesis is false. Consequently, small p-values (e.g., less than 0.05) suggest that differencing is required. The test can be computed using the unitroot_kpss() function.
+
+```{r}
+tsibble_pdx%>%
+  features(Prices, unitroot_kpss)
 ```
 
-
-```{r, fig.width= 9, warning=FALSE, message=FALSE}
-orl <- tsibble_df %>%
-  filter(RegionName == "Orlando")
-
-
-seas_orl <- orl%>%
-gg_season(Price, labels = "both")+
-  labs(x= "",
-       y= "",
-       title="Orlando's Seasonal Plot")+
-  scale_y_continuous(labels=scales::dollar_format())+
-# Set ggplot theme
-theme_set(theme_minimal(base_family = "Roboto Mono"))
-theme_update(
-  panel.grid.minor = element_blank(),
-  axis.text.x = element_blank(),
-  axis.text.y = element_text(size = 10),
-  axis.ticks = element_blank(),
-  axis.title.y = element_text(size = 13, margin = margin(r = 10)),
-  legend.title = element_text(size = 9),
-  plot.caption = element_text(
-    family = "Special Elite",
-    size = 10,
-    color = "grey70",
-    face = "bold",
-    hjust = .5,
-    margin = margin(5, 0, 20, 0)
-  ),
-  plot.margin = margin(10, 25, 10, 25)
-)
-
-seas_orl
-```
-
-#### Subseries
+The p-value is reported as 0.01 if it is less than 0.01, and as 0.1 if it is greater than 0.1. In this case, the test statistic (1.946) is bigger than the 1% critical value, so the p-value is less than 0.01, indicating that the null hypothesis is rejected. That is, the data are not stationary.
 
 ```{r}
 
-pdx%>%
-gg_subseries(Price)+
-  labs(y= "Rent Price",
-       x= "Year")+theme_minimal()+
-  scale_y_continuous(labels=scales::dollar_format())+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+tsibble_pdx %>% 
+  features(Prices ,unitroot_ndiffs)
 
+```
+
+As we saw from the KPSS tests above, one difference (d) is required to make the tsibble_pdx data stationary.
+
+
+## Autocorrelation
+
+```{r}
+tsibble_pdx %>%
+  gg_tsdisplay(Prices,
+                     plot_type='partial')+
+       labs(y="Thousands of Dollars ", 
+       x= " ")
+```
+
+
+ACF does not drop quickly to zero, moreover the value is large and positive (almost 1 in this case). All these are signs of a non-stationary time series. Therefore it should be differenced to obtain a stationary series.
+
+PACF value r1 is almost 1. All other values ri,i >1 are small. This is a sign of a non stationary process that should be differenced in order to obtain a stationary series.
+
+The data are clearly non-stationary, so we will first take a seasonal difference. The seasonally differenced data are shown below:
+
+```{r}
+tsibble_pdx %>%
+  gg_tsdisplay(difference(Prices, 12),
+               plot_type='partial', lag=36) +
+  labs(title="Seasonally differenced", y="")
+```
+These are also clearly non-stationary, so we take a further first difference
+
+```{r}
+tsibble_pdx %>%
+  gg_tsdisplay(difference(Prices, 12) %>% difference(),
+               plot_type='partial', lag=36) +
+  labs(title = "Double differenced", y="")
+```
+
+Our aim now is to find an appropriate ARIMA model based on the ACF and PACF shown in the Double Differenced graph.
+
+
+## Seasonal Arima Model
+
+```{r}
+all_fit <- tsibble_pdx%>%
+  model(
+    arima212012 = ARIMA(Prices ~ pdq(2,1,2)+ PDQ(0,1,2)),
+    arima210011 = ARIMA(Prices ~ pdq(2,1,0)+ PDQ(0,1,1)),
+    stepwise = ARIMA(Prices),
+    search = ARIMA(Prices,stepwise=FALSE))
+
+```
+
+
+```{r}
+all_fit %>% pivot_longer(!RegionName,
+            names_to = "Model name", 
+            values_to = "Orders")
+```
+
+
+```{r}
+glance(all_fit) %>% arrange(AICc) %>% select(.model:BIC)
+```
+
+Of these models, the best is the ARIMA(2,1,2)(0,1,2)[12]model (i.e., it has the smallest AICc value).
+
+```{r}
+arima212012 <- tsibble_pdx %>%
+  model(arima212012 = ARIMA(Prices ~ pdq(2,1,2)+ PDQ(0,1,2)))%>%
+  report()
+```
+
+
+```{r}
+all_fit %>% select(arima212012) %>%
+  gg_tsresiduals()
 ```
 
 ```{r}
-colsp %>%
-gg_subseries(Price)+
-  labs(y= "Rent Price",
-       x= "Year")+theme_minimal()+
-  scale_y_continuous(labels=scales::dollar_format())+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+augment(all_fit) %>%
+  filter(.model=='arima212012') %>%
+  features(.innov, ljung_box, lag = 36, dof = 6)
 ```
-
-```{r}
-orl%>%
-gg_subseries(Price)+
-  labs(y= "Rent Price",
-       x= "Year")+theme_minimal()+
-  scale_y_continuous(labels=scales::dollar_format())+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-```
-#### Features: Summary
 
 
 ```{r}
-
-tsb_pref_cities %>%
-    features(Price, features = list(mean = mean, min = min, max = max, sd = sd,
-        quantile))
+tsibble_pdx %>%
+  model(ARIMA(Prices ~ pdq(2,1,2) + PDQ(0,1,2))) %>%
+  forecast() %>%
+  autoplot(tsibble_pdx) +
+  labs(y=" Thousands of $US ",
+       x =" ",
+       title="Forecast from the ARIMA(2,1,2)(0,1,2)[12] model\napplied to the Portland House Prices data")
 ```
 
-#### Decomposition Features
+## ETS
 
 ```{r}
-feast_pref_cities <-
-tsb_pref_cities %>% features(Price, feat_stl)
 
-feast_pref_cities
+fit_ets <- tsibble_pdx %>%
+  model(ETS(Prices))
+report(fit_ets)
+
 ```
 
-#### coef_hurst
-
-A measure of the degree to which adjacent observations depend on one another over time. Generically, this statistic takes values between zero and one with one indicating very high levels of dependence through time.
+The model selected is ETS(M,Ad,N)
 
 ```{r}
-tsb_pref_cities %>% features(Price,coef_hurst)
+components(fit_ets) %>%
+  autoplot() +
+  labs(title = "ETS(M,Ad,N) components")
 ```
-#### The Absence of Correlation
+
+Because this model has multiplicative errors, the innovation residuals are not equivalent to the regular residuals.
 
 ```{r}
-tsb_pref_cities %>% features(Price, features = list(box_pierce, ljung_box))
+fit_ets %>%
+    augment() %>%
+    select(.innov, .resid) %>%
+    pivot_longer(c(.innov, .resid)) %>%
+    autoplot()
 ```
 
 
+```{r}
+fit_ets%>%
+    gg_tsresiduals()
+```
 
-## Step 4: Choosing and fitting models
+```{r}
+fit_ets %>%
+  forecast(h = 24) %>%
+  autoplot(tsibble_pdx)
+```
 
 
-## Step 5: Using and evaluating a forecasting model
+```{r}
+bind_rows(
+    arima212012 %>% accuracy(),
+    fit_ets %>% accuracy()) %>%
+  select(-ME, -MPE, -ACF1)
+```
 
+In this case the ARIMA model seems to be more accurate model based on the test set RMSE, MAPE and MASE.
