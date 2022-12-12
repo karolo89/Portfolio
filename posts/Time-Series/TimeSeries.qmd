@@ -249,6 +249,11 @@ tsibble_pdx %>%
   labs(y=" Thousands of $US ",
        x =" ",
        title="Forecast from the ARIMA(2,1,2)(0,1,2)[12] model\napplied to the Portland House Prices data")
+
+##Price in Thousands of Dollars
+tsibble_pdx %>%
+  model(ARIMA(Prices ~ pdq(2,1,2) + PDQ(0,1,2))) %>%
+  forecast()
 ```
 
 ## ETS
