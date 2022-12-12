@@ -8,17 +8,21 @@ date: "2022-12"
 
 The goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area.
 
+
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ggplot2)
 library(readr)
 library(tidymodels)
 library(dplyr)
-library(patchwork)
+library(gt) ## tables
+library(ggmap)
+
+
 
 suppressWarnings(if(!require("pacman")) install.packages("pacman"))
 
-pacman::p_load('tidyverse', 'tidymodels', 'ranger','vip', 'ggplot2', 'readr')
+pacman::p_load('tidyverse', 'tidymodels', 'ranger','vip', 'ggplot2', 'readr', 'ggmap','gt' )
 ```
 
 ## Get the Data
@@ -66,11 +70,12 @@ raw_pdx <-  raw_pdx %>%
 
 ```
 
-#### Missing data
+### Missing data
 
 ```{r}
 is.na(raw_pdx) %>% colSums()
 ```
+
 
 ```{r}
 clean_data <- raw_pdx %>%
@@ -101,6 +106,7 @@ summary(clean_data)
 
 ```
 
+
 ```{r}
 clean_data <- 
   clean_data %>% 
@@ -110,11 +116,10 @@ clean_data <-
   mutate(price_category = as.factor(price_category)) 
 ```
 
-####  Take a look at the Data
+
+## Take a look at the Data
 
 ```{r}
-library(gt) ## tables
-
 clean_data %>% 
   count(price_category, 
         name ="total") %>%
@@ -133,7 +138,18 @@ clean_data %>%
   fmt_number(
     columns = vars(total),
     suffixing = TRUE
-  ) 
+  )  
+```
+
+```{r}
+qmplot(x = longitude, 
+       y = latitude, 
+       data = clean_data, 
+       geom = "point", 
+       color = price_category, 
+       alpha = 0.4) +
+  scale_alpha(guide = 'none')
+
 ```
 
 
@@ -160,11 +176,14 @@ glimpse(houses_pdx)
 
 ```{r}
 pdx_long <- houses_pdx %>% 
-  select(-homeType, -yearBuilt, -lotSize)%>%
+  select(-longitude,-latitude, -homeType, -yearBuilt, -lotSize)%>%
     pivot_longer(!price_category, names_to = "features", values_to = "values")
 
-```
 
+# Print the first 10 rows
+pdx_long %>% 
+  slice_head(n = 10)
+```
 ```{r}
 theme_set(theme_light())
 
@@ -177,22 +196,8 @@ pdx_long %>%
   theme(legend.position = "none")
 ```
 
-```{r}
 
-library(ggmap)
-
-qmplot(x = longitude, 
-       y = latitude, 
-       data = houses_pdx, 
-       geom = "point", 
-       color = price_category, 
-       alpha = 0.4) +
-  scale_alpha(guide = 'none')
-
-```
-
-
-####  Data Splitting
+### Data Splitting
 
 ```{r}
 
@@ -209,9 +214,7 @@ train_data <- training(data_split)
 test_data <- testing(data_split)
 ```
 
-####  Validaton Set
-
-We use k-fold crossvalidation to build a set of 5 validation folds with the function vfold_cv. We also use stratified sampling:
+### Validaton Set
 
 ```{r}
 house_folds <-
@@ -220,7 +223,7 @@ house_folds <-
           strata = price_category) 
 ```
 
-#### Data prepropecessing recipe
+
 
 ```{r}
 pdx_rec <-
@@ -228,8 +231,6 @@ pdx_rec <-
          data = train_data) %>%
   update_role(longitude, latitude, 
               new_role = "ID") %>% 
-  
-  step_log(bathrooms, bedrooms, livingArea) %>% ## step_log() will log transform data
   
   step_naomit(everything(), skip = TRUE) %>% 
   
@@ -251,10 +252,15 @@ summary(pdx_rec)
 
 ```
 
-## Model building
+```{r}
+prep_data <- 
+  pdx_rec %>% # use the recipe object
+  prep() %>% # perform the recipe on training data
+  juice() # extract only the preprocessed dataframe 
 
-####  Specify models: Logistic regression
+```
 
+## The Model- Logistic regression
 
 ```{r}
 log_spec <- # your model specification
@@ -266,22 +272,19 @@ log_spec <- # your model specification
 log_spec
 ```
 
-### Create workflows
-
-#### Bundle recipe and model with workflows
-
 ```{r}
+
 pdx_wflow <- # new workflow object
  workflow() %>% # use workflow function
  add_recipe(pdx_rec) %>%   # use the new recipe
  add_model(log_spec)   # add your model spec
 
 pdx_wflow
+
 ```
 
-### Logistic regression
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # save model coefficients for a fitted model object from a workflow
 
 get_model <- function(x) {
@@ -302,35 +305,26 @@ log_res_2 <-
       extract = get_model) # use extract and our new function
     ) 
 
-## To get the results use:
 
-log_res_2$.extracts[[1]][[1]]
-
-
-```
+## All of the results can be flattened and collected using:
 
 
-All of the results can be flattened and collected using:
-
-```{r}
 
 all_coef <- map_dfr(log_res_2$.extracts, ~ .x[[1]][[1]])
-filter(all_coef, term == "livingArea")
-
+filter(all_coef, term == "bedrooms")
 
 ```
 
-#### Performance metrics
+### Performance metrics
 
 Show performance for every single fold:
 
 ```{r}
 log_res_2 %>%  collect_metrics(summarize = FALSE)
 
-
 ```
 
-#### Collect predictions
+### Collect predictions
 
 To obtain the actual model predictions, we use the function collect_predictions and save the result as log_pred:
 
@@ -338,10 +332,8 @@ To obtain the actual model predictions, we use the function collect_predictions 
 log_pred <- 
   log_res_2 %>%
   collect_predictions()
-```
 
-#### Confusion matrix
-```{r}
+
 log_pred %>% 
   conf_mat(price_category, .pred_class) 
 ```
@@ -353,7 +345,7 @@ log_pred %>%
   theme_minimal()
 ```
 
-#### ROC Curve
+### ROC Curve
 
 ```{r}
 log_pred %>% 
@@ -378,17 +370,22 @@ tidy()%>%
   filter(p.value < 0.05)
 ```
 
+
+
+
 ```{r}
-library(vip) ##  the vip package helps us visualize the variable importance scores for the top features.
+library(vip)
 
 pdx_fit %>%
 extract_fit_parsnip() %>%
    vip(num_features = 5)+
   theme_minimal()
 ```
-#### Make predictions on the test set
+
+The two most important predictors in whether the median house value is above or below 551,000 dollars were the Living Area and the home type: Townhouse
 
 ```{r}
+# Make predictions on the test set
 pred_results <- test_data %>% 
   select(price_category) %>% 
   bind_cols(pdx_fit %>% 
@@ -400,8 +397,7 @@ pred_results <- test_data %>%
 pred_results %>% 
   slice_head(n = 10)
 ```
-
-Let's take a look at the confusion matrix:
+Let’s take a look at the confusion matrix:
 
 ```{r}
 pred_results%>% 
@@ -409,7 +405,6 @@ pred_results%>%
   autoplot(type = "heatmap")+
   theme_minimal()
 ```
-
 # Evaluate other desired metrics
 
 ```{r}
@@ -425,12 +420,11 @@ pred_results %>%
 
 ### Make a roc_chart
 
+Let’s create the ROC curve. Again, since the event we are predicting is the first level in the price_category factor (“above”), we provide roc_curve() with the relevant class probability .pred_above:
+
 ```{r}
 pred_results %>% 
   roc_curve(truth = price_category, .pred_above) %>% 
   autoplot()+
   theme_minimal()
 ```
-#### Reference
-
-Tidy Modeling with R- https://www.tmwr.org/
