@@ -8,13 +8,13 @@ date: "2022-12"
 
 The goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area.
 
-
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ggplot2)
 library(readr)
 library(tidymodels)
 library(dplyr)
+library(patchwork)
 
 suppressWarnings(if(!require("pacman")) install.packages("pacman"))
 
@@ -56,9 +56,9 @@ raw_pdx <-  raw_pdx %>%
     priceHistory.1.price= as.numeric(priceHistory.1.price),
     
     
-    schools0rating = as.factor(schools0rating),
-    schools1rating = as.factor(schools1rating),
-    schools2rating= as.factor(schools2rating),
+    ElementarySchoolrating = as.factor(ElementarySchoolrating),
+    MiddleSchoolsrating = as.factor(MiddleSchoolsrating),
+    HighSchoolRating= as.factor(HighSchoolRating),
     zipcode = as.factor(zipcode)
 
     
@@ -66,12 +66,11 @@ raw_pdx <-  raw_pdx %>%
 
 ```
 
-### Missing data
+#### Missing data
 
 ```{r}
 is.na(raw_pdx) %>% colSums()
 ```
-
 
 ```{r}
 clean_data <- raw_pdx %>%
@@ -88,13 +87,12 @@ clean_data <- raw_pdx %>%
   filter(!is.na(bathrooms))%>%
   filter(!is.na(lotSize))%>%
   filter(!is.na(propertyTaxRate))%>%
-  filter(!is.na(schools0distance))%>%
-  filter(!is.na(schools1distance))%>%
-  filter(!is.na(schools2distance))%>%
-  filter(!is.na(schools0rating))%>%
-  filter(!is.na(schools2rating))%>%
-  filter(!is.na(schools1rating))%>%
-  filter(!is.na(schools1rating))
+  filter(!is.na(ElementarySchooldistance))%>%
+  filter(!is.na(MiddleSchooldistance))%>%
+  filter(!is.na(HighSchooldistance))%>%
+  filter(!is.na(ElementarySchoolrating))%>%
+  filter(!is.na(MiddleSchoolsrating))%>%
+  filter(!is.na(HighSchoolRating))
 
 ```
 
@@ -102,7 +100,6 @@ clean_data <- raw_pdx %>%
 summary(clean_data)
 
 ```
-
 
 ```{r}
 clean_data <- 
@@ -113,8 +110,7 @@ clean_data <-
   mutate(price_category = as.factor(price_category)) 
 ```
 
-
-## Take a look at the Data
+####  Take a look at the Data
 
 ```{r}
 library(gt) ## tables
@@ -140,23 +136,6 @@ clean_data %>%
   ) 
 ```
 
-```{r}
-
-library(ggmap)
-
-qmplot(x = longitude, 
-       y = latitude, 
-       data = clean_data, 
-       geom = "point", 
-       color = price_category, 
-       alpha = 0.4) +
-  scale_alpha(guide = 'none')
-
-
-
-
-```
-
 
 ```{r}
 houses_pdx <-
@@ -171,10 +150,9 @@ houses_pdx <-
     bedrooms, 
     livingArea, 
     lotSize,
-    schools2distance,
-    schools1distance,
-    schools0distance,
-    schools1distance)
+    MiddleSchooldistance,
+    ElementarySchooldistance,
+    HighSchooldistance)
 
 glimpse(houses_pdx)
 
@@ -182,7 +160,7 @@ glimpse(houses_pdx)
 
 ```{r}
 pdx_long <- houses_pdx %>% 
-  select(-longitude,-latitude, -homeType, -yearBuilt, -lotSize)%>%
+  select(-homeType, -yearBuilt, -lotSize)%>%
     pivot_longer(!price_category, names_to = "features", values_to = "values")
 
 
@@ -190,6 +168,7 @@ pdx_long <- houses_pdx %>%
 pdx_long %>% 
   slice_head(n = 10)
 ```
+
 ```{r}
 theme_set(theme_light())
 
@@ -202,10 +181,22 @@ pdx_long %>%
   theme(legend.position = "none")
 ```
 
+```{r}
+
+library(ggmap)
+
+qmplot(x = longitude, 
+       y = latitude, 
+       data = houses_pdx, 
+       geom = "point", 
+       color = price_category, 
+       alpha = 0.4) +
+  scale_alpha(guide = 'none')
+
+```
 
 
-
-### Data Splitting
+####  Data Splitting
 
 ```{r}
 
@@ -222,7 +213,9 @@ train_data <- training(data_split)
 test_data <- testing(data_split)
 ```
 
-### Validaton Set
+####  Validaton Set
+
+We use k-fold crossvalidation to build a set of 5 validation folds with the function vfold_cv. We also use stratified sampling:
 
 ```{r}
 house_folds <-
@@ -231,7 +224,7 @@ house_folds <-
           strata = price_category) 
 ```
 
-
+#### Data prepropecessing recipe
 
 ```{r}
 pdx_rec <-
@@ -240,7 +233,7 @@ pdx_rec <-
   update_role(longitude, latitude, 
               new_role = "ID") %>% 
   
-  step_log(bathrooms, livingArea) %>% ## step_log() will log transform data
+  step_log(bathrooms, bedrooms, livingArea) %>% ## step_log() will log transform data
   
   step_naomit(everything(), skip = TRUE) %>% 
   
@@ -262,15 +255,10 @@ summary(pdx_rec)
 
 ```
 
-```{r}
-prep_data <- 
-  pdx_rec %>% # use the recipe object
-  prep() %>% # perform the recipe on training data
-  juice() # extract only the preprocessed dataframe 
+## Model building
 
-```
+####  Specify models: Logistic regression
 
-## The Model- Logistic regression
 
 ```{r}
 log_spec <- # your model specification
@@ -282,6 +270,10 @@ log_spec <- # your model specification
 log_spec
 ```
 
+### Create workflows
+
+#### Bundle recipe and model with workflows
+
 ```{r}
 pdx_wflow <- # new workflow object
  workflow() %>% # use workflow function
@@ -289,9 +281,9 @@ pdx_wflow <- # new workflow object
  add_model(log_spec)   # add your model spec
 
 pdx_wflow
-
 ```
 
+### Logistic regression
 
 ```{r}
 # save model coefficients for a fitted model object from a workflow
@@ -314,36 +306,35 @@ log_res_2 <-
       extract = get_model) # use extract and our new function
     ) 
 
-log_res_2$.extracts[[1]]
+## To get the results use:
 
-```
-
-To get the results use:
-
-```{r}
 log_res_2$.extracts[[1]][[1]]
 
+
 ```
+
 
 All of the results can be flattened and collected using:
 
 ```{r}
 
 all_coef <- map_dfr(log_res_2$.extracts, ~ .x[[1]][[1]])
-filter(all_coef, term == "bedrooms")
+filter(all_coef, term == "livingArea")
+
 
 ```
 
-### Performance metrics
+#### Performance metrics
 
 Show performance for every single fold:
 
 ```{r}
 log_res_2 %>%  collect_metrics(summarize = FALSE)
 
+
 ```
 
-### Collect predictions
+#### Collect predictions
 
 To obtain the actual model predictions, we use the function collect_predictions and save the result as log_pred:
 
@@ -351,8 +342,10 @@ To obtain the actual model predictions, we use the function collect_predictions 
 log_pred <- 
   log_res_2 %>%
   collect_predictions()
+```
 
-
+#### Confusion matrix
+```{r}
 log_pred %>% 
   conf_mat(price_category, .pred_class) 
 ```
@@ -364,7 +357,7 @@ log_pred %>%
   theme_minimal()
 ```
 
-### ROC Curve
+#### ROC Curve
 
 ```{r}
 log_pred %>% 
@@ -389,20 +382,17 @@ tidy()%>%
   filter(p.value < 0.05)
 ```
 
-
-
-
 ```{r}
-library(vip)
+library(vip) ##  the vip package helps us visualize the variable importance scores for the top features.
 
 pdx_fit %>%
 extract_fit_parsnip() %>%
-   vip()+
+   vip(num_features = 5)+
   theme_minimal()
 ```
+#### Make predictions on the test set
 
 ```{r}
-# Make predictions on the test set
 pred_results <- test_data %>% 
   select(price_category) %>% 
   bind_cols(pdx_fit %>% 
@@ -414,7 +404,8 @@ pred_results <- test_data %>%
 pred_results %>% 
   slice_head(n = 10)
 ```
-Let’s take a look at the confusion matrix:
+
+Let's take a look at the confusion matrix:
 
 ```{r}
 pred_results%>% 
@@ -422,6 +413,7 @@ pred_results%>%
   autoplot(type = "heatmap")+
   theme_minimal()
 ```
+
 # Evaluate other desired metrics
 
 ```{r}
@@ -443,3 +435,6 @@ pred_results %>%
   autoplot()+
   theme_minimal()
 ```
+#### Reference
+
+Tidy Modeling with R- https://www.tmwr.org/
