@@ -8,7 +8,8 @@ date: "2022-12"
 
 the goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area.
 
-```{r}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
 library(tidyverse)
 library(ggplot2)
 library(readr)

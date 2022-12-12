@@ -11,7 +11,7 @@ In this project, I will perform Time series analysis using the Zillow Home Value
 Here is the link: https://www.zillow.com/research/data/
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
 
 library(fpp3)
 library(tidyverse)
