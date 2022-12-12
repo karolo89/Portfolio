@@ -4,264 +4,356 @@ author: "Karol Orozco"
 date: "2022-12"
 ---
 
-## 1. Background
+## Background
 
-You work for the human capital department of a large corporation. The Board is worried about the relatively high turnover, and your team must look into ways to reduce the number of employees leaving the company. The team needs to understand better the situation, which employees are more likely to leave, and why. Once it is clear what variables impact employee churn, you can present your findings along with your ideas on how to attack the problem.
+the goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area. 
 
-#### Your challenge
-
-Create a report that covers the following:
-
--   Which designation has the highest employee turnover? Which one has the lowest?
--   Investigate which variables seem to be better predictors of employee departure.
--   What recommendations would you make regarding ways to reduce employee turnover?
-
-## 2. Get the Data
-
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.retina=3)
-
-library(tidyverse) 
+```{r}
+library(tidyverse)
 library(ggplot2)
-library(skimr)
-library(knitr)
-library(radiant)
-library(colorspace)
-library(dplyr)
-library(janitor)
-
+library(readr)
+library(tidymodels)
 
 ```
 
+## Get the Data
 
-
-
-```{r, echo=FALSE, warning= FALSE}
-
-empl_turnover<- read.csv("C:/Users/karol/Desktop/clean_churn.csv")
-
-head(empl_turnover)
-
+```{r}
+raw_pdx <- read.csv("C:/Users/karol/Desktop/PORTLAND HOUSE.csv", stringsAsFactors=TRUE)
 ```
 
-#### The variables are defined as follow:
+## Prepare the Data
 
-- MMMM-YY:  Reporting Date (Monthly)
+This data has 25731 obs. of  32 variables
 
-- Emp_ID: Unique id for employees
+```{r}
+## raw_pdx <- raw_pdx%>%select(-id)
 
-- Age: ge of the employee
-
-- Gender: Gender of the employee
-
-- City: City Code of the employee
-
-- Education_Level: Education level : Bachelor, Master or College
-
-- Salary: Salary of the employee
-
-- Dateofjoining: Joining date for the employee
-
-- LastWorkingDate: Last date of working for the employee
-
-- Joining Designation: Designation of the employee at the time of joining
-
-- Designation: Designation of the employee at the time of reporting
-
-- TotalBusinessValue: The total business value acquired by the employee in a month (negative business indicates cancellation/refund of sold insurance policies)
-
-- Quarterly Rating: Quarterly rating of the employee: 1,2,3,4 (higher is better)
-
-## 3. Prepare and Analyze the Data
-
-- This dataset contains 19104 obs. of  13 variables. We see some duplicate Employees ID, and we should remove them 
-
-```{r, echo=FALSE, warning= FALSE}
-## Remove Duplicated Employees ID
-
-empl_turnover<- empl_turnover[!duplicated(empl_turnover$Emp_ID), ]
-
-
+head(raw_pdx)
 ```
-
-Now we have 2,381 rows
-
-```{r, echo=FALSE, warning= FALSE}
-## Dates
-empl_turnover[["MMM.YY"]]<- as.Date(empl_turnover$MMM.YY)
-empl_turnover[["LastWorkingDate"]]<- as.Date(empl_turnover$LastWorkingDate)
-empl_turnover[["Dateofjoining"]]<- as.Date(empl_turnover$Dateofjoining)
-
-empl_turnover[["Emp_ID"]]<- as.character(empl_turnover$Emp_ID)
-
-## Factors
-empl_turnover[["Gender"]]<- as.factor(empl_turnover$Gender)
-empl_turnover[["Education_Level"]]<- as.factor(empl_turnover$Education_Level)
-empl_turnover[["Designation"]]<- as.factor(empl_turnover$Designation)
-empl_turnover[["Joining.Designation"]]<- as.factor(empl_turnover$Joining.Designation)
-
-empl_turnover[["Quarterly.Rating"]]<- as.factor(empl_turnover$Quarterly.Rating)
-
-##Other
-empl_turnover[["Emp_ID"]]<- as.character(empl_turnover$Emp_ID)
-empl_turnover[["X"]]<- as.character(empl_turnover$X)
-
-summary(empl_turnover)
-```
-
-- The median age is 33 years old
-
--   Now, we need to know that in order to predict if the employee will leave the company or not can be best predicted if we have last working day info available and hence although the missing percentage is high, it's not because of Null values but the employees are not planning to leave the company and hence have not provided the info.Therefore we should not remove this feature from our data, instead we need to treat this as our target variable.
-
-- Salary goes from 10747 to 188418 dollars
-
-- Most of the employees have a Master degree
 
 ```{r}
 
-empl_churn <- empl_turnover %>% mutate(Churn=  ifelse(is.na(LastWorkingDate), "No", "Yes"))
+# convert variables
 
-empl_churn$Churn.Numeric <- as.numeric(as.factor(empl_churn$Churn))-1
-
-glimpse(empl_churn)
-
-```
-
-
-#### Turnover
-
-Number of employees that left the company:
-
-The overall attrition rate in the company in average is 4.28%, which means that 102 employees have left the company during 2016-2017.``
-
-```{r}
-table(empl_churn$Churn)
-```
-
-```{r}
-ggplot(empl_churn,aes(x = Churn, group = Gender)) + 
-    geom_bar(aes(y = ..prop.., fill = factor(..x..)), 
-    stat="count", color = "black", alpha = 0.7) +
+raw_pdx <-  raw_pdx %>% 
   
-    geom_text(aes(label = scales::percent(..prop..),
-    y= ..prop.. ), stat= "count", position = position_stack(vjust = 0.5), size = 4.5) +
+  mutate(
+    
+    yearBuilt = as.numeric(yearBuilt),
+    bathrooms = as.numeric(bathrooms),
+    bedrooms = as.numeric(bedrooms),
+    daysOnZillow = as.numeric(daysOnZillow),
+    lastSoldPrice = as.numeric(lastSoldPrice ),
+    livingArea = as.numeric(livingArea),
+    lotSize= as.numeric(lotSize),
+    price = as.numeric(price),
+    priceHistory.1.price= as.numeric(priceHistory.1.price),
+    
+    
+    schools0rating = as.factor(schools0rating),
+    schools1rating = as.factor(schools1rating),
+    schools2rating= as.factor(schools2rating),
+    zipcode = as.factor(zipcode)
+
+    
+  )
+
+```
+
+### Missing data
+
+```{r}
+is.na(raw_pdx) %>% colSums()
+```
+
+```{r}
+clean_data <- raw_pdx %>%
+  filter(!is.na(yearBuilt))%>%
+  filter(!is.na(longitude))%>%
+  filter(!is.na(bedrooms))%>%
+  filter(!is.na(daysOnZillow))%>%
+  filter(!is.na(livingArea))%>%
+  filter(!is.na(priceHistory.1.price))%>%
+  filter(!is.na(hasFireplace))%>%
+  filter(!is.na(latitude))%>%
+  filter(!is.na(hasHeating))%>%
+  filter(!is.na(hasCooling))%>%
+  filter(!is.na(bathrooms))%>%
+  filter(!is.na(lotSize))%>%
+  filter(!is.na(propertyTaxRate))%>%
+  filter(!is.na(schools0distance))%>%
+  filter(!is.na(schools1distance))%>%
+  filter(!is.na(schools2distance))%>%
+  filter(!is.na(schools0rating))%>%
+  filter(!is.na(schools2rating))%>%
+  filter(!is.na(schools1rating))%>%
+  filter(!is.na(schools1rating))
+
+```
+
+```{r}
+summary(clean_data)
+
+```
+
+```{r}
+clean_data <- 
+  clean_data %>% 
+  mutate(price_category = case_when( 
+    price < 551000 ~ "below",
+    price >= 551000 ~ "above")) %>% 
+  mutate(price_category = as.factor(price_category)) 
+```
+
+
+
+
+```{r}
+library(gt) ## tables
+
+clean_data %>% 
+  count(price_category, 
+        name ="total") %>%
+  mutate(percent = total/sum(total)*100,
+         percent = round(percent, 2)) %>%
+ gt() %>%
+  tab_header(
+    title = "Portland, OR and its Metropolitan Area Median House Prices",
+    subtitle = "Above and below 551,000$"
+  ) %>%
+  cols_label(
+    price_category = "Price",
+    total = "Total",
+    percent = "Percent"
+  ) %>% 
+  fmt_number(
+    columns = vars(total),
+    suffixing = TRUE
+  ) 
+```
+
+
+```{r}
+
+library(ggmap)
+
+qmplot(x = longitude, 
+       y = latitude, 
+       data = clean_data, 
+       geom = "point", 
+       color = price_category, 
+       alpha = 0.4) +
+  scale_alpha(guide = 'none')
+```
+This image tells you that the housing prices are related to the location. 
+
+```{r}
+houses_pdx <-
+  clean_data %>% 
+  select( # select our predictors
+    longitude, 
+    latitude, 
+    price_category, 
+    bathrooms, 
+    yearBuilt, 
+    homeType,
+    bedrooms, 
+    livingArea, 
+    lotSize,
+    schools2distance,
+    schools1distance,
+    schools0distance,
+    schools1distance)
+
+glimpse(houses_pdx)
+
+```
+
+### Data Splitting
+
+```{r}
+
+# Fix the random numbers by setting the seed 
+# This enables the analysis to be reproducible 
+set.seed(504)
+
+# Put 3/4 of the data into the training set 
+data_split <- initial_split(houses_pdx, 
+                           prop = 3/4)
+
+# Create dataframes for the two sets:
+train_data <- training(data_split) 
+test_data <- testing(data_split)
+```
+
+### Validaton Set
+
+```{r}
+cv_folds <-
+ vfold_cv(train_data, 
+          v = 5, 
+          strata = price_category) 
+```
+
+```{r}
+pdx_rec <-
+  recipe(price_category ~ .,
+         data = train_data) %>%
+  update_role(longitude, latitude, 
+              new_role = "ID") %>% 
   
-    facet_grid(~Gender) +
+  step_log(bathrooms, bedrooms) %>% ## step_log() will log transform data
   
-    scale_y_continuous(labels = scales::percent)+
-
-    guides(fill = F)+
-    labs(
-    x = "Left", y = "Percentage",
-    title="Turnover Proportion by Gender")+
-   scale_fill_manual(values=c("gray", "#2166AC"))+
-    theme(text = element_text(size = 12), 
-    plot.title = element_text(hjust = 0.5), 
-    title = element_text(size = 12))+
-
-
- ggpubr::theme_pubclean()
+  step_naomit(everything(), skip = TRUE) %>% 
+  
+  step_novel(all_nominal(), -all_outcomes()) %>% # converts all nominal variables to factors and takes care of other issues related to categorical variables.
+  
+  step_normalize(all_numeric(), -all_outcomes(), 
+                 -longitude, -latitude) %>% # step_normalize() normalizes (center and scales) the numeric variables to have a standard deviation of one and a mean of zero
+  
+  step_dummy(all_nominal(), -all_outcomes()) %>% #converts our factor columns into numeric binary (0 and 1) variables.
+  
+  step_zv(all_numeric(), -all_outcomes()) %>% ## step_zv(): removes any numeric variables that have zero variance.
+  
+  step_corr(all_predictors(), threshold = 0.7, method = "spearman") # step_corr(): will remove predictor variables that have large correlations with other predictor variables.
 
 ```
-
-
-There is a small difference in the proportion of women and men that left the company. 
 
 
 ```{r}
-
-empl_turnover_prop <- empl_churn %>% 
-  tabyl(Designation, Churn) %>%
-  adorn_percentages("row") 
-kable(empl_turnover_prop,  caption = "Designation vs Attrition")
-```
--   The data shows that Destination 1 and 5 has the highest employee turnover rate, destination 4 and 3 has the lowest rate.
-
-#### Attrition vs Age
-
-The majority of employees that left the organization are in their 30's , and the proportion steadily declined.
-
-
-```{r, fig.width= 15}
-
-### Age vs Turnover
-
-
-empl_churn %>%
-group_by(Age, Churn)%>%
-ggplot(aes(x = Age, fill = Churn)) +
-geom_histogram(bins = 30L) +
-
-scale_fill_manual(values=c("gray", "#2166AC"))+
-
- ggpubr::theme_pubclean()+
-
-
-  labs( x= "Age",
-        y= "Number of Employees",
-        title = "Attrition vs Age")+
-
-theme(plot.title = element_text(size =12, face = "bold", hjust = 0.45),
-legend.position="bottom")
-
-```
-
-
-## Education vs Churn
-
-```{r}
-
-result <- compare_props(
-  empl_churn, 
-  var1 = "Education_Level", 
-  var2 = "Churn", 
-  levs = "No", 
-  comb = "Bachelor:College"
-)
-summary(result, show = FALSE)
-plot(result, plots = "dodge", custom = TRUE)+
-
-scale_fill_manual(values=c("gray", "#2166AC"))+
-
- ggpubr::theme_pubclean()+
-
-
-  labs( x= " ",
-        y= "% of Churn",
-        title = "Attrition vs Education")+
-
-theme(plot.title = element_text(size =12, face = "bold", hjust = 0.45),
-legend.position="bottom")
-```
-
-- Employees with College degree have the highest number of people living the company
-
-```{r}
-
-ggplot(empl_churn) +
- aes(x = Salary, y = Churn, fill = Churn) +
- geom_boxplot() +
-
-scale_fill_manual(values=c("gray", "#2166AC"))+
-
- ggpubr::theme_pubclean()
-
+summary(pdx_rec)
 
 ```
 
 ```{r}
-library(corrplot)
-GGally::ggpairs(empl_churn[, unlist(lapply(empl_churn, is.numeric))]) 
+prep_data <- 
+  pdx_rec %>% # use the recipe object
+  prep() %>% # perform the recipe on training data
+  juice() # extract only the preprocessed dataframe 
 
 ```
 
-## 4. The Model- Binary Logistic regression for churn prediction
+## The Model- Logistic regression
 
 ```{r}
-test <- read.csv("C:/Users/karol/Desktop/test_hXY9mYw.csv", sep="")
+log_spec <- # your model specification
+  logistic_reg() %>%  # model type
+  set_engine(engine = "glm") %>%  # model engine
+  set_mode("classification") # model mode
+
+# Show your model specification
+log_spec
 ```
 
 
+```{r}
+log_wflow <- # new workflow object
+ workflow() %>% # use workflow function
+ add_recipe(pdx_rec) %>%   # use the new recipe
+ add_model(log_spec)   # add your model spec
+
+log_wflow
+
+```
+
+```{r}
+log_res <- log_wflow %>% 
+  fit_resamples(
+    resamples = cv_folds, 
+    metrics = metric_set(
+    recall, precision, f_meas, 
+    accuracy, kap,
+    roc_auc, sens, spec),
+    control = control_resamples(
+    save_pred = TRUE)
+    ) 
+```
+
+```{r}
+# save model coefficients for a fitted model object from a workflow
+
+get_model <- function(x) {
+  pull_workflow_fit(x) %>% tidy()
+}
+
+# same as before with one exception
+log_res_2 <- 
+  log_wflow %>% 
+  fit_resamples(
+    resamples = cv_folds, 
+    metrics = metric_set(
+      recall, precision, f_meas, 
+      accuracy, kap,
+      roc_auc, sens, spec),
+    control = control_resamples(
+      save_pred = TRUE,
+      extract = get_model) # use extract and our new function
+    ) 
+
+log_res_2$.extracts[[1]]
+
+```
+To get the results use:
+
+```{r}
+log_res_2$.extracts[[1]][[1]]
+
+```
+All of the results can be flattened and collected using:
+
+```{r}
+
+all_coef <- map_dfr(log_res_2$.extracts, ~ .x[[1]][[1]])
+filter(all_coef, term == "livingArea")
+
+```
+
+### Performance metrics
+
+```{r}
+log_res %>%  collect_metrics(summarize = TRUE)
+
+```
+
+Show performance for every single fold:
+
+```{r}
+log_res %>%  collect_metrics(summarize = FALSE)
+
+```
+
+### Collect predictions
+To obtain the actual model predictions, we use the function collect_predictions and save the result as log_pred:
+
+```{r}
+log_pred <- 
+  log_res %>%
+  collect_predictions()
+
+log_pred %>% 
+  conf_mat(price_category, .pred_class) 
+```
+
+```{r}
+log_pred %>% 
+  conf_mat(price_category, .pred_class) %>% 
+  autoplot(type = "heatmap")
+```
+### ROC Curve
+
+```{r}
+log_pred %>% 
+  group_by(id) %>% # id contains our folds
+  roc_curve(price_category, .pred_above) %>% 
+  autoplot()
+```
+
+```{r}
+log_pred %>% 
+  ggplot() +
+  geom_density(aes(x = .pred_above, 
+                   fill = price_category), 
+               alpha = 0.5)
+```
 

@@ -202,358 +202,1173 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 <section id="background" class="level2">
-<h2 class="anchored" data-anchor-id="background">1. Background</h2>
-<p>You work for the human capital department of a large corporation. The Board is worried about the relatively high turnover, and your team must look into ways to reduce the number of employees leaving the company. The team needs to understand better the situation, which employees are more likely to leave, and why. Once it is clear what variables impact employee churn, you can present your findings along with your ideas on how to attack the problem.</p>
-<section id="your-challenge" class="level4">
-<h4 class="anchored" data-anchor-id="your-challenge">Your challenge</h4>
-<p>Create a report that covers the following:</p>
-<ul>
-<li>Which designation has the highest employee turnover? Which one has the lowest?</li>
-<li>Investigate which variables seem to be better predictors of employee departure.</li>
-<li>What recommendations would you make regarding ways to reduce employee turnover?</li>
-</ul>
-</section>
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>the goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area.</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+✔ ggplot2 3.4.0     ✔ purrr   0.3.4
+✔ tibble  3.1.8     ✔ dplyr   1.0.9
+✔ tidyr   1.2.0     ✔ stringr 1.4.1
+✔ readr   2.1.2     ✔ forcats 0.5.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.2.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ────────────────────────────────────── tidymodels 1.0.0 ──
+✔ broom        1.0.1     ✔ rsample      1.1.0
+✔ dials        1.0.0     ✔ tune         1.0.0
+✔ infer        1.0.3     ✔ workflows    1.0.0
+✔ modeldata    1.0.1     ✔ workflowsets 1.0.0
+✔ parsnip      1.0.1     ✔ yardstick    1.1.0
+✔ recipes      1.0.1     
+── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+✖ scales::discard() masks purrr::discard()
+✖ dplyr::filter()   masks stats::filter()
+✖ recipes::fixed()  masks stringr::fixed()
+✖ dplyr::lag()      masks stats::lag()
+✖ yardstick::spec() masks readr::spec()
+✖ recipes::step()   masks stats::step()
+• Use suppressPackageStartupMessages() to eliminate package startup messages</code></pre>
+</div>
+</div>
 </section>
 <section id="get-the-data" class="level2">
-<h2 class="anchored" data-anchor-id="get-the-data">2. Get the Data</h2>
+<h2 class="anchored" data-anchor-id="get-the-data">Get the Data</h2>
 <div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>raw_pdx <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"C:/Users/karol/Desktop/PORTLAND HOUSE.csv"</span>, <span class="at">stringsAsFactors=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="prepare-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="prepare-the-data">Prepare the Data</h2>
+<p>This data has 25731 obs. of 32 variables</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## raw_pdx &lt;- raw_pdx%&gt;%select(-id)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw_pdx)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  X     MMM.YY Emp_ID Age Gender City Education_Level Salary Dateofjoining
-1 1 2016-01-01      1  28   Male  C23          Master  57387    2015-12-24
-2 2 2016-02-01      1  28   Male  C23          Master  57387    2015-12-24
-3 3 2016-03-01      1  28   Male  C23          Master  57387    2015-12-24
-4 4 2017-11-01      2  31   Male   C7          Master  67016    2017-11-06
-5 5 2017-12-01      2  31   Male   C7          Master  67016    2017-11-06
-6 6 2016-12-01      4  43   Male  C13          Master  65603    2016-12-07
-  LastWorkingDate Joining.Designation Designation Total.Business.Value
-1            &lt;NA&gt;                   1           1              2381060
-2            &lt;NA&gt;                   1           1              -665480
-3      2016-03-11                   1           1                    0
-4            &lt;NA&gt;                   2           2                    0
-5            &lt;NA&gt;                   2           2                    0
-6            &lt;NA&gt;                   2           2                    0
-  Quarterly.Rating
-1                2
-2                2
-3                2
-4                1
-5                1
-6                1</code></pre>
+<pre><code>  id yearBuilt     City latitude longitude zipcode bathrooms bedrooms
+1  1      2007 Fairview 45.54357 -122.4418   97024         3        3
+2  2      2001 Fairview 45.54758 -122.4532   97024         3        3
+3  3      1982  Gresham 45.48823 -122.4444   97080         3        4
+4  4      1953 Portland 45.52663 -122.4641   97230         1        3
+5  5      1967  Gresham 45.51124 -122.4315   97030         3        6
+6  6      1967  Gresham 45.48799 -122.4162   97080         2        3
+  DateListed  DateSold daysOnZillow      homeType lastSoldPrice livingArea
+1  4/26/2021 5/21/2021           25     TOWNHOUSE        315400       1806
+2   3/1/2021 4/23/2021           53 SINGLE_FAMILY        400000       1518
+3  5/24/2021  6/4/2021           11 SINGLE_FAMILY        512000       2724
+4  5/24/2021  6/4/2021           11 SINGLE_FAMILY        348000       1217
+5  5/18/2021  6/1/2021           14     APARTMENT        510000       2400
+6  5/18/2021  6/1/2021           14 SINGLE_FAMILY        404200       1150
+  lotSize  price priceHistory.1.price propertyTaxRate hasCooling hasFireplace
+1    1555 315400               212000            1.12      FALSE         TRUE
+2    3484 400000               375000            1.12       TRUE         TRUE
+3    9583 512000               479000            1.12       TRUE         TRUE
+4   13939 348000               339500            1.12         NA         TRUE
+5    8545 510000               252450            1.12       TRUE           NA
+6    7000 404200               204500            1.12      FALSE         TRUE
+  hasGarage hasHeating hasView schools0distance schools0level schools0rating
+1     FALSE       TRUE   FALSE              0.4    Elementary              5
+2     FALSE       TRUE    TRUE              1.2    Elementary              5
+3     FALSE       TRUE    TRUE              0.8    Elementary              5
+4     FALSE       TRUE   FALSE              0.8    Elementary              2
+5     FALSE       TRUE   FALSE              0.3    Elementary              2
+6     FALSE       TRUE   FALSE              0.4    Elementary              2
+  schools1distance schools1level schools1rating schools2distance school2level
+1              1.1        Middle              2              2.6         High
+2              1.0        Middle              2              3.4         High
+3              1.7        Middle              6              1.4         High
+4              0.7        Middle              2              3.8         High
+5              0.9        Middle              6              0.3         High
+6              0.4        Middle              6              1.4         High
+  schools2rating
+1              3
+2              3
+3              3
+4              3
+5              3
+6              3</code></pre>
 </div>
 </div>
-<section id="the-variables-are-defined-as-follow" class="level4">
-<h4 class="anchored" data-anchor-id="the-variables-are-defined-as-follow">The variables are defined as follow:</h4>
-<ul>
-<li><p>MMMM-YY: Reporting Date (Monthly)</p></li>
-<li><p>Emp_ID: Unique id for employees</p></li>
-<li><p>Age: ge of the employee</p></li>
-<li><p>Gender: Gender of the employee</p></li>
-<li><p>City: City Code of the employee</p></li>
-<li><p>Education_Level: Education level : Bachelor, Master or College</p></li>
-<li><p>Salary: Salary of the employee</p></li>
-<li><p>Dateofjoining: Joining date for the employee</p></li>
-<li><p>LastWorkingDate: Last date of working for the employee</p></li>
-<li><p>Joining Designation: Designation of the employee at the time of joining</p></li>
-<li><p>Designation: Designation of the employee at the time of reporting</p></li>
-<li><p>TotalBusinessValue: The total business value acquired by the employee in a month (negative business indicates cancellation/refund of sold insurance policies)</p></li>
-<li><p>Quarterly Rating: Quarterly rating of the employee: 1,2,3,4 (higher is better)</p></li>
-</ul>
-</section>
-</section>
-<section id="prepare-and-analyze-the-data" class="level2">
-<h2 class="anchored" data-anchor-id="prepare-and-analyze-the-data">3. Prepare and Analyze the Data</h2>
-<ul>
-<li>This dataset contains 19104 obs. of 13 variables. We see some duplicate Employees ID, and we should remove them</li>
-</ul>
 <div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert variables</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>raw_pdx <span class="ot">&lt;-</span>  raw_pdx <span class="sc">%&gt;%</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">yearBuilt =</span> <span class="fu">as.numeric</span>(yearBuilt),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">bathrooms =</span> <span class="fu">as.numeric</span>(bathrooms),</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">bedrooms =</span> <span class="fu">as.numeric</span>(bedrooms),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">daysOnZillow =</span> <span class="fu">as.numeric</span>(daysOnZillow),</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">lastSoldPrice =</span> <span class="fu">as.numeric</span>(lastSoldPrice ),</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">livingArea =</span> <span class="fu">as.numeric</span>(livingArea),</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">lotSize=</span> <span class="fu">as.numeric</span>(lotSize),</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> <span class="fu">as.numeric</span>(price),</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">priceHistory.1.price=</span> <span class="fu">as.numeric</span>(priceHistory.<span class="fl">1.</span>price),</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">schools0rating =</span> <span class="fu">as.factor</span>(schools0rating),</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">schools1rating =</span> <span class="fu">as.factor</span>(schools1rating),</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">schools2rating=</span> <span class="fu">as.factor</span>(schools2rating),</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">zipcode =</span> <span class="fu">as.factor</span>(zipcode)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="missing-data" class="level3">
+<h3 class="anchored" data-anchor-id="missing-data">Missing data</h3>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">is.na</span>(raw_pdx) <span class="sc">%&gt;%</span> <span class="fu">colSums</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  id            yearBuilt                 City 
+                   0                  546                    0 
+            latitude            longitude              zipcode 
+                  13                   13                    0 
+           bathrooms             bedrooms           DateListed 
+                 484                  770                    0 
+            DateSold         daysOnZillow             homeType 
+                   0                    6                    0 
+       lastSoldPrice           livingArea              lotSize 
+                   0                  465                 2890 
+               price priceHistory.1.price      propertyTaxRate 
+                   0                 1419                   11 
+          hasCooling         hasFireplace            hasGarage 
+                4496                 4624                    0 
+          hasHeating              hasView     schools0distance 
+                   1                    0                   25 
+       schools0level       schools0rating     schools1distance 
+                   0                   25                   36 
+       schools1level       schools1rating     schools2distance 
+                   0                   36                 2242 
+        school2level       schools2rating 
+                   0                 2242 </code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>clean_data <span class="ot">&lt;-</span> raw_pdx <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(yearBuilt))<span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(longitude))<span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(bedrooms))<span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(daysOnZillow))<span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(livingArea))<span class="sc">%&gt;%</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(priceHistory.<span class="fl">1.</span>price))<span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hasFireplace))<span class="sc">%&gt;%</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(latitude))<span class="sc">%&gt;%</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hasHeating))<span class="sc">%&gt;%</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hasCooling))<span class="sc">%&gt;%</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(bathrooms))<span class="sc">%&gt;%</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(lotSize))<span class="sc">%&gt;%</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(propertyTaxRate))<span class="sc">%&gt;%</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(schools0distance))<span class="sc">%&gt;%</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(schools1distance))<span class="sc">%&gt;%</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(schools2distance))<span class="sc">%&gt;%</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(schools0rating))<span class="sc">%&gt;%</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(schools2rating))<span class="sc">%&gt;%</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(schools1rating))<span class="sc">%&gt;%</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(schools1rating))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(clean_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       id          yearBuilt             City         latitude    
+ Min.   :    1   Min.   :   0   Portland   :5232   Min.   :45.26  
+ 1st Qu.: 6207   1st Qu.:1965   Beaverton  :1456   1st Qu.:45.42  
+ Median :15156   Median :1989   Hillsboro  :1194   Median :45.47  
+ Mean   :13622   Mean   :1981   Lake Oswego: 942   Mean   :45.47  
+ 3rd Qu.:20440   3rd Qu.:2003   Tigard     : 913   3rd Qu.:45.52  
+ Max.   :25730   Max.   :2021   Gresham    : 845   Max.   :45.62  
+                                (Other)    :3906                  
+   longitude         zipcode        bathrooms        bedrooms     
+ Min.   :-123.1   97229  :  834   Min.   : 0.00   Min.   : 0.000  
+ 1st Qu.:-122.8   97045  :  713   1st Qu.: 2.00   1st Qu.: 3.000  
+ Median :-122.7   97007  :  706   Median : 3.00   Median : 3.000  
+ Mean   :-122.7   97086  :  632   Mean   : 2.78   Mean   : 3.568  
+ 3rd Qu.:-122.6   97123  :  599   3rd Qu.: 3.00   3rd Qu.: 4.000  
+ Max.   :-122.3   97068  :  573   Max.   :10.00   Max.   :10.000  
+                  (Other):10431                                   
+     DateListed          DateSold      daysOnZillow              homeType    
+ 8/9/2019 :   71   5/28/2021 :  159   Min.   :  1   APARTMENT        :   38  
+ 6/4/2021 :   66   6/30/2021 :  142   1st Qu.: 80   CONDO            :  136  
+ 3/30/2021:   65   10/30/2020:  137   Median :192   HOME_TYPE_UNKNOWN:    2  
+ 8/6/2019 :   64   7/31/2020 :  128   Mean   :187   SINGLE_FAMILY    :13659  
+ 8/19/2019:   62   4/30/2021 :  127   3rd Qu.:294   TOWNHOUSE        :  653  
+ 8/23/2019:   60   9/30/2020 :  122   Max.   :422                            
+ (Other)  :14100   (Other)   :13673                                          
+ lastSoldPrice       livingArea       lotSize             price        
+ Min.   :    443   Min.   :  416   Min.   :       0   Min.   :    500  
+ 1st Qu.: 450000   1st Qu.: 1664   1st Qu.:    4791   1st Qu.: 450000  
+ Median : 551000   Median : 2206   Median :    7405   Median : 551000  
+ Mean   : 634458   Mean   : 2399   Mean   :   17065   Mean   : 634827  
+ 3rd Qu.: 710000   3rd Qu.: 2892   3rd Qu.:   10018   3rd Qu.: 710000  
+ Max.   :6300000   Max.   :14014   Max.   :18992160   Max.   :6300000  
+                                                                       
+ priceHistory.1.price propertyTaxRate hasCooling      hasFireplace   
+ Min.   :    895      Min.   :1.010   Mode :logical   Mode :logical  
+ 1st Qu.: 415000      1st Qu.:1.080   FALSE:807       FALSE:645      
+ Median : 525000      Median :1.120   TRUE :13681     TRUE :13843    
+ Mean   : 594080      Mean   :1.113                                  
+ 3rd Qu.: 679992      3rd Qu.:1.130                                  
+ Max.   :6888000      Max.   :1.130                                  
+                                                                     
+ hasGarage       hasHeating       hasView        schools0distance
+ Mode :logical   Mode :logical   Mode :logical   Min.   :0.0000  
+ FALSE:14150     FALSE:24        FALSE:8574      1st Qu.:0.4000  
+ TRUE :338       TRUE :14464     TRUE :5914      Median :0.6000  
+                                                 Mean   :0.8057  
+                                                 3rd Qu.:1.0000  
+                                                 Max.   :9.4000  
+                                                                 
+    schools0level   schools0rating schools1distance    schools1level  
+           :    0   7      :2862   Min.   : 0.000             :    0  
+ Elementary:13077   5      :2359   1st Qu.: 0.800   Elementary:    3  
+ Primary   : 1411   6      :2323   Median : 1.300   High      :    0  
+                    8      :1606   Mean   : 1.546   Middle    :14485  
+                    3      :1368   3rd Qu.: 2.100                     
+                    4      :1332   Max.   :11.900                     
+                    (Other):2638                                      
+ schools1rating schools2distance school2level schools2rating
+ 5      :2347   Min.   : 0.100       :    0   5      :3804  
+ 8      :2262   1st Qu.: 1.000   High:14488   8      :2365  
+ 3      :2238   Median : 1.700                3      :1962  
+ 6      :2104   Mean   : 1.911                6      :1787  
+ 7      :1655   3rd Qu.: 2.500                9      :1746  
+ 4      :1595   Max.   :10.800                4      :1230  
+ (Other):2287                                 (Other):1594  </code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>clean_data <span class="ot">&lt;-</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  clean_data <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">price_category =</span> <span class="fu">case_when</span>( </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    price <span class="sc">&lt;</span> <span class="dv">551000</span> <span class="sc">~</span> <span class="st">"below"</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    price <span class="sc">&gt;=</span> <span class="dv">551000</span> <span class="sc">~</span> <span class="st">"above"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">price_category =</span> <span class="fu">as.factor</span>(price_category)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt) <span class="do">## tables</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'gt' was built under R version 4.2.2</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>clean_data <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(price_category, </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">name =</span><span class="st">"total"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> total<span class="sc">/</span><span class="fu">sum</span>(total)<span class="sc">*</span><span class="dv">100</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">percent =</span> <span class="fu">round</span>(percent, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a> <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Portland, OR and its Metropolitan Area Median House Prices"</span>,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Above and below 551,000$"</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">price_category =</span> <span class="st">"Price"</span>,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">total =</span> <span class="st">"Total"</span>,</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">percent =</span> <span class="st">"Percent"</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">vars</span>(total),</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">suffixing =</span> <span class="cn">TRUE</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Since gt v0.3.0, `columns = vars(...)` has been deprecated.
+• Please use `columns = c(...)` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Since gt v0.3.0, `columns = vars(...)` has been deprecated.
+• Please use `columns = c(...)` instead.</code></pre>
+</div>
+<div class="cell-output-display">
 
-</div>
-<p>Now we have 2,381 rows</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>      X                 MMM.YY              Emp_ID               Age       
- Length:2381        Min.   :2016-01-01   Length:2381        Min.   :21.00  
- Class :character   1st Qu.:2016-01-01   Class :character   1st Qu.:29.00  
- Mode  :character   Median :2016-07-01   Mode  :character   Median :33.00  
-                    Mean   :2016-08-29                      Mean   :33.09  
-                    3rd Qu.:2017-05-01                      3rd Qu.:37.00  
-                    Max.   :2017-12-01                      Max.   :58.00  
-                                                                           
-    Gender         City           Education_Level     Salary      
- Female: 977   Length:2381        Bachelor:795    Min.   : 10747  
- Male  :1404   Class :character   College :784    1st Qu.: 39104  
-               Mode  :character   Master  :802    Median : 55276  
-                                                  Mean   : 59209  
-                                                  3rd Qu.: 75765  
-                                                  Max.   :188418  
-                                                                  
- Dateofjoining        LastWorkingDate      Joining.Designation Designation
- Min.   :2010-04-01   Min.   :2015-12-31   1:1026              1:751      
- 1st Qu.:2015-06-29   1st Qu.:2016-01-07   2: 815              2:866      
- Median :2016-07-21   Median :2016-01-19   3: 493              3:611      
- Mean   :2016-02-08   Mean   :2016-03-12   4:  36              4:132      
- 3rd Qu.:2017-05-02   3rd Qu.:2016-01-26   5:  11              5: 21      
- Max.   :2017-12-28   Max.   :2017-12-18                                  
-                      NA's   :2279                                        
- Total.Business.Value Quarterly.Rating
- Min.   :-1590270     1:1649          
- 1st Qu.:       0     2: 411          
- Median :       0     3: 216          
- Mean   :  291175     4: 105          
- 3rd Qu.:  250590                     
- Max.   :10398160                     
-                                      </code></pre>
-</div>
-</div>
-<ul>
-<li><p>The median age is 33 years old</p></li>
-<li><p>Now, we need to know that in order to predict if the employee will leave the company or not can be best predicted if we have last working day info available and hence although the missing percentage is high, it’s not because of Null values but the employees are not planning to leave the company and hence have not provided the info.Therefore we should not remove this feature from our data, instead we need to treat this as our target variable.</p></li>
-<li><p>Salary goes from 10747 to 188418 dollars</p></li>
-<li><p>Most of the employees have a Master degree</p></li>
-</ul>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>empl_churn <span class="ot">&lt;-</span> empl_turnover <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Churn=</span>  <span class="fu">ifelse</span>(<span class="fu">is.na</span>(LastWorkingDate), <span class="st">"No"</span>, <span class="st">"Yes"</span>))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>empl_churn<span class="sc">$</span>Churn.Numeric <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(empl_churn<span class="sc">$</span>Churn))<span class="sc">-</span><span class="dv">1</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(empl_churn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Rows: 2,381
-Columns: 16
-$ X                    &lt;chr&gt; "1", "4", "6", "11", "14", "19", "22", "23", "29"…
-$ MMM.YY               &lt;date&gt; 2016-01-01, 2017-11-01, 2016-12-01, 2016-01-01, …
-$ Emp_ID               &lt;chr&gt; "1", "2", "4", "5", "6", "8", "11", "12", "13", "…
-$ Age                  &lt;int&gt; 28, 31, 43, 29, 31, 34, 28, 35, 29, 39, 30, 42, 2…
-$ Gender               &lt;fct&gt; Male, Male, Male, Male, Female, Male, Female, Mal…
-$ City                 &lt;chr&gt; "C23", "C7", "C13", "C9", "C11", "C2", "C19", "C2…
-$ Education_Level      &lt;fct&gt; Master, Master, Master, College, Bachelor, Colleg…
-$ Salary               &lt;int&gt; 57387, 67016, 65603, 46368, 78728, 70656, 42172, …
-$ Dateofjoining        &lt;date&gt; 2015-12-24, 2017-11-06, 2016-12-07, 2016-01-09, …
-$ LastWorkingDate      &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
-$ Joining.Designation  &lt;fct&gt; 1, 2, 2, 1, 3, 3, 1, 1, 1, 3, 2, 1, 1, 3, 1, 1, 1…
-$ Designation          &lt;fct&gt; 1, 2, 2, 1, 3, 3, 1, 1, 4, 3, 2, 1, 1, 3, 1, 1, 2…
-$ Total.Business.Value &lt;int&gt; 2381060, 0, 0, 0, 0, 0, 0, 500000, 250000, 0, 346…
-$ Quarterly.Rating     &lt;fct&gt; 2, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 2, 1, 1, 4, 2, 2…
-$ Churn                &lt;chr&gt; "No", "No", "No", "No", "No", "No", "No", "No", "…
-$ Churn.Numeric        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…</code></pre>
-</div>
-</div>
-<section id="turnover" class="level4">
-<h4 class="anchored" data-anchor-id="turnover">Turnover</h4>
-<p>Number of employees that left the company:</p>
-<p>The overall attrition rate in the company in average is 4.28%, which means that 102 employees have left the company during 2016-2017.``</p>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(empl_churn<span class="sc">$</span>Churn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-  No  Yes 
-2279  102 </code></pre>
-</div>
-</div>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(empl_churn,<span class="fu">aes</span>(<span class="at">x =</span> Churn, <span class="at">group =</span> Gender)) <span class="sc">+</span> </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..prop.., <span class="at">fill =</span> <span class="fu">factor</span>(..x..)), </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">stat=</span><span class="st">"count"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> scales<span class="sc">::</span><span class="fu">percent</span>(..prop..),</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span> ..prop.. ), <span class="at">stat=</span> <span class="st">"count"</span>, <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>), <span class="at">size =</span> <span class="fl">4.5</span>) <span class="sc">+</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_grid</span>(<span class="sc">~</span>Gender) <span class="sc">+</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent)<span class="sc">+</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">fill =</span> F)<span class="sc">+</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Left"</span>, <span class="at">y =</span> <span class="st">"Percentage"</span>,</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Turnover Proportion by Gender"</span>)<span class="sc">+</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>   <span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))<span class="sc">+</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>), </span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>), </span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))<span class="sc">+</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a> ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>There is a small difference in the proportion of women and men that left the company.</p>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>empl_turnover_prop <span class="ot">&lt;-</span> empl_churn <span class="sc">%&gt;%</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(Designation, Churn) <span class="sc">%&gt;%</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_percentages</span>(<span class="st">"row"</span>) </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(empl_turnover_prop,  <span class="at">caption =</span> <span class="st">"Designation vs Attrition"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<table class="table table-sm table-striped">
-<caption>Designation vs Attrition</caption>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Designation</th>
-<th style="text-align: right;">No</th>
-<th style="text-align: right;">Yes</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">1</td>
-<td style="text-align: right;">0.9227696</td>
-<td style="text-align: right;">0.0772304</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">2</td>
-<td style="text-align: right;">0.9607390</td>
-<td style="text-align: right;">0.0392610</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">3</td>
-<td style="text-align: right;">0.9852700</td>
-<td style="text-align: right;">0.0147300</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">4</td>
-<td style="text-align: right;">1.0000000</td>
-<td style="text-align: right;">0.0000000</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">5</td>
-<td style="text-align: right;">0.9523810</td>
-<td style="text-align: right;">0.0476190</td>
-</tr>
-</tbody>
+<div id="hsnprlidkw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+:where(#hsnprlidkw) .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+:where(#hsnprlidkw) .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+:where(#hsnprlidkw) .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+:where(#hsnprlidkw) .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+:where(#hsnprlidkw) .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+:where(#hsnprlidkw) .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+:where(#hsnprlidkw) .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+:where(#hsnprlidkw) .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+:where(#hsnprlidkw) .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+:where(#hsnprlidkw) .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+:where(#hsnprlidkw) .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+:where(#hsnprlidkw) .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+:where(#hsnprlidkw) .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+:where(#hsnprlidkw) .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#hsnprlidkw) .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+:where(#hsnprlidkw) .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+:where(#hsnprlidkw) .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#hsnprlidkw) .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+:where(#hsnprlidkw) .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#hsnprlidkw) .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+:where(#hsnprlidkw) .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#hsnprlidkw) .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#hsnprlidkw) .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#hsnprlidkw) .gt_left {
+  text-align: left;
+}
+
+:where(#hsnprlidkw) .gt_center {
+  text-align: center;
+}
+
+:where(#hsnprlidkw) .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+:where(#hsnprlidkw) .gt_font_normal {
+  font-weight: normal;
+}
+
+:where(#hsnprlidkw) .gt_font_bold {
+  font-weight: bold;
+}
+
+:where(#hsnprlidkw) .gt_font_italic {
+  font-style: italic;
+}
+
+:where(#hsnprlidkw) .gt_super {
+  font-size: 65%;
+}
+
+:where(#hsnprlidkw) .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+:where(#hsnprlidkw) .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+:where(#hsnprlidkw) .gt_indent_1 {
+  text-indent: 5px;
+}
+
+:where(#hsnprlidkw) .gt_indent_2 {
+  text-indent: 10px;
+}
+
+:where(#hsnprlidkw) .gt_indent_3 {
+  text-indent: 15px;
+}
+
+:where(#hsnprlidkw) .gt_indent_4 {
+  text-indent: 20px;
+}
+
+:where(#hsnprlidkw) .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" style="">Portland, OR and its Metropolitan Area Median House Prices</td>
+    </tr>
+    <tr>
+      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="">Above and below 551,000$</td>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Price">Price</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Total">Total</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Percent">Percent</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="price_category" class="gt_row gt_center">above</td>
+<td headers="total" class="gt_row gt_right">7.25K</td>
+<td headers="percent" class="gt_row gt_right">50.02</td></tr>
+    <tr><td headers="price_category" class="gt_row gt_center">below</td>
+<td headers="total" class="gt_row gt_right">7.24K</td>
+<td headers="percent" class="gt_row gt_right">49.98</td></tr>
+  </tbody>
+  
+  
 </table>
 </div>
 </div>
-<ul>
-<li>The data shows that Destination 1 and 5 has the highest employee turnover rate, destination 4 and 3 has the lowest rate.</li>
-</ul>
-</section>
-<section id="attrition-vs-age" class="level4">
-<h4 class="anchored" data-anchor-id="attrition-vs-age">Attrition vs Age</h4>
-<p>The majority of employees that left the organization are in their 30’s , and the proportion steadily declined.</p>
+</div>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Age vs Turnover</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>empl_churn <span class="sc">%&gt;%</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(Age, Churn)<span class="sc">%&gt;%</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Age, <span class="at">fill =</span> Churn)) <span class="sc">+</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_histogram</span>(<span class="at">bins =</span> 30L) <span class="sc">+</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))<span class="sc">+</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a> ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()<span class="sc">+</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>( <span class="at">x=</span> <span class="st">"Age"</span>,</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">y=</span> <span class="st">"Number of Employees"</span>,</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Attrition vs Age"</span>)<span class="sc">+</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.45</span>),</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="at">legend.position=</span><span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggmap)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output-display">
-<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="1440"></p>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggmap' was built under R version 4.2.2</code></pre>
 </div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ Google's Terms of Service: &lt;https://mapsplatform.google.com&gt;</code></pre>
 </div>
-</section>
-</section>
-<section id="education-vs-churn" class="level2">
-<h2 class="anchored" data-anchor-id="education-vs-churn">Education vs Churn</h2>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">compare_props</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  empl_churn, </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">var1 =</span> <span class="st">"Education_Level"</span>, </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var2 =</span> <span class="st">"Churn"</span>, </span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levs =</span> <span class="st">"No"</span>, </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">comb =</span> <span class="st">"Bachelor:College"</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(result, <span class="at">show =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Pairwise proportion comparisons
-Data      : empl_churn 
-Variables : Education_Level, Churn 
-Level     : No in Churn 
-Confidence: 0.95 
-Adjustment: None 
-
- Education_Level  No Yes     p   n n_missing    sd    se    me
-        Bachelor 766  29 0.964 795         0 0.187 0.007 0.013
-         College 740  44 0.944 784         0 0.230 0.008 0.016
-          Master 773  29 0.964 802         0 0.187 0.007 0.013
-
- Null hyp.            Alt. hyp.                       diff p.value  
- Bachelor = College   Bachelor not equal to College   0.02 0.063   .
-
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ Please cite ggmap if you use it! Use `citation("ggmap")` for details.</code></pre>
 </div>
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(result, <span class="at">plots =</span> <span class="st">"dodge"</span>, <span class="at">custom =</span> <span class="cn">TRUE</span>)<span class="sc">+</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))<span class="sc">+</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a> ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()<span class="sc">+</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>( <span class="at">x=</span> <span class="st">" "</span>,</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">y=</span> <span class="st">"% of Churn"</span>,</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Attrition vs Education"</span>)<span class="sc">+</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.45</span>),</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="at">legend.position=</span><span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qmplot</span>(<span class="at">x =</span> longitude, </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> latitude, </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">data =</span> clean_data, </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">geom =</span> <span class="st">"point"</span>, </span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> price_category, </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_alpha</span>(<span class="at">guide =</span> <span class="st">'none'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output-display">
-<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ Using `` zoom = `10` ``</code></pre>
 </div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.</code></pre>
 </div>
-<ul>
-<li>Employees with College degree have the highest number of people living the company</li>
-</ul>
-<div class="cell">
-<details>
-<summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>GGally<span class="sc">::</span><span class="fu">ggpairs</span>(empl_churn[, <span class="fu">unlist</span>(<span class="fu">lapply</span>(empl_churn, is.numeric))]) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 <div class="cell-output-display">
 <p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</section>
-<section id="the-model--binary-logistic-regression-for-churn-prediction" class="level2">
-<h2 class="anchored" data-anchor-id="the-model--binary-logistic-regression-for-churn-prediction">4. The Model- Binary Logistic regression for churn prediction</h2>
+<p>This image tells you that the housing prices are related to the location.</p>
 <div class="cell">
 <details>
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(empl_churn) <span class="sc">+</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">aes</span>(<span class="at">x =</span> Salary, <span class="at">y =</span> Churn, <span class="at">fill =</span> Churn) <span class="sc">+</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a> <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_fill_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">"gray"</span>, <span class="st">"#2166AC"</span>))<span class="sc">+</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a> ggpubr<span class="sc">::</span><span class="fu">theme_pubclean</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>houses_pdx <span class="ot">&lt;-</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  clean_data <span class="sc">%&gt;%</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>( <span class="co"># select our predictors</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    longitude, </span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    latitude, </span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    price_category, </span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    bathrooms, </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    yearBuilt, </span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    homeType,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    bedrooms, </span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    livingArea, </span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    lotSize,</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    schools2distance,</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    schools1distance,</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    schools0distance,</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    schools1distance)</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(houses_pdx)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 14,488
+Columns: 12
+$ longitude        &lt;dbl&gt; -122.4418, -122.4532, -122.4444, -122.4162, -122.4513…
+$ latitude         &lt;dbl&gt; 45.54357, 45.54758, 45.48823, 45.48799, 45.49818, 45.…
+$ price_category   &lt;fct&gt; below, below, below, below, below, below, below, belo…
+$ bathrooms        &lt;dbl&gt; 3.0, 3.0, 3.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 3.0…
+$ yearBuilt        &lt;dbl&gt; 2007, 2001, 1982, 1967, 1978, 2018, 2006, 2017, 1958,…
+$ homeType         &lt;fct&gt; TOWNHOUSE, SINGLE_FAMILY, SINGLE_FAMILY, SINGLE_FAMIL…
+$ bedrooms         &lt;dbl&gt; 3, 3, 4, 3, 3, 4, 3, 3, 4, 4, 3, 2, 4, 3, 4, 3, 3, 4,…
+$ livingArea       &lt;dbl&gt; 1806, 1518, 2724, 1150, 2036, 1947, 1548, 2209, 2838,…
+$ lotSize          &lt;dbl&gt; 1555, 3484, 9583, 7000, 6969, 4791, 5009, 5227, 6480,…
+$ schools2distance &lt;dbl&gt; 2.6, 3.4, 1.4, 1.4, 1.4, 2.2, 1.5, 1.4, 0.9, 2.3, 2.2…
+$ schools1distance &lt;dbl&gt; 1.1, 1.0, 1.7, 0.4, 2.1, 2.5, 0.5, 1.8, 0.3, 2.6, 2.5…
+$ schools0distance &lt;dbl&gt; 0.4, 1.2, 0.8, 0.4, 1.0, 0.3, 0.5, 1.0, 0.1, 0.4, 0.6…</code></pre>
+</div>
+</div>
+</section>
+<section id="data-splitting" class="level3">
+<h3 class="anchored" data-anchor-id="data-splitting">Data Splitting</h3>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix the random numbers by setting the seed </span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This enables the analysis to be reproducible </span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">504</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Put 3/4 of the data into the training set </span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>data_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(houses_pdx, </span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">prop =</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">4</span>)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create dataframes for the two sets:</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> <span class="fu">training</span>(data_split) </span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> <span class="fu">testing</span>(data_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="validaton-set" class="level3">
+<h3 class="anchored" data-anchor-id="validaton-set">Validaton Set</h3>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>cv_folds <span class="ot">&lt;-</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">vfold_cv</span>(train_data, </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">v =</span> <span class="dv">5</span>, </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">strata =</span> price_category) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>pdx_rec <span class="ot">&lt;-</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(price_category <span class="sc">~</span> .,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">data =</span> train_data) <span class="sc">%&gt;%</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(longitude, latitude, </span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">new_role =</span> <span class="st">"ID"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_log</span>(bathrooms, bedrooms) <span class="sc">%&gt;%</span> <span class="do">## step_log() will log transform data</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_naomit</span>(<span class="fu">everything</span>(), <span class="at">skip =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal</span>(), <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span> <span class="co"># converts all nominal variables to factors and takes care of other issues related to categorical variables.</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric</span>(), <span class="sc">-</span><span class="fu">all_outcomes</span>(), </span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">-</span>longitude, <span class="sc">-</span>latitude) <span class="sc">%&gt;%</span> <span class="co"># step_normalize() normalizes (center and scales) the numeric variables to have a standard deviation of one and a mean of zero</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal</span>(), <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span> <span class="co">#converts our factor columns into numeric binary (0 and 1) variables.</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_zv</span>(<span class="fu">all_numeric</span>(), <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span> <span class="do">## step_zv(): removes any numeric variables that have zero variance.</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_corr</span>(<span class="fu">all_predictors</span>(), <span class="at">threshold =</span> <span class="fl">0.7</span>, <span class="at">method =</span> <span class="st">"spearman"</span>) <span class="co"># step_corr(): will remove predictor variables that have large correlations with other predictor variables.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pdx_rec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 4
+   variable         type    role      source  
+   &lt;chr&gt;            &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;   
+ 1 longitude        numeric ID        original
+ 2 latitude         numeric ID        original
+ 3 bathrooms        numeric predictor original
+ 4 yearBuilt        numeric predictor original
+ 5 homeType         nominal predictor original
+ 6 bedrooms         numeric predictor original
+ 7 livingArea       numeric predictor original
+ 8 lotSize          numeric predictor original
+ 9 schools2distance numeric predictor original
+10 schools1distance numeric predictor original
+11 schools0distance numeric predictor original
+12 price_category   nominal outcome   original</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>prep_data <span class="ot">&lt;-</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  pdx_rec <span class="sc">%&gt;%</span> <span class="co"># use the recipe object</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> <span class="co"># perform the recipe on training data</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">juice</span>() <span class="co"># extract only the preprocessed dataframe </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="the-model--logistic-regression" class="level2">
+<h2 class="anchored" data-anchor-id="the-model--logistic-regression">The Model- Logistic regression</h2>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>log_spec <span class="ot">&lt;-</span> <span class="co"># your model specification</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">logistic_reg</span>() <span class="sc">%&gt;%</span>  <span class="co"># model type</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="at">engine =</span> <span class="st">"glm"</span>) <span class="sc">%&gt;%</span>  <span class="co"># model engine</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>) <span class="co"># model mode</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Show your model specification</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>log_spec</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Logistic Regression Model Specification (classification)
+
+Computational engine: glm </code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>log_wflow <span class="ot">&lt;-</span> <span class="co"># new workflow object</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co"># use workflow function</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a> <span class="fu">add_recipe</span>(pdx_rec) <span class="sc">%&gt;%</span>   <span class="co"># use the new recipe</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a> <span class="fu">add_model</span>(log_spec)   <span class="co"># add your model spec</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>log_wflow</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>══ Workflow ════════════════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: logistic_reg()
+
+── Preprocessor ────────────────────────────────────────────────────────────────
+7 Recipe Steps
+
+• step_log()
+• step_naomit()
+• step_novel()
+• step_normalize()
+• step_dummy()
+• step_zv()
+• step_corr()
+
+── Model ───────────────────────────────────────────────────────────────────────
+Logistic Regression Model Specification (classification)
+
+Computational engine: glm </code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>log_res <span class="ot">&lt;-</span> log_wflow <span class="sc">%&gt;%</span> </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> cv_folds, </span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">metrics =</span> <span class="fu">metric_set</span>(</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    recall, precision, f_meas, </span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    accuracy, kap,</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    roc_auc, sens, spec),</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">control =</span> <span class="fu">control_resamples</span>(</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">save_pred =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>    ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>! Fold5: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save model coefficients for a fitted model object from a workflow</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>get_model <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull_workflow_fit</span>(x) <span class="sc">%&gt;%</span> <span class="fu">tidy</span>()</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a><span class="co"># same as before with one exception</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>log_res_2 <span class="ot">&lt;-</span> </span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  log_wflow <span class="sc">%&gt;%</span> </span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> cv_folds, </span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">metrics =</span> <span class="fu">metric_set</span>(</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>      recall, precision, f_meas, </span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>      accuracy, kap,</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>      roc_auc, sens, spec),</span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">control =</span> <span class="fu">control_resamples</span>(</span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">save_pred =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">extract =</span> get_model) <span class="co"># use extract and our new function</span></span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>    ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>! Fold5: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: More than one set of outcomes were used when tuning. This should never
+happen. Review how the outcome is specified in your model.</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>log_res_2<span class="sc">$</span>.extracts[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>NULL</code></pre>
+</div>
+</div>
+<p>To get the results use:</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>log_res_2<span class="sc">$</span>.extracts[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>NULL</code></pre>
+</div>
+</div>
+<p>All of the results can be flattened and collected using:</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>all_coef <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(log_res_2<span class="sc">$</span>.extracts, <span class="sc">~</span> .x[[<span class="dv">1</span>]][[<span class="dv">1</span>]])</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(all_coef, term <span class="sc">==</span> <span class="st">"livingArea"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+  term       estimate std.error statistic p.value
+  &lt;chr&gt;         &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 livingArea    -2.89    0.0634     -45.5       0
+2 livingArea    -2.78    0.0614     -45.2       0
+3 livingArea    -2.79    0.0618     -45.2       0
+4 livingArea    -2.82    0.0627     -45.0       0</code></pre>
+</div>
+</div>
+<section id="performance-metrics" class="level3">
+<h3 class="anchored" data-anchor-id="performance-metrics">Performance metrics</h3>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>log_res <span class="sc">%&gt;%</span>  <span class="fu">collect_metrics</span>(<span class="at">summarize =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 6
+  .metric   .estimator  mean     n std_err .config             
+  &lt;chr&gt;     &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 accuracy  binary     0.819     5 0.00472 Preprocessor1_Model1
+2 f_meas    binary     0.816     5 0.00516 Preprocessor1_Model1
+3 kap       binary     0.639     5 0.00943 Preprocessor1_Model1
+4 precision binary     0.834     5 0.00437 Preprocessor1_Model1
+5 recall    binary     0.799     5 0.00714 Preprocessor1_Model1
+6 roc_auc   binary     0.899     5 0.00368 Preprocessor1_Model1
+7 sens      binary     0.799     5 0.00714 Preprocessor1_Model1
+8 spec      binary     0.840     5 0.00445 Preprocessor1_Model1</code></pre>
+</div>
+</div>
+<p>Show performance for every single fold:</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>log_res <span class="sc">%&gt;%</span>  <span class="fu">collect_metrics</span>(<span class="at">summarize =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 40 × 5
+   id    .metric   .estimator .estimate .config             
+   &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
+ 1 Fold1 recall    binary         0.786 Preprocessor1_Model1
+ 2 Fold1 precision binary         0.836 Preprocessor1_Model1
+ 3 Fold1 f_meas    binary         0.810 Preprocessor1_Model1
+ 4 Fold1 accuracy  binary         0.816 Preprocessor1_Model1
+ 5 Fold1 kap       binary         0.631 Preprocessor1_Model1
+ 6 Fold1 sens      binary         0.786 Preprocessor1_Model1
+ 7 Fold1 spec      binary         0.845 Preprocessor1_Model1
+ 8 Fold1 roc_auc   binary         0.901 Preprocessor1_Model1
+ 9 Fold2 recall    binary         0.778 Preprocessor1_Model1
+10 Fold2 precision binary         0.820 Preprocessor1_Model1
+# … with 30 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="collect-predictions" class="level3">
+<h3 class="anchored" data-anchor-id="collect-predictions">Collect predictions</h3>
+<p>To obtain the actual model predictions, we use the function collect_predictions and save the result as log_pred:</p>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>log_pred <span class="ot">&lt;-</span> </span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  log_res <span class="sc">%&gt;%</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_predictions</span>()</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>log_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conf_mat</span>(price_category, .pred_class) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Truth
+Prediction above below
+     above  4342   867
+     below  1095  4562</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>log_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conf_mat</span>(price_category, .pred_class) <span class="sc">%&gt;%</span> </span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>(<span class="at">type =</span> <span class="st">"heatmap"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="roc-curve" class="level3">
+<h3 class="anchored" data-anchor-id="roc-curve">ROC Curve</h3>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>log_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">%&gt;%</span> <span class="co"># id contains our folds</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">roc_curve</span>(price_category, .pred_above) <span class="sc">%&gt;%</span> </span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>log_pred <span class="sc">%&gt;%</span> </span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> .pred_above, </span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">fill =</span> price_category), </span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Analyzing-Employee-Turnover_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
