@@ -260,7 +260,8 @@ log_pred %>%
 ```{r}
 log_pred %>% 
   conf_mat(price_category, .pred_class) %>% 
-  autoplot(type = "heatmap")
+  autoplot(type = "heatmap")+
+  theme_minimal()
 ```
 
 ### ROC Curve
@@ -269,7 +270,8 @@ log_pred %>%
 log_pred %>% 
   group_by(id) %>% # id contains our folds
   roc_curve(price_category, .pred_above) %>% 
-  autoplot()
+  autoplot()+
+  theme_minimal()
 ```
 
 ```{r}
@@ -277,5 +279,6 @@ log_pred %>%
   ggplot() +
   geom_density(aes(x = .pred_above, 
                    fill = price_category), 
-               alpha = 0.5)
+               alpha = 0.5)+
+  theme_minimal()
 ```
