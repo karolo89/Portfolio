@@ -6,10 +6,9 @@ date: "2022-12"
 
 ## Background
 
-the goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area.
+The goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 library(tidyverse)
 library(ggplot2)
 library(readr)
@@ -20,92 +19,11 @@ library(tidymodels)
 ## Get the Data
 
 ```{r}
-raw_pdx <- read.csv("C:/Users/karol/Desktop/PORTLAND HOUSE.csv", stringsAsFactors=TRUE)
-```
-
-## Prepare the Data
-
-This data has 25731 obs. of 32 variables
-
-```{r}
-## raw_pdx <- raw_pdx%>%select(-id)
-
-head(raw_pdx)
-```
-
-```{r}
-
-# convert variables
-
-raw_pdx <-  raw_pdx %>% 
-  
-  mutate(
-    
-    yearBuilt = as.numeric(yearBuilt),
-    bathrooms = as.numeric(bathrooms),
-    bedrooms = as.numeric(bedrooms),
-    daysOnZillow = as.numeric(daysOnZillow),
-    lastSoldPrice = as.numeric(lastSoldPrice ),
-    livingArea = as.numeric(livingArea),
-    lotSize= as.numeric(lotSize),
-    price = as.numeric(price),
-    priceHistory.1.price= as.numeric(priceHistory.1.price),
-    
-    
-    schools0rating = as.factor(schools0rating),
-    schools1rating = as.factor(schools1rating),
-    schools2rating= as.factor(schools2rating),
-    zipcode = as.factor(zipcode)
-
-    
-  )
+clean_data <- read.csv("C:/Users/karol/Desktop/clean_data_pdx.csv", stringsAsFactors=TRUE)
 
 ```
 
-### Missing data
-
-```{r}
-is.na(raw_pdx) %>% colSums()
-```
-
-```{r}
-clean_data <- raw_pdx %>%
-  filter(!is.na(yearBuilt))%>%
-  filter(!is.na(longitude))%>%
-  filter(!is.na(bedrooms))%>%
-  filter(!is.na(daysOnZillow))%>%
-  filter(!is.na(livingArea))%>%
-  filter(!is.na(priceHistory.1.price))%>%
-  filter(!is.na(hasFireplace))%>%
-  filter(!is.na(latitude))%>%
-  filter(!is.na(hasHeating))%>%
-  filter(!is.na(hasCooling))%>%
-  filter(!is.na(bathrooms))%>%
-  filter(!is.na(lotSize))%>%
-  filter(!is.na(propertyTaxRate))%>%
-  filter(!is.na(schools0distance))%>%
-  filter(!is.na(schools1distance))%>%
-  filter(!is.na(schools2distance))%>%
-  filter(!is.na(schools0rating))%>%
-  filter(!is.na(schools2rating))%>%
-  filter(!is.na(schools1rating))%>%
-  filter(!is.na(schools1rating))
-
-```
-
-```{r}
-summary(clean_data)
-
-```
-
-```{r}
-clean_data <- 
-  clean_data %>% 
-  mutate(price_category = case_when( 
-    price < 551000 ~ "below",
-    price >= 551000 ~ "above")) %>% 
-  mutate(price_category = as.factor(price_category)) 
-```
+## Take a look at the Data
 
 ```{r}
 library(gt) ## tables
@@ -206,7 +124,7 @@ pdx_rec <-
   update_role(longitude, latitude, 
               new_role = "ID") %>% 
   
-  step_log(bathrooms, schools0distance, schools1distance, schools2distance, livingArea,yearBuilt ) %>% ## step_log() will log transform data
+  step_log(bathrooms) %>% ## step_log() will log transform data
   
   step_naomit(everything(), skip = TRUE) %>% 
   
@@ -308,7 +226,7 @@ All of the results can be flattened and collected using:
 ```{r}
 
 all_coef <- map_dfr(log_res_2$.extracts, ~ .x[[1]][[1]])
-filter(all_coef, term == "livingArea")
+filter(all_coef, term == "bedrooms")
 
 ```
 
