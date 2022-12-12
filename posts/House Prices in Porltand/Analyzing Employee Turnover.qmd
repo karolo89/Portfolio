@@ -6,7 +6,7 @@ date: "2022-12"
 
 ## Background
 
-the goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area. 
+the goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area.
 
 ```{r}
 library(tidyverse)
@@ -24,7 +24,7 @@ raw_pdx <- read.csv("C:/Users/karol/Desktop/PORTLAND HOUSE.csv", stringsAsFactor
 
 ## Prepare the Data
 
-This data has 25731 obs. of  32 variables
+This data has 25731 obs. of 32 variables
 
 ```{r}
 ## raw_pdx <- raw_pdx%>%select(-id)
@@ -106,9 +106,6 @@ clean_data <-
   mutate(price_category = as.factor(price_category)) 
 ```
 
-
-
-
 ```{r}
 library(gt) ## tables
 
@@ -133,7 +130,6 @@ clean_data %>%
   ) 
 ```
 
-
 ```{r}
 
 library(ggmap)
@@ -146,7 +142,8 @@ qmplot(x = longitude,
        alpha = 0.4) +
   scale_alpha(guide = 'none')
 ```
-This image tells you that the housing prices are related to the location. 
+
+This image tells you that the housing prices are related to the location.
 
 ```{r}
 houses_pdx <-
@@ -220,7 +217,6 @@ pdx_rec <-
 
 ```
 
-
 ```{r}
 summary(pdx_rec)
 
@@ -245,7 +241,6 @@ log_spec <- # your model specification
 # Show your model specification
 log_spec
 ```
-
 
 ```{r}
 log_wflow <- # new workflow object
@@ -294,12 +289,14 @@ log_res_2 <-
 log_res_2$.extracts[[1]]
 
 ```
+
 To get the results use:
 
 ```{r}
 log_res_2$.extracts[[1]][[1]]
 
 ```
+
 All of the results can be flattened and collected using:
 
 ```{r}
@@ -324,6 +321,7 @@ log_res %>%  collect_metrics(summarize = FALSE)
 ```
 
 ### Collect predictions
+
 To obtain the actual model predictions, we use the function collect_predictions and save the result as log_pred:
 
 ```{r}
@@ -340,6 +338,7 @@ log_pred %>%
   conf_mat(price_category, .pred_class) %>% 
   autoplot(type = "heatmap")
 ```
+
 ### ROC Curve
 
 ```{r}
@@ -356,4 +355,3 @@ log_pred %>%
                    fill = price_category), 
                alpha = 0.5)
 ```
-
