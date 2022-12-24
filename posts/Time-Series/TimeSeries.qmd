@@ -110,7 +110,8 @@ plot_pdx_house <- tsibble_pdx %>%
        x= " ",
        title=" Four Bedroom House Prices in Portland, OR, 2014-2022 ",
        caption = "data:https://www.zillow.com/research/data")+
-  scale_y_continuous(labels=scales::dollar_format())
+  scale_y_continuous(labels=scales::dollar_format())+
+   theme_light()
 
 
 plot_pdx_house 
@@ -181,16 +182,6 @@ tsibble_pdx %>%
                plot_type='partial', lag=36) +
   labs(title="Seasonally differenced", y="")
 ```
-
-These are also clearly non-stationary, so we take a further first difference
-
-```{r}
-tsibble_pdx %>%
-  gg_tsdisplay(difference(Prices, 12) %>% difference(),
-               plot_type='partial', lag=36) +
-  labs(title = "Double differenced", y="")
-```
-
 Our aim now is to find an appropriate ARIMA model based on the ACF and PACF shown in the Double Differenced graph.
 
 ## Seasonal Arima Model
@@ -246,7 +237,8 @@ tsibble_pdx %>%
   autoplot(tsibble_pdx) +
   labs(y=" Thousands of $US ",
        x =" ",
-       title="Forecast from the ARIMA(2,1,2)(0,1,2)[12] model applied to the Portland House Prices data")
+       title="Forecast from the ARIMA(2,1,2)(0,1,2)[12] model applied to the Portland House Prices data")+
+theme_minimal()
 
 ##Price in Thousands of Dollars
 tsibble_pdx %>%
@@ -291,7 +283,9 @@ fit_ets%>%
 ```{r}
 fit_ets %>%
   forecast(h = 24) %>%
-  autoplot(tsibble_pdx)
+  autoplot(tsibble_pdx)+
+
+   theme_light()
 ```
 
 ```{r}
