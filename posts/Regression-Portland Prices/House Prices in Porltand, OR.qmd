@@ -1,5 +1,5 @@
 ---
-title: "House Prices in Porltand, OR"
+title: "House Prices in Portland, OR"
 author: "Karol Orozco"
 date: "2022-12"
 ---
@@ -428,3 +428,7 @@ pred_results %>%
   autoplot()+
   theme_minimal()
 ```
+
+## Reference
+
+Tidymodels- https://www.tidymodels.org/ 

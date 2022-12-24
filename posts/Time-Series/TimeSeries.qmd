@@ -20,7 +20,7 @@ library(lubridate)
 library(dplyr)
 library(fable)
 library(tsibble)
-library(hrbrthemes)
+library(ggthemes)
 library(fabletools)
 
 ```
@@ -108,10 +108,9 @@ plot_pdx_house <- tsibble_pdx %>%
    
     labs(y="Price in Thousands of Dollars ", 
        x= " ",
-       title=" Four Bedroom House Prices in Portland, OR, 2012-2022 ",
+       title=" Four Bedroom House Prices in Portland, OR, 2014-2022 ",
        caption = "data:https://www.zillow.com/research/data")+
-  scale_y_continuous(labels=scales::dollar_format())+
-  theme_minimal()
+  scale_y_continuous(labels=scales::dollar_format())
 
 
 plot_pdx_house 
@@ -126,6 +125,7 @@ gg_subseries(Price/1000)+
        x= "Year")+theme_minimal()+
   scale_y_continuous(labels=scales::dollar_format())+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
 ```
 
 ```{r, fig.width= 10}
@@ -229,6 +229,11 @@ all_fit %>% select(arima212012) %>%
 ```
 
 ```{r}
+all_fit %>% select("search") %>%
+  gg_tsresiduals()
+```
+
+```{r}
 augment(all_fit) %>%
   filter(.model=='arima212012') %>%
   features(.innov, ljung_box, lag = 36, dof = 6)
@@ -241,7 +246,7 @@ tsibble_pdx %>%
   autoplot(tsibble_pdx) +
   labs(y=" Thousands of $US ",
        x =" ",
-       title="Forecast from the ARIMA(2,1,2)(0,1,2)[12] model\napplied to the Portland House Prices data")
+       title="Forecast from the ARIMA(2,1,2)(0,1,2)[12] model applied to the Portland House Prices data")
 
 ##Price in Thousands of Dollars
 tsibble_pdx %>%
@@ -274,7 +279,8 @@ fit_ets %>%
     augment() %>%
     select(.innov, .resid) %>%
     pivot_longer(c(.innov, .resid)) %>%
-    autoplot()
+    autoplot()+
+   theme_fivethirtyeight()
 ```
 
 ```{r}
