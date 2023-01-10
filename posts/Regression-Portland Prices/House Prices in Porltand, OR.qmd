@@ -8,7 +8,6 @@ date: "2022-12"
 
 The goal is to build a classification model to predict the type of median housing prices in Portland, OR and its metropolitan area.
 
-
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ggplot2)
@@ -76,7 +75,6 @@ raw_pdx <-  raw_pdx %>%
 is.na(raw_pdx) %>% colSums()
 ```
 
-
 ```{r}
 clean_data <- raw_pdx %>%
   filter(!is.na(yearBuilt))%>%
@@ -106,7 +104,6 @@ summary(clean_data)
 
 ```
 
-
 ```{r}
 clean_data <- 
   clean_data %>% 
@@ -115,7 +112,6 @@ clean_data <-
     price >= 551000 ~ "above")) %>% 
   mutate(price_category = as.factor(price_category)) 
 ```
-
 
 ## Take a look at the Data
 
@@ -152,7 +148,6 @@ qmplot(x = longitude,
 
 ```
 
-
 ```{r}
 houses_pdx <-
   clean_data %>% 
@@ -184,6 +179,7 @@ pdx_long <- houses_pdx %>%
 pdx_long %>% 
   slice_head(n = 10)
 ```
+
 ```{r}
 theme_set(theme_light())
 
@@ -195,7 +191,6 @@ pdx_long %>%
   scale_color_viridis_d(option = "plasma", end = .7) +
   theme(legend.position = "none")
 ```
-
 
 ### Data Splitting
 
@@ -222,8 +217,6 @@ house_folds <-
           v = 5, 
           strata = price_category) 
 ```
-
-
 
 ```{r}
 pdx_rec <-
@@ -282,7 +275,6 @@ pdx_wflow <- # new workflow object
 pdx_wflow
 
 ```
-
 
 ```{r, message=FALSE, warning=FALSE}
 # save model coefficients for a fitted model object from a workflow
@@ -370,9 +362,6 @@ tidy()%>%
   filter(p.value < 0.05)
 ```
 
-
-
-
 ```{r}
 library(vip)
 
@@ -397,7 +386,8 @@ pred_results <- test_data %>%
 pred_results %>% 
   slice_head(n = 10)
 ```
-Let’s take a look at the confusion matrix:
+
+Let's take a look at the confusion matrix:
 
 ```{r}
 pred_results%>% 
@@ -405,6 +395,7 @@ pred_results%>%
   autoplot(type = "heatmap")+
   theme_minimal()
 ```
+
 # Evaluate other desired metrics
 
 ```{r}
@@ -420,7 +411,7 @@ pred_results %>%
 
 ### Make a roc_chart
 
-Let’s create the ROC curve. Again, since the event we are predicting is the first level in the price_category factor (“above”), we provide roc_curve() with the relevant class probability .pred_above:
+Let's create the ROC curve. Again, since the event we are predicting is the first level in the price_category factor ("above"), we provide roc_curve() with the relevant class probability .pred_above:
 
 ```{r}
 pred_results %>% 
@@ -431,4 +422,4 @@ pred_results %>%
 
 ## Reference
 
-Tidymodels- https://www.tidymodels.org/ 
+Tidymodels- https://www.tidymodels.org/

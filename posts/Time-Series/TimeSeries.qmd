@@ -28,7 +28,7 @@ library(fabletools)
 ## The Data
 
 ```{r}
-metrofour <- read.csv("C:/Users/karol/Desktop/City_zhvi_bdrmcnt_4_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv")
+metrofour <- read.csv("https://raw.githubusercontent.com/karolo89/Raw_Data/main/City_zhvi_bdrmcnt_4_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv")
 
 str(metrofour[,c(1:11)])
 
@@ -182,6 +182,7 @@ tsibble_pdx %>%
                plot_type='partial', lag=36) +
   labs(title="Seasonally differenced", y="")
 ```
+
 Our aim now is to find an appropriate ARIMA model based on the ACF and PACF shown in the Double Differenced graph.
 
 ## Seasonal Arima Model
