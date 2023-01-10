@@ -1,5 +1,5 @@
 ---
-title: "Portfolio"
+title: "Project Portfolio"
 listing:
   contents: posts
   sort: "date desc"
