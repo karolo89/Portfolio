@@ -27,7 +27,7 @@ pacman::p_load('tidyverse', 'tidymodels', 'ranger','vip', 'ggplot2', 'readr', 'g
 ## Get the Data
 
 ```{r}
-raw_pdx <- read.csv("C:/Users/karol/Desktop/PORTLAND HOUSE.csv", stringsAsFactors=TRUE)
+raw_pdx <- read.csv("https://raw.githubusercontent.com/karolo89/Raw_Data/main/PORTLAND%20HOUSE.csv", stringsAsFactors=TRUE)
 ```
 
 ## Prepare the Data
