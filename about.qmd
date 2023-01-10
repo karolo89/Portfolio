@@ -15,4 +15,35 @@ about:
       href: https://github.com/karolo89
 ---
 
-About this blog
+Hi There,
+
+My name is Karol Orozco and I love digging into challenges and solving them with data-driven approaches. \
+\
+𝑰 𝒉𝒆𝒍𝒑 𝒐𝒓𝒈𝒂𝒏𝒊𝒛𝒂𝒕𝒊𝒐𝒏𝒔 𝒆𝒎𝒃𝒓𝒂𝒄𝒆 𝑺𝒉𝒂𝒓𝒆𝒅 𝑽𝒂𝒍𝒖𝒆 𝒃𝒚 𝒑𝒐𝒔𝒊𝒕𝒊𝒗𝒆𝒍𝒚 𝒊𝒎𝒑𝒂𝒄𝒕𝒊𝒏𝒈 𝒔𝒐𝒄𝒊𝒆𝒕𝒚 𝒂𝒏𝒅 𝒕𝒉𝒆 𝒆𝒏𝒗𝒊𝒓𝒐𝒏𝒎𝒆𝒏𝒕. 𝑻𝒉𝒆 𝒔𝒘𝒆𝒆𝒕 𝒔𝒑𝒐𝒕 𝒘𝒉𝒆𝒓𝒆 𝑷𝒓𝒐𝒇𝒊𝒕 𝒎𝒆𝒆𝒕𝒔 𝑷𝒖𝒓𝒑𝒐𝒔𝒆:\
+- Connect nonprofits and low-income populations with grants and other initiatives that reduce the economic burden and increase ridership on public transportation while reducing energy consumption and harmful carbon dioxide\
+- Apply a social lens to business development opportunities by including diverse suppliers and minority communities in our supply chain (multicultural contracts)\
+- Connect communities with transportation planners and leaders to improve the cluster by extending service limits and hours\
+\
+𝑰 𝒆𝒏𝒔𝒖𝒓𝒆 𝒄𝒖𝒍𝒕𝒖𝒓𝒂𝒍𝒍𝒚 𝒓𝒆𝒍𝒆𝒗𝒂𝒏𝒕 𝒅𝒂𝒕𝒂 𝒂𝒏𝒂𝒍𝒚𝒔𝒊𝒔 𝒃𝒚:\
+-Translate data reports and business jargon into plain language in English and Spanish\
+- Collect data by partnering with community-based, religious, or other organizations that work with members of the assessment's target communities\
+- Engage community members as data collectors and meeting there where they are\
+- Conduct key informant interviews with community leaders\
+- Share early results with community stakeholders to validate findings, obtain candid feedback, and adjust the interpretation of data\
+\
+𝑰 𝒆𝒅𝒖𝒄𝒂𝒕𝒆, 𝒓𝒆𝒇𝒊𝒏𝒆 𝒂𝒏𝒅 𝒅𝒓𝒊𝒗𝒆 𝒎𝒚𝒔𝒆𝒍𝒇 𝒕𝒐 𝒃𝒆 𝒂 𝒃𝒆𝒕𝒕𝒆𝒓 𝒑𝒆𝒓𝒔𝒐𝒏 𝒂𝒏𝒅 𝒍𝒆𝒂𝒅𝒆𝒓:\
+- I strive to create welcoming spaces and a sense of trust and belonging for all\
+- I am constantly learning because I never settle\
+- I build and encourage communication \
+- I champion collaboration and diversity in teams\
+- I offer and receive consistent feedback\
+- I practice active listening\
+- I recognize the work of others and their humanity\
+\
+There is a real person behind this profile, too! I enjoy meeting new people and hearing new perspectives. Please feel free to reach out if you'd like to talk to me about Family, Culture, Data, Community, and Business.\
+\
+𝑷𝒓𝒐𝒇𝒆𝒔𝒔𝒊𝒐𝒏𝒂𝒍 𝑺𝒌𝒊𝒍𝒍𝒔:\
+Data Analysis \| Team Development \| Partnership Management \| Business Development \| Diversity & Inclusion \| Strategic Planning \| Process Improvement \| Project Management \| People & Change\
+\
+𝑫𝒐𝒎𝒂𝒊𝒏 𝑲𝒏𝒐𝒘𝒍𝒆𝒅𝒈𝒆:\
+R \| Tableau \| SQL \| Community Affairs \| Strategic Management \| Leadership \| Community Engagement \| Latinx Community \| Shared Value
